@@ -1,8 +1,9 @@
 $(document).ready(function(){
 
-  document.addEventListener('contextmenu', function(e) {
+/*  document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
-});
+});*/
+
 
 /*    $("table tr .supprimer-eleve-link").click(function() {
         alert("889812");
