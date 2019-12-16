@@ -92,8 +92,8 @@ $(document).ready(function(){
                       age = liste_sous_etablissements[i].localisation;
                       
 
-                    nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule+ '²²'+ nom +'²²'+ prenom +'²²' + age +"'>" + '<th scope="row">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;">'+ matricule + '</td><td style="text-transform: uppercase;">' + nom + '</td><td style="text-transform: capitalize;">' + prenom + '</td><td>'+ age +'</td>' + '<td class="td-actions text-right">';
+                    nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule+ '²²'+ nom +'²²'+ prenom +'²²' + age +"'>" + '<th class="fix-col" scope="row">'+ (i+1) +
+                    '</th><td class="nom_sousetab fix-col1" style="text-transform: uppercase;">'+ matricule + '</td><td style="text-transform: uppercase;">' + nom + '</td><td style="text-transform: capitalize;">' + prenom + '</td><td>'+ age +'</td>' + '<td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="btn detail-eleve-link-ajax" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="btn modifier-eleve-link-ajax"><i class="material-icons">edit</i></button>';
                     del = '&nbsp;<button rel="tooltip" class="btn btn-danger supprimer-eleve-link-ajax"><i class="material-icons">close</i></button>' + "</td></tr>";                
@@ -488,7 +488,7 @@ $(document).ready(function(){
 
         var form = $(".recherche_sous_etablissement");
         var url_action = form.attr("action");
-        var trier_par = $(this).parents("th").attr("class");
+        var trier_par = $(this).parents("th").attr("class").split(" ")[0];
 
         $(this).attr("class", trier_par + " tri tri-desc");
 
@@ -525,7 +525,7 @@ $(document).ready(function(){
 
         var form = $(".recherche_sous_etablissement");
         var url_action = form.attr("action");
-        var trier_par = $(this).parents("th").attr("class")
+        var trier_par = $(this).parents("th").attr("class").split(" ")[0];
 
         $(this).attr("class", trier_par + " tri tri-asc");
 

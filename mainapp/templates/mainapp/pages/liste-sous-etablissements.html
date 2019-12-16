@@ -106,88 +106,88 @@
 
 
                   <div class="">
-  <div class="table-responsive ">
-    <div class="table-scroll">
-        <table class="table">
-          <thead>
-              <tr>
-                  <th class="fix-col">#</th>
-                  <th class="fix-col1">Designation</th>
-                  <th>Experience</th>
-                  <th>Technology</th>
-                  <th>Company</th>
-                  <th>Location</th>
-                  <th>Contact No.</th>
-                  <th>Address</th>
+<!--   <div class="table-responsive ">
+  <div class="table-scroll">
+      <table class="table">
+        <thead>
+            <tr>
+                <th class="fix-col">#</th>
+                <th class="fix-col1">Designation</th>
+                <th>Experience</th>
+                <th>Technology</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Contact No.</th>
+                <th>Address</th>
 
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-                  <td class="fix-col">1</td>
-                  <td class="fix-col1">Front End Developer</td>
-                  <td>5 yrs</td>
-                  <td>HTML,CSS</td>
-                  <td>Google</td>
-                  <td>California</td>
-                  <td>9876543210</td>
-                  <td>Google Office</td>
-              </tr>
-              <tr>
-                  <td class="fix-col">2</td>
-                  <td class="fix-col1">Front End Developer</td>
-                  <td>5 yrs</td>
-                  <td>HTML,CSS</td>
-                  <td>Google</td>
-                  <td>California</td>
-                  <td>9876543210</td>
-                  <td>Google Office</td>
-              </tr>
-              <tr>
-                  <td class="fix-col">3</td>
-                  <td class="fix-col1">Front End Developer</td>
-                  <td>5 yrs</td>
-                  <td>HTML,CSS</td>
-                  <td>Google</td>
-                  <td>California</td>
-                  <td>9876543210</td>
-                  <td>Google Office</td>
-              </tr>
-              <tr>
-                  <td class="fix-col">4</td>
-                  <td class="fix-col1">Front End Developer</td>
-                  <td>5 yrs</td>
-                  <td>HTML,CSS</td>
-                  <td>Google</td>
-                  <td>California</td>
-                  <td>9876543210</td>
-                  <td>Google Office</td>
-              </tr>
-              <tr>
-                  <td class="fix-col">5</td>
-                  <td class="fix-col1">Front End Developer</td>
-                  <td>5 yrs</td>
-                  <td>HTML,CSS</td>
-                  <td>Google</td>
-                  <td>California</td>
-                  <td>9876543210</td>
-                  <td>Google Office</td>
-              </tr>
-          </tbody>
-      </table>
-    </div>
-    
-</div>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="fix-col">1</td>
+                <td class="fix-col1">Front End Developer</td>
+                <td>5 yrs</td>
+                <td>HTML,CSS</td>
+                <td>Google</td>
+                <td>California</td>
+                <td>9876543210</td>
+                <td>Google Office</td>
+            </tr>
+            <tr>
+                <td class="fix-col">2</td>
+                <td class="fix-col1">Front End Developer</td>
+                <td>5 yrs</td>
+                <td>HTML,CSS</td>
+                <td>Google</td>
+                <td>California</td>
+                <td>9876543210</td>
+                <td>Google Office</td>
+            </tr>
+            <tr>
+                <td class="fix-col">3</td>
+                <td class="fix-col1">Front End Developer</td>
+                <td>5 yrs</td>
+                <td>HTML,CSS</td>
+                <td>Google</td>
+                <td>California</td>
+                <td>9876543210</td>
+                <td>Google Office</td>
+            </tr>
+            <tr>
+                <td class="fix-col">4</td>
+                <td class="fix-col1">Front End Developer</td>
+                <td>5 yrs</td>
+                <td>HTML,CSS</td>
+                <td>Google</td>
+                <td>California</td>
+                <td>9876543210</td>
+                <td>Google Office</td>
+            </tr>
+            <tr>
+                <td class="fix-col">5</td>
+                <td class="fix-col1">Front End Developer</td>
+                <td>5 yrs</td>
+                <td>HTML,CSS</td>
+                <td>Google</td>
+                <td>California</td>
+                <td>9876543210</td>
+                <td>Google Office</td>
+            </tr>
+        </tbody>
+    </table>
+  </div>
+  
+</div> -->
 
                   <div class="table-responsive">
-
-                        <table class="table table-striped table-hover">
+                        <div class="table-scroll">
+                          <table class="table table-striped table-hover">
                             <thead class="">
                               <tr>
-                                <th scope="col">#</th>
+                                <th scope="col" class="fix-col" >#</th>
                                 
-                                <th scope="col" class="nom_sousetab">
-                                    <span class="tri tri-asc">sous-etablissement
+                                <th scope="col" class="nom_sousetab fix-col1" >
+                                    <span class="tri tri-asc">Sous Etab
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
@@ -220,9 +220,9 @@
                             <tbody>
                                 {% for sousetablissement in page_active  %}
                                     <tr class="{{ sousetablissement.id }}²²{{ sousetablissement.nom_sousetab }}²²{{ sousetablissement.date_creation }}²²{{ sousetablissement.nom_fondateur }}²²{{ sousetablissement.localisation }}">
-                                      <th scope="row" class="detail-eleve-link-td">{{ forloop.counter }}</th>
+                                      <th scope="row" class="detail-eleve-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ sousetablissement.nom_sousetab }}</td>
+                                      <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ sousetablissement.nom_sousetab }}</td>
                                       <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ sousetablissement.date_creation }}</td>
                                       <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ sousetablissement.nom_fondateur }}</td>
                                       <td class="detail-eleve-link-td">{{ sousetablissement.localisation}}</td>
@@ -257,8 +257,8 @@
                             </tbody>
                             <tfoot>
                               <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">sous-etablissement</th>
+                                <th scope="col" class="fix-col">#</th>
+                                <th scope="col" class="fix-col1">Sous Etab</th>
                                 <th scope="col">Date de creation</th>
                                 <th scope="col">Nom Fondateur</th>
                                 <th scope="col">Localisation</th>                              
@@ -268,6 +268,8 @@
                             </tfoot>
                       
                         </table>
+                        </div>
+                        
 
                   </div>      
 
