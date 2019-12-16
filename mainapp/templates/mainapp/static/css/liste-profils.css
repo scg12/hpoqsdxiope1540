@@ -1,0 +1,74 @@
+.fileinput-new img, .photo, .image-profil, video {
+	border-radius: 10%;
+}
+
+
+/* pour la selection multiple des groupes utilisateurs */
+.groupes{
+	top: -160px;
+	position: absolute; 
+	z-index: 4;
+	background-color: #ccc;
+	list-style: none;
+	
+
+}
+
+.groupes > ul > li{
+	margin-left: -1rem;
+}
+
+.concept{
+
+	background-color: #0361cc;
+    background-image: linear-gradient(-180deg, #0679fc 0%, #0361cc 90%);
+
+	/*background-color: #0077CC;*/
+	color: #fff;
+	border-radius: 10px 10px 10px 10px;
+	margin-bottom: 10px;
+	display: inline-block;
+	font-size: 0.8em;
+	font-weight: bold;
+	padding: 5px;
+}
+
+/*table tbody tr:hover {
+	background-color: #0361cc;
+	box-shadow: 4px 4px 30px rgba(3, 97, 204, 0.5);
+	cursor: pointer;
+}*/
+
+/* fleche de navigation des modals box*/
+.precedent-modal-detail, .precedent-modal-supprimer, .precedent-modal-modifier, .suivant-modal-detail, .suivant-modal-modifier, .suivant-modal-supprimer{
+	cursor: pointer;
+}
+
+
+/*div > .dropdown-menu {
+	position: absolute; 
+	top: -126px;
+}*/
+
+
+/*.groupes {
+  position: fixed;
+  left: 2em;
+  top: 50%;
+  width: 13em;
+  margin-top: -2.5em;
+  background-color: #ccc;
+  list-style: none;
+}
+
+*/
+
+
+/* menu parametre fixé sur le coté de la page*/
+/*#menu {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  width: 8em;
+  margin-top: -2.5em;
+}*/

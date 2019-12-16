@@ -1,0 +1,150 @@
+
+
+<div id="menu-fixed"  class="fixed-plugin">
+
+     <div class="dropdown show-dropdown show">
+
+            <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fa fa-cog fa-2x"> </i>
+            </a>
+
+            <ul class="dropdown-menu etab">
+
+              <li class="header-title"> Sidebar Filters</li>
+
+              <li>
+                    <div id="changer_theme" class="{% url 'mainapp:modifier_theme' %}" style="width: 200px;padding-right: 0px;">
+
+                        <div class="theme theme-bleu active">
+                          <div class="blue²²sidebar-bleu²²bleu">
+                            <span class="badge badge-blue " data-color="blue"></span>
+                            <span style="position: relative; top: -6px">Bleu</span>
+                          </div>      
+                        </div>
+                        
+                        <div class="theme theme-vert">
+                          <div class="green²²sidebar-vert²²vert">
+                            <span class="badge badge-green" data-color="green"></span>
+                            <span style="position: relative; top: -6px">Vert</span>
+                          </div>
+                        </div>
+
+                        <div class="theme theme-violet" >
+                          <div class="purple²²sidebar-violet²²violet" >
+                            <span class="badge badge-purple" data-color="purple"></span>
+                            <span style="position: relative; top: -6px">Violet</span>                         
+                          </div>
+                        </div>
+
+                        <div class="theme theme-rose">
+                          <div class="rose²²sidebar-rose²²rose">                              
+                            <span class="badge badge-rose" data-color="rose"></span>
+                            <span style="position: relative; top: -6px">Rose</span>
+                          </div>
+                        </div>
+
+                        <div class="theme theme-jaune">
+                          <div class="yellow²²sidebar-jaune²²jaune">
+                            <span class="badge badge-yellow" data-color="yellow"></span>
+                            <span style="position: relative; top: -6px">Or</span>
+                          </div>
+                        </div>
+
+                        <div class="theme theme-turquoise">
+                            <div class="turquoise²²sidebar-turquoise²²turquoise">
+                              <span class="badge badge-turquoise" data-color="turquoise"></span>
+                            <span style="position: relative; top: -6px">Turquoise</span>
+                            </div>  
+                        </div>
+
+                        <div class="theme theme-orange">
+                          <div class="orange²²sidebar-orange²²orange">                            
+                              <span class="badge badge-orange" data-color="orange"></span>
+                              <span style="position: relative; top: -6px">Orange</span>
+                          </div>
+                        </div>
+
+                    </div>
+              
+              </li>
+              
+            </ul>           
+
+     </div> 
+      <div class="dropdown show-dropdown">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+           <i class="fa fa-home fa-2x"> </i>
+        </a>
+        <ul class="dropdown-menu"> 
+          <li class="header-title"> Sidebar Filters</li>
+          <li style="width: 200px;padding-right: 0px;">
+            <div><a href="{% url 'mainapp:liste_etablissements' %}" style="color: black;">Etablissement</a></div>
+            <div><a href="{% url 'mainapp:liste_sous_etablissements' %}" style="color: black;">Sous Etablissement</a></div>
+            <div>Cycle</div>
+            <div>Niveau</div>
+            <div>Classe</div>
+          </li>
+          
+        </ul>
+      </div>      
+
+      <div class="dropdown show-dropdown">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fa fa-book-open fa-2x"> </i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Sidebar Filters</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div>Matiere</div>
+                <div>Departement</div>
+              </li>
+              
+            </ul>
+      </div>
+
+      <div class="dropdown show-dropdown">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fa fa-warning fa-2x"> </i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Sidebar Filters</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div>Discipline</div>
+                <div>Condition renvoi</div>
+                <div>condition succès</div>
+              </li>
+              
+            </ul>
+      </div>
+
+      <div class="dropdown show-dropdown">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fa fa-user-graduate fa-2x"> </i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Sidebar Filters</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div>Type Apprenant</div>
+                <div>Appellation Apprenant</div>
+                <div>Bourse</div>
+              </li>
+              
+            </ul>
+      </div>
+
+      <div class="dropdown show-dropdown">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="far fa-calendar-alt fa-2x"></i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Sidebar Filters</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div>Division Année</div>
+                <div>Division journée</div>
+                <div>Periode de Cours</div>
+              </li>
+              
+            </ul>
+      </div>
+               
+</div>

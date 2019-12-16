@@ -1,0 +1,796 @@
+{% load i18n static %}
+<!doctype html>
+<html lang="en">
+<head>
+<!-- 
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+ -->
+
+  <meta charset="utf-8" />
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>
+    CURSUS
+  </title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+
+<style type="text/css">
+.table-scroll {
+    margin-left: 140px;
+    overflow-x: scroll;
+    overflow-y: visible;
+    /* border-left: solid 1px rgb(75, 90, 102); */
+   
+}
+
+.fix-col {
+    /*border-left: solid 1px rgb(75, 90, 102);
+    border-right: solid 1px rgb(75, 90, 102);*/
+    left: 20px;
+    position: absolute;
+    top: auto;
+    width: 40px;
+}
+.fix-col1 {
+    /*border-left: solid 1px rgb(75, 90, 102);
+    border-right: solid 1px rgb(75, 90, 102);*/
+    left: 40px;
+    position: absolute;
+    top: auto;
+    width: 120px;
+}
+
+table tbody td {
+	padding: 20px!important;
+	padding-top: 10px!important;
+	padding-bottom: : 10px!important;
+}
+
+</style>
+  <style type="text/css">
+  /* width */
+/* ::-webkit-scrollbar {
+  width: 5px;
+
+}
+
+Track
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+Handle
+::-webkit-scrollbar-thumb {
+  background: #506CE9; 
+}
+
+Handle on hover
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+ */
+  	.main-content{
+  		margin-top: 60px;
+	}
+
+/*	td:first-child{
+		position: fixed;
+		left: 50px;
+	}
+	th:first-child{
+		position: fixed;
+		left: 50px;
+	}
+	td:n-child(2), th:n-child(2){
+		position: fixed;
+		left: 50px;
+	}*/
+	.badge{
+		height: 50px;
+		width: 50px;
+		background-color: #fff999;
+	}
+	.my-card{
+		cursor: pointer;
+		margin: 5px;
+		padding: 0px; 
+
+	}
+/* 	.only-orange{
+	background-color: #506CE9!important;	
+}.only-vert{
+	background-color: #4CAF50!important;	
+}.only-rose{
+	background-color: #E91E63!important;	
+}.only-turquoise{
+	background-color: #00BCD4!important;	
+}.only-or{
+	background-color: #506CE9!important;	
+}.only-bleu{
+	background-color: #506CE9!important;	
+}.only-violet{
+	background-color: #506CE9!important;	
+}.only-jaune{
+	background-color: #506CE9!important;	
+} */
+	.dashboard-row{
+		margin-bottom: 15px;
+	}
+	.my-fas{
+		 /*background-color: #506CE9; */
+		 /*color: #506CE9;*/
+		color: #fff;
+		/* font-size: 4em; */
+	}
+
+	.dashboard-item{
+		display: inline-block;
+		color: #acacac;
+		/* background-color: #fff; */
+		font-size: 0.7em;
+		font-weight: bold;
+		font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+		margin: 10px;
+	}
+	.dashboard-item-title{
+		
+		color: #fff;/* #c5c5c5; */
+		
+		font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+		/* font-weight: bold; */
+		font-size: 1.1em;
+		
+	}	
+	.dashboard-item-description{
+		
+		color: #fff; /* #c5c5c5;#acacac; */
+		font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+		font-size: 1.3em;
+		
+		margin: 10px;
+		
+	}
+	.card-stats{
+		margin: 0px!important;
+	}
+  </style>
+
+  <!--  Animate.css  -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}" />
+
+
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/css/material-icons.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/fontawesome-free/css/all.min.css' %}" type="text/css">
+  <!-- CSS Files -->
+  <link href="{% static 'assets/css/material-dashboard.css' %}" rel="stylesheet" />
+  <!-- <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" /> -->
+  <link href="{% static 'assets/css/normalize.min.css' %}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{% static 'assets/demo/demo.css' %}" rel="stylesheet" /> 
+
+   <style type="text/css">
+  	
+	.icon-bar{
+	background-color:#fff!important;
+	}
+	.close-layer{
+	
+	}
+  	.theme, .fixed-plugin, .configuration, .personnel, .apprenant, .cours, .emploi-du-temps, .documents, .notes, .finances, .discipline, .carnet-de-note, .bus, .dortoir, .securite, .sante, .importation{
+          cursor: pointer;
+    }
+    
+    .btn-rond{
+      	   	
+      	padding : 5px 10px;
+      	text-align: center;
+    }
+	.bordeaux{
+		background-color: #6d071a;
+		color: #fff;
+	}
+	.olive{
+		background-color: #354a21;
+		color: #fff;
+	}
+    .rouge{
+      	/* background-color: #F80001!important; */
+      	background-color: #F00!important;
+      	color: #fff!important;
+    }
+    .marron{
+    	background-color: #aa4d01;
+    	color: #fff;
+    }
+    .or{
+        background-color: #ddb102!important;
+        /* background-color: #f0c300; */
+        color: #fff!important;
+    }
+    .jaune{
+    	background-color: #ffda00!important;
+    	color: #fff!important;
+    }
+    .turquoise{
+        background-color: #00BCD4!important;
+        color: #fff!important;
+      }      
+    .vert{
+        background-color: #4CAF50!important;
+        color: #fff!important;
+    }      
+      .rouge{
+        background-color: #F44336!important;
+        /* background-color: #f00; */
+        color: #fff!important;
+    }      
+      .violet{
+        background-color: #9C27B0!important;
+        color: #fff!important;
+    }      
+      .orange{
+        background-color: #FF9800!important;
+        color: #fff!important;
+    }
+      .rose{
+        background-color: #e91e63!important;
+        color: #fff!important;        
+    }
+      .bleu{
+        background-color: #506CE9!important;
+        color: #fff!important; 
+    }
+    .argent{
+    	background-color: #c0c0c0;
+    	color: #fff;
+    }
+    .noir{
+    	background-color: #253e42;
+    	color: #fff;
+    }
+
+    .sidebar-bleu{
+        background-image: url("/static/assets/img/sidebar-bleu.png");
+
+    }.sidebar-vert{
+        background-image: url("/static/assets/img/sidebar-vert.png");
+        
+    }.sidebar-rouge{
+        background-image: url("/static/assets/img/sidebar-rouge.png");
+        
+    }.sidebar-violet{
+        background-image: url("/static/assets/img/sidebar-violet.png");
+        
+    }.sidebar-orange{
+        background-image: url("/static/assets/img/sidebar-orange.png");
+        
+    }.sidebar-rose{
+        background-image: url("/static/assets/img/sidebar-rose.png");
+        
+    }
+      .sidebar-turquoise{
+        background-image: url("/static/assets/img/sidebar-turquoise.png");
+
+    }
+      .sidebar-jaune{
+        background-image: url("/static/assets/img/sidebar-jaune.png");
+
+    }
+
+      .loader_vert{
+
+        content:url("/static/images/loader-vert.gif");
+	}
+	.loader_bleu{
+
+	    content:url("/static/images/loader-bleu.gif");
+	}
+	.loader_rose{
+
+	    content:url("/static/images/loader-rose.gif");
+	}
+	.loader_orange{
+
+	    content:url("/static/images/loader-orange.gif");
+	}
+	.loader_turquoise{
+
+	        content:url("/static/images/loader-turquoise.gif");
+	}
+	.loader_jaune{
+
+	    content:url("/static/images/loader-jaune.gif");
+	}
+	.loader_violet{
+
+	    content:url("/static/images/loader-violet.gif");
+	}
+
+
+  </style>
+
+  {% block script %}
+		  	  <!--   Core JS Files   -->
+	  <script src="{% static 'assets/js/core/jquery.min.js' %}"></script>
+	  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
+	  <script src="{% static 'assets/js/core/bootstrap-material-design.min.js' %}"></script>
+	  <script src="{% static 'assets/js/plugins/perfect-scrollbar.jquery.min.js' %}"></script>
+	  <!-- Plugin for the momentJs  -->
+	  <script src="{% static 'assets/js/plugins/moment.min.js' %}"></script>
+	  <!--  Plugin for Sweet Alert -->
+	  <script src="{% static 'assets/js/plugins/sweetalert2.js' %}"></script>
+	  <!-- Forms Validations Plugin -->
+	  <script src="{% static 'assets/js/plugins/jquery.validate.min.js' %}"></script>
+	  <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
+	  <script src="{% static 'assets/js/plugins/jquery.bootstrap-wizard.js' %}"></script>
+	  <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
+	  <script src="{% static 'assets/js/plugins/bootstrap-selectpicker.js' %}"></script>
+	  <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
+	  <script src="{% static 'assets/js/plugins/bootstrap-datetimepicker.min.js' %}"></script>
+	  <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
+	  <script src="{% static 'assets/js/plugins/jquery.dataTables.min.js' %}"></script>
+	  <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
+	  <script src="{% static 'assets/js/plugins/bootstrap-tagsinput.js' %}"></script>
+	  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
+	  <script src="{% static 'assets/js/plugins/jasny-bootstrap.min.js' %}"></script>
+	  <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
+	  <script src="{% static 'assets/js/plugins/fullcalendar.min.js' %}"></script>
+	  <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
+	  <script src="{% static 'assets/js/plugins/jquery-jvectormap.js' %}"></script>
+	  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+	  <script src="{% static 'assets/js/plugins/nouislider.min.js' %}"></script>
+	  <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support SweetAlert -->
+	  <script src="{% static 'assets/js/core/core.js' %}"></script>
+	  <!-- Library for adding dinamically elements -->
+	  <script src="{% static 'assets/js/plugins/arrive.min.js' %}"></script>
+	  <!--  Google Maps Plugin    -->
+	  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script> -->
+	  <!-- Chartist JS -->
+	  <script src="{% static 'assets/js/plugins/chartist.min.js' %}"></script>
+	  <!--  Notifications Plugin    -->
+	  <script src="{% static 'assets/js/plugins/bootstrap-notify.js' %}"></script>
+	  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+	  <script src="{% static 'assets/js/material-dashboard.js ' %}" type="text/javascript"></script>
+	  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
+	  <script src="{% static 'assets/demo/demo.js' %}"></script>
+	  <script>
+	    $(document).ready(function() {
+	      $().ready(function() {
+	        $sidebar = $('.sidebar');
+
+	        $sidebar_img_container = $sidebar.find('.sidebar-background');
+
+	        $full_page = $('.full-page');
+
+	        $sidebar_responsive = $('body > .navbar-collapse');
+
+	        window_width = $(window).width();
+
+	        fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
+
+	        if (window_width > 767 && fixed_plugin_open == 'Dashboard') {
+	          if ($('.fixed-plugin .dropdown').hasClass('show-dropdown')) {
+	            $('.fixed-plugin .dropdown').addClass('open');
+	          }
+
+	        }
+
+	        $('.fixed-plugin a').click(function(event) {
+	          // Alex if we click on switch, stop propagation of the event, so the dropdown will not be hide, otherwise we set the  section active
+	          if ($(this).hasClass('switch-trigger')) {
+	            if (event.stopPropagation) {
+	              event.stopPropagation();
+	            } else if (window.event) {
+	              window.event.cancelBubble = true;
+	            }
+	          }
+	        });
+
+	        $('.fixed-plugin .active-color span').click(function() {
+	          $full_page_background = $('.full-page-background');
+
+	          $(this).siblings().removeClass('active');
+	          $(this).addClass('active');
+
+	          var new_color = $(this).data('color');
+
+	          if ($sidebar.length != 0) {
+	            $sidebar.attr('data-color', new_color);
+	          }
+
+	          if ($full_page.length != 0) {
+	            $full_page.attr('filter-color', new_color);
+	          }
+
+	          if ($sidebar_responsive.length != 0) {
+	            $sidebar_responsive.attr('data-color', new_color);
+	          }
+	        });
+
+	        $('.fixed-plugin .background-color .badge').click(function() {
+	          $(this).siblings().removeClass('active');
+	          $(this).addClass('active');
+
+	          var new_color = $(this).data('background-color');
+
+	          if ($sidebar.length != 0) {
+	            $sidebar.attr('data-background-color', new_color);
+	          }
+	        });
+
+	        $('.fixed-plugin .img-holder').click(function() {
+	          $full_page_background = $('.full-page-background');
+
+	          $(this).parent('li').siblings().removeClass('active');
+	          $(this).parent('li').addClass('active');
+
+
+	          var new_image = $(this).find("img").attr('src');
+
+	          if ($sidebar_img_container.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
+	            $sidebar_img_container.fadeOut('fast', function() {
+	              $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
+	              $sidebar_img_container.fadeIn('fast');
+	            });
+	          }
+
+	          if ($full_page_background.length != 0 && $('.switch-sidebar-image input:checked').length != 0) {
+	            var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
+
+	            $full_page_background.fadeOut('fast', function() {
+	              $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
+	              $full_page_background.fadeIn('fast');
+	            });
+	          }
+
+	          if ($('.switch-sidebar-image input:checked').length == 0) {
+	            var new_image = $('.fixed-plugin li.active .img-holder').find("img").attr('src');
+	            var new_image_full_page = $('.fixed-plugin li.active .img-holder').find('img').data('src');
+
+	            $sidebar_img_container.css('background-image', 'url("' + new_image + '")');
+	            $full_page_background.css('background-image', 'url("' + new_image_full_page + '")');
+	          }
+
+	          if ($sidebar_responsive.length != 0) {
+	            $sidebar_responsive.css('background-image', 'url("' + new_image + '")');
+	          }
+	        });
+
+	        $('.switch-sidebar-image input').change(function() {
+	          $full_page_background = $('.full-page-background');
+
+	          $input = $(this);
+
+	          if ($input.is(':checked')) {
+	            if ($sidebar_img_container.length != 0) {
+	              $sidebar_img_container.fadeIn('fast');
+	              $sidebar.attr('data-image', '#');
+	            }
+
+	            if ($full_page_background.length != 0) {
+	              $full_page_background.fadeIn('fast');
+	              $full_page.attr('data-image', '#');
+	            }
+
+	            background_image = true;
+	          } else {
+	            if ($sidebar_img_container.length != 0) {
+	              $sidebar.removeAttr('data-image');
+	              $sidebar_img_container.fadeOut('fast');
+	            }
+
+	            if ($full_page_background.length != 0) {
+	              $full_page.removeAttr('data-image', '#');
+	              $full_page_background.fadeOut('fast');
+	            }
+
+	            background_image = false;
+	          }
+	        });
+
+	        $('.switch-sidebar-mini input').change(function() {
+	          $body = $('body');
+
+	          $input = $(this);
+
+	          if (md.misc.sidebar_mini_active == true) {
+	            $('body').removeClass('sidebar-mini');
+	            md.misc.sidebar_mini_active = false;
+
+	            $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar();
+
+	          } else {
+
+	            $('.sidebar .sidebar-wrapper, .main-panel').perfectScrollbar('destroy');
+
+	            setTimeout(function() {
+	              $('body').addClass('sidebar-mini');
+
+	              md.misc.sidebar_mini_active = true;
+	            }, 300);
+	          }
+
+	          // we simulate the window Resize so the charts will get updated in realtime.
+	          var simulateWindowResize = setInterval(function() {
+	            window.dispatchEvent(new Event('resize'));
+	          }, 180);
+
+	          // we stop the simulation of Window Resize after the animations are completed
+	          setTimeout(function() {
+	            clearInterval(simulateWindowResize);
+	          }, 1000);
+
+	        });
+	      });
+	    });
+	  </script>
+	  <script>
+	    $(document).ready(function() {
+	      // Javascript method's body can be found in assets/js/demos.js
+	      md.initDashboardPageCharts();
+
+	    });
+	    $(document).ready(function(){
+	    	$('#minimizeSidebar').click(function(){
+	    		//$('body').removeClass('sidebar-mini');
+	    		$('body').toggleClass('sidebar-mini');
+				//$('.logo').hide();
+	    	});
+	    });
+
+
+
+	   
+	  </script>
+
+
+		<!-- javascript for init -->
+<!-- 		  <script type="text/javascript">
+		$('.datetimepicker').datetimepicker({
+		    icons: {
+		        time: "fa fa-clock-o",
+		        date: "fa fa-calendar",
+		        up: "fa fa-chevron-up",
+		        down: "fa fa-chevron-down",
+		        previous: 'fa fa-chevron-left',
+		        next: 'fa fa-chevron-right',
+		        today: 'fa fa-screenshot',
+		        clear: 'fa fa-trash',
+		        close: 'fa fa-remove'
+		    }
+		});
+	  </script> -->
+
+
+  {% endblock %}
+
+
+  {% block header %}
+
+
+  {% endblock %}
+
+
+</head>
+<body class="">
+	<div class="wrapper">
+
+  {% block sidebar %}
+		
+		{# {% include 'mainapp/layouts/_nav_base_sidebar.html' %} #}
+
+  {% endblock %}
+	
+  {% block langue %}
+   {#  {% include 'mainapp/layouts/_langue_menu_header.html' %} #}
+  {% endblock %}
+
+
+    <div class="main-panel">
+      <!-- Navbar -->
+            
+      <nav id = "navbar-top" class="navbar navbar-expand-lg navbar-absolute fixed-top" style = "height : 50px!important">
+        <div class="container-fluid" >
+          <div class="navbar-wrapper" >
+          
+              <!-- <button id="minimizeSidebar" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+              </button> -->
+				
+          </div>
+          <!--<button id="minimizeSidebar" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon icon-bar">2</span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+          </button>-->
+		  
+          </div>
+		  
+          
+		  <ul class="navbar-nav justify-content-end" style="position: absolute; left: 60px!important">
+		  	<li class="nav-item">
+		  		<div class="my" style = "padding-left:10px;padding-top:0px;">
+		  			<a href="{% url 'mainapp:accueil' %}">
+						<img src="/static/images/logo.png" height="40px" width="112px">
+				    </a>
+           		</div>
+       		</li>
+          
+		  </ul>
+		  <ul class="navbar-nav" style="position: absolute; right: 10px!important">
+		  	
+		  	<li class="nav-item">
+           	 <button id="toggleNavigation" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+                <span class="navbar-toggler-icon icon-bar"></span>
+	          </button> 
+           </li>
+           
+		  </ul>
+          
+        
+      </nav>
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+          	<div class="navbar-minimize">
+              <!-- <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
+                <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
+                <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
+              <div class="ripple-container"></div></button>
+            </div>
+             <a class="navbar-brand" href="#">SCHOOL APP</a> -->
+          </div>
+
+          <div class="collapse navbar-collapse justify-content-end">
+            <form class="navbar-form">
+
+            </form>
+            
+          </div>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+
+	<div class="main-content">
+
+    	{% block content %}
+    	{% endblock %}
+		
+<!--   <div id="menu-fixed"  class="fixed-plugin">
+
+      <div class="menu-element" style="margin-top: 5px;margin-bottom: 5px">
+        <img id="settings" src="{% static 'images/settings.png' %}" style="height: 30px; width: 30px;" />
+      </div>
+
+               
+</div> -->
+		{% block menu_fixed %}		
+		{% endblock %}
+
+
+		{% block menu_dashboard %}	
+
+				{% include 'mainapp/layouts/_dashboard_configuration.html' %}
+				{% include 'mainapp/layouts/_dashboard_personnel.html' %}
+				{% include 'mainapp/layouts/_dashboard_apprenant.html' %}
+
+		{% endblock %}
+
+  	</div>
+
+  
+</div>
+
+	
+
+</div>
+  {% block script_page %}
+  {% endblock %}
+
+  <script type="text/javascript">
+
+
+/* myown */
+
+var i = 0;
+$(".configuration").click(function(){
+
+	if (i%2 ==0){
+
+		$(".myDashboard-configuration").removeAttr("hidden");
+		$(".myDashboard-personnel").attr("hidden",true);
+		$(".myDashboard-apprenant").attr("hidden",true);
+
+
+	}else{
+
+		$(".myDashboard-configuration").attr("hidden",true);
+		
+	}
+
+	i++;
+	
+});
+
+var j = 0;
+$(".personnel").click(function(){
+
+	if (j%2 ==0){
+
+		$(".myDashboard-personnel").removeAttr("hidden");
+		$(".myDashboard-configuration").attr("hidden",true);
+		$(".myDashboard-apprenant").attr("hidden",true);
+
+
+	}else{
+
+		$(".myDashboard-personnel").attr("hidden",true);
+		
+	}
+
+	j++;
+	
+});
+
+var k = 0;
+$(".apprenant").click(function(){
+
+	if (k%2 ==0){
+
+		$(".myDashboard-apprenant").removeAttr("hidden");
+		$(".myDashboard-configuration").attr("hidden",true);
+		$(".myDashboard-personnel").attr("hidden",true);
+
+	}else{
+
+		$(".myDashboard-aprenant").attr("hidden",true);
+		
+	}
+
+	j++;
+	
+});
+
+
+/* choix par defaut */  	
+
+$(".sidebar").attr("data-color", "{{ data_color }}");
+$(".sidebar").addClass("{{ sidebar_class }}");
+$(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+$(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+$(".moving-tab").addClass("{{ theme_class }}");
+//$(".btn-danger").removeClass("btn-danger btn").addClass("rouge btn ");
+$(".loader").removeClass("loader_bleu loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
+$("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+
+
+
+
+$("#themes").click(function(){
+	
+    $("#couleurs").toggleClass("show");
+ 
+});
+
+$("body").on("click", ".navbar, .row, .card", function(){
+
+	$("#couleurs").removeClass("show"); 
+
+});
+
+
+  </script>
+</div>
+
+</body>
+</html>

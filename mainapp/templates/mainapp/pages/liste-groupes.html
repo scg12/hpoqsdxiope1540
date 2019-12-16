@@ -1,0 +1,352 @@
+{% extends 'mainapp/layouts/base-dashbord.html' %}
+
+{% load static %}
+{% load customfilters %}
+{% load i18n static %}
+
+
+ {% block header %}
+ 		
+<!-- 	<link rel="stylesheet" type="text/css" href="{% static "css/styles.css" %}"> -->
+	<title>{% trans "Groupe" %}</title>
+	<script src="{% static 'js/main-liste-groupes.js' %}"></script>
+{% endblock %}
+
+{% block sidebar %}
+
+	{% include 'mainapp/layouts/_nav_base_sidebar_liste_groupes.html' %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+
+		<div class="col-md-12">
+			<div class="card">
+				<div class=" card-nav-tabs card-header-primary card-header-icon">
+                   
+                   <div class="card-icon"><i class="material-icons">library_books</i></div>
+
+                </div>
+                <div class="card-body">
+                	<div class="row">
+                		
+                		<div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center">Liste des Groupes utilisateurs</p>
+                        </div>
+
+                	</div>
+                	<div class="row">
+                		
+                		<div class="col-sm-12 col-md-8">
+                            
+                             <label>Afficher </label> 
+                             <select id="nbre_element_par_page" class="form-control-sm">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="150">150</option>
+                                <option value="200">200</option>
+                                <option value="-1">Tout</option>
+                              </select> 
+                              <label>Elements</label> 
+                            
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                          <form action="{% url 'mainapp:recherche_etudiant' %}" class="recherche_etudiant" method="GET">
+                            {% csrf_token %}
+                              <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                              <div id="message" ></div>
+                          </form>
+                          
+                        </div>
+
+                	</div><br>
+		              <div class="table-responsive">
+						
+						<table class="table table-striped table-hover">
+					  		<thead class=" text-primary">
+							    <tr>
+							      <th scope="col">#</th>
+							      <th scope="col">Nom</th>
+							      <th scope="col">Operations</th>
+
+							    </tr>
+							</thead>
+					  		<tbody>
+					  			{% for info in info_grp %}
+							 		<tr name="" class="{{ group_list|getchar:forloop.counter0|getid }}@~{{ group_list|getchar:forloop.counter0 }}~~²²{% for ps,psvalue,m in info  %}{{ ps }}²²{{ psvalue }}²²{{ m }}{% if forloop.last %}{% else %}~~{% endif %}{% endfor %}">
+									  <th scope="row">{{ forloop.counter }}</th>
+								      <th>{{ group_list|getchar:forloop.counter0 }}</th>
+								      
+								      <td> 
+								      		<!-- <img src="{% static "img/monitor.png" %}" alt="display"></a> -->
+							      		<button rel="tooltip" class="btn btn-primary btn-sm detail-eleve-link">
+		                                        <i class="material-icons">visibility</i>
+		                                 </button>
+								      	
+		                                <button rel="tooltip" class="btn btn-sm btn-primary definir-permission-link">
+		                                    <i class="material-icons">edit</i>
+		                                </button>
+
+		                                <button class="btn btn-danger btn-sm supprimer-eleve-link">
+		                                    <i class="material-icons">close</i>
+		                                </button>
+								      </td>
+									 
+								  </tr>
+								  		
+
+								{% endfor %}
+							 </tbody>
+						</table>
+
+					  </div>
+
+                </div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+	<!-- dialog box modifier groupe  -->
+		<div class="modal fade" id="modal_modifier_profil" tabindex="-1" role="">
+				<div class="modal-dialog" role="document">
+						<div class="modal-content card card-nav-tabs">
+								<div class=" card-nav-tabs card-header-primary card-header-icon">
+									<div class="card-icon"><i class="material-icons">library_books</i></div>          
+								</div>
+
+								<div class="modal-body ">
+									<div class="card-body">
+										<p class="h4 text-center">MODIFIER profil</p>
+											 <form method="post" class="modifier_profil" action="{% url 'mainapp:modification_etudiant' %}">
+												{% csrf_token %}
+												{{ form.as_p }}
+
+													<input type="hidden" name="id_modif" id="id_modif">
+													<div class="text-center">
+														<button type="submit" class="btn btn-primary">Modifier</button>
+														<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+														
+													</div>
+												</form>
+									</div>
+									
+								</div>
+												
+						</div>
+				</div>
+		</div>
+
+
+
+	<!-- dialog box definir permission  -->
+		<div class="modal fade" id="modal_definir_permission" tabindex="-1" role="">
+				<div class="modal-dialog" role="document">
+						<div class="modal-content card card-nav-tabs">
+								<div class=" card-nav-tabs card-header-primary card-header-icon">
+									<div class="card-icon"><i class="material-icons">library_books</i></div>          
+								</div>
+
+								<div class="modal-body ">
+									<div class="card-body">
+										<p class="h4 text-center">DEFINIR PERMISSION</p><br>			
+
+
+								<div style="display:flex;flex-direction: column; overflow: auto;" class="contenu">
+									<form action="{% url 'mainapp:groupe_permission_modification' 1 %}" method="post">
+										{% csrf_token %}
+										<input type="hidden" name="id"  id="id">
+										<div class="corps">
+											
+										</div>
+							
+								   
+									<input style="margin-left:45%" class="btn btn-primary" type="submit" value="update" />
+									<button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+								   </form>
+								  </div>
+									
+									</div>
+									
+								</div>
+												
+						</div>
+				</div>
+		</div>
+
+<!-- 			<div style="display:flex;flex-direction: column;" class="contenu">
+
+			<div style="width: 98%; height: 73%; overflow: auto; background-: #green; margin:auto;">
+			<h1 style="text-align: center; font-size: 2em;" title={% trans "Liste_des_groupes" %}> {% trans "Liste des groupes" %} </h1>
+			{% blocktrans %}
+			    
+			{% endblocktrans %} -->
+
+
+
+
+<!-- 		{# Mise en forme de la pagination ici #}
+	{% if is_paginated %}
+	    <div class="pagination">
+	           {% if page_obj.has_previous %}
+	               <a href="?page={{ page_obj.previous_page_number }}">back</a> —
+	           {% endif %}
+	           {% trans "Page" %} {{ page_obj.number }} {% trans "sur" %} {{ page_obj.paginator.num_pages }} 
+	           {% if page_obj.has_next %}
+	              — <a href="?page={{ page_obj.next_page_number }}">next</a>
+	           {% endif %}
+	    </div>
+{% endif %}
+   -->
+  <div style=" text-align: center; width: 98%; height: 25%; overflow: auto; background: #cyan; margin:auto;">
+			<form action="{% url 'mainapp:liste_groupes' %}" method="post">
+			    {% csrf_token %}
+			    {{ form.as_p }}
+			    <input class="btn btn-primary" type="submit" value="Add This Group" />
+			</form>
+
+  </div>
+
+<!--
+<p>
+	<a href="index.html" onclick="return(openPopup(this.href, 50, 50, 700, 500));">Ouvrir la popup</a>
+</p>
+-->
+
+
+<script type="text/javascript">
+
+	function confirmdelete(){
+		choix = confirm("êtes vous sûr de vouloir supprimer le groupe?");
+		return choix;
+	}
+</script>
+
+
+{% endblock %}
+
+{% block script_page %}
+
+	<script type="text/javascript">
+		function togglecheck(value) {
+			text = ""
+			main = ""
+			nb = 0
+			if(value!="main")
+			  {	elt = document.getElementsByName(value)
+			  	elements = document.body.getElementsByTagName("input");
+				var elms_len = elements.length;
+				for (var i = 0; i < elms_len; i++) 
+	  				if(elements[i].getAttribute("son") == value)
+	  					{elements[i].checked = elt[0].checked
+	  					}
+	  			}
+  			else{ state = document.getElementById(value).checked
+  				document.getElementById(value).checked = !state
+  				//alert(document.getElementById(value).checked)
+  				elements = document.getElementsByTagName("input")
+
+					for (i = 0; i < elements.length; i++) { 
+					  elements[i].checked = state
+					}
+				 
+  			}
+		}
+	</script>
+
+  <script type="text/javascript">
+  $(document).ready(function() 
+  	{  n = $(":checkbox[son]").length
+	   m = $(":checkbox[son]:checked").length
+	   if(m!=n)
+	  	{	$(":checkbox[value=main]").prop('checked', false);
+   	        sons = $(":checkbox[son]:not(:checked)");
+   	        m = sons.length;
+   	      for(i = 0; i<m;i++){
+   	      	val = $(sons[i]).attr("value")
+   	      	$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+
+	  		// val2 = $(":checkbox[value='" + val +"']:checked").length
+	  		// if (val2 < 4)
+	  		// 	$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+   	       }
+   	     }
+
+   	    $("body").on("click", ":checkbox[son]", function() {
+        
+   	    	n = $(":checkbox[son]").length
+	  		m = $(":checkbox[son]:checked").length
+	  		val = $(this).attr("value")
+	  		val2 = $(":checkbox[value='" + val +"']:checked").length
+	  		//alert(val+'__'+val2+'__'+$(":checkbox[tocheck='" + val +"']").attr("tocheck"));
+	  		if (val2 < 4)
+	  			$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+	  		else 
+	  			$(":checkbox[tocheck='" + val +"']").prop('checked', true)
+		  	if(m!=n)
+		  		$(":checkbox[value=main]").prop('checked', false);
+		  	else 
+		  		$(":checkbox[value=main]").prop('checked', true);
+
+    	});
+
+   	    $("body").on("click", ":checkbox[boss]", function() {
+        
+        	n = $(":checkbox[boss]").length
+	  		m = $(":checkbox[boss]:checked").length
+	  		if(m!=n)
+		  		$(":checkbox[value=main]").prop('checked', false);
+		  	else 
+		  		$(":checkbox[value=main]").prop('checked', true);
+
+
+    	});
+
+
+	  	$("body").on("click", "a", function() {
+        
+       		val =$(this).attr("value");
+	  	  if(val == "main")
+	  	   { //alert($("b[value!='" + val +"']").text())
+	  	   	 if ($("b[value='" + val +"']").text()=="+")
+		  	   	{ $("b[value='" + val +"']").text("-");
+		  	   	  $("h4").show();
+		  	   	  $("b[value!='" + val +"']").text('-')
+		  	   	  $("h4[id!='" + val +"']").show();
+
+		  	   	}
+	  	   else 
+		  	   	{$("b[value='" + val +"']").text("+");
+		  	     $("h4").hide();
+		  	     $("b[value!='" + val +"']").text('+')
+		  	   	  $("h4[id!='" + val +"']").hide();
+		  	    }
+	  	   }
+	  	  else{
+	  	   if ($("b[value='" + val +"']").text()=="+")
+	  	   	{ $("b[value='" + val +"']").text("-");
+	  	   	  $("h4[id='" + val +"']").show();
+	  	   	}
+	  	   else 
+	  	   	{$("b[value='" + val +"']").text("+");
+	  	     $("h4[id='" + val +"']").hide();
+	  	    }
+	      }
+    	});
+  
+	});
+
+
+  </script>
+
+{% endblock %}
+
+

@@ -1,0 +1,141 @@
+	{% load static %}
+  <div class="sidebar"  data-background-color="black" >
+      <!--
+        Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+data-color="green"
+data-image="{% static 'assets/img/sidebar-1.jpg' %}"
+        Tip 2: you can also add an image using data-image tag
+    -->
+      <div class="logo">
+        <a href="{% url 'mainapp:accueil' %}" class="simple-text logo-normal">
+          SCHOOL APP
+        </a>
+      </div>
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'mainapp:dashboard' %}">
+              <i class="material-icons">dashboard</i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            
+            <a class="nav-link configuration" >
+              <i class="material-icons">settings</i>
+              <p>Configuration</p>
+            </a>
+          </li>
+
+
+			     <li class="nav-item active">
+	            <a class="nav-link" data-toggle="collapse" href="#menu_profils">
+	              <i class="material-icons">person</i>
+	              <p> Profils utilisateurs
+	                <b class="caret"></b>
+	              </p>
+	            </a>
+	            <div class="collapse show" id="menu_profils">
+	              <ul class="nav">
+	                <li class="nav-item ">
+	                  <a class="nav-link" href="{% url 'mainapp:liste_profils' %}">
+	                    <span class="sidebar-mini"> U </span>
+	                    <span class="sidebar-normal "> Utilisateurs </span>
+	                  </a>
+	                </li>
+	                <li class="nav-item active">
+	                  <a class="nav-link" href="{% url 'mainapp:liste_groupes' %}">
+	                    <span class="sidebar-mini"> G U </span>
+	                    <span class="sidebar-normal active"> Groupes utilisateurs </span>
+	                  </a>
+	                </li>
+	                <li class="nav-item ">
+	                  <a class="nav-link" href="../../examples/pages/timeline.html">
+	                    <span class="sidebar-mini"> D A </span>
+	                    <span class="sidebar-normal"> Droit d'accès </span>
+	                  </a>
+	                </li>
+
+	              </ul>
+	            </div>
+	          </li>
+
+
+          <li class="nav-item ">
+            <a class="nav-link" data-toggle="collapse" href="#pagesExamples">
+              <i class="material-icons">image</i>
+              <p> Pages
+                <b class="caret"></b>
+              </p>
+            </a>
+            <div class="collapse" id="pagesExamples">
+              <ul class="nav">
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/pricing.html">
+                    <span class="sidebar-mini"> P </span>
+                    <span class="sidebar-normal"> Pricing </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/rtl.html">
+                    <span class="sidebar-mini"> RS </span>
+                    <span class="sidebar-normal"> RTL Support </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/timeline.html">
+                    <span class="sidebar-mini"> T </span>
+                    <span class="sidebar-normal"> Timeline </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/login.html">
+                    <span class="sidebar-mini"> LP </span>
+                    <span class="sidebar-normal"> Login Page </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/register.html">
+                    <span class="sidebar-mini"> RP </span>
+                    <span class="sidebar-normal"> Register Page </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/lock.html">
+                    <span class="sidebar-mini"> LSP </span>
+                    <span class="sidebar-normal"> Lock Screen Page </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/user.html">
+                    <span class="sidebar-mini"> UP </span>
+                    <span class="sidebar-normal"> User Profile </span>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link" href="../../examples/pages/error.html">
+                    <span class="sidebar-mini"> E </span>
+                    <span class="sidebar-normal"> Error Page </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="nav-item ">
+            <a class="nav-link" href="{% url 'mainapp:initialisation' %}">
+              <i class="material-icons">content_paste</i>
+              <p>Initialiser config</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link" href="./icons.html">
+              <i class="material-icons">bubble_chart</i>
+              <p>Icons</p>
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>

@@ -1,0 +1,95 @@
+{% extends 'mainapp/layouts/base-accueil.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+
+{% block menu %} {% include 'mainapp/layouts/_nav_deverrouiller.html' %} {% endblock %}
+
+
+
+    {% block page %}
+    <div class="page-header lock-page header-filter" filter-color="black" style="background-image: url({% static 'assets/img/background-accueil-3.jpg' %}); background-size: cover; background-position: center center;">
+      <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
+      <div class="container">
+<br><br>
+          {% block contenu %}
+            <div class="row">
+              <div class="col-md-4 ml-auto mr-auto">
+                <div class="card card-profile text-center card-hidden">
+                  <div class="card-header ">
+                    <div class="card-avatar">
+                      <a href="#pablo">
+                        <img class="img" src="{{ photo_url }}">
+                      </a>
+                    </div>
+                  </div>
+                  <form method="post" action="{% url 'mainapp:deverrouiller' %}">
+                    {% csrf_token %}
+                  <div class="card-body ">
+
+                    <h4 class="card-title">{{ username }}</h4>
+                    <input type="hidden" class="form-control" id="username" name="username" value="{{ username }}">
+                    <p class="card-description text-center text-danger">{{ errors }}</p>
+                    <div class="form-group">
+                      <label for="exampleInput1" class="bmd-label-floating">Enter Password</label>
+                      <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                  </div>
+                  <div class="card-footer justify-content-center">
+                  
+                    <button type="submit" class="btn btn-rose btn-round">Deverouiller</button>
+                    
+                  </div>
+
+
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endblock %}
+
+      </div>
+       <footer class="footer">
+<!--         <div class="container">
+          <nav class="float-left">
+            <ul>
+              <li>
+                <a href="https://www.creative-tim.com">
+                  Creative Tim
+                </a>
+              </li>
+              <li>
+                <a href="https://creative-tim.com/presentation">
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a href="http://blog.creative-tim.com">
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a href="https://www.creative-tim.com/license">
+                  Licenses
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div class="copyright float-right">
+            &copy;
+            <script>
+              document.write(new Date().getFullYear())
+            </script>, made with <i class="material-icons">favorite</i> by
+            <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+          </div>
+        </div> -->
+      </footer> 
+    </div>
+    {% endblock %}
+
+
+
+
+       

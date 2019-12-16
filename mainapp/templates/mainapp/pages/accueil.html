@@ -1,0 +1,59 @@
+{% extends 'mainapp/layouts/base-accueil.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block menu %} {% include 'mainapp/layouts/_nav_accueil.html' %} {% endblock %}
+
+{% block page %}
+
+
+<!-- <a href="{% url 'mainapp:creation_etudiant' %}">creer etudiant</a>
+<br>
+<a href="{% url 'mainapp:liste_etudiants' %}">liste etudiant</a> -->
+
+    <div class="page-header header-filter" filter-color="black" style="background-image: url({% static 'assets/img/background-accueil-1.jpg'%}); background-size: cover; background-position: center center;">
+      <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
+      <div class="container">
+
+      </div>
+      <footer class="footer">
+        <div class="container">
+          <nav class="float-left">
+            <ul>
+              <li>
+                <a href="https://www.creative-tim.com">
+                  Creative Tim
+                </a>
+              </li>
+              <li>
+                <a href="https://creative-tim.com/presentation">
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a href="http://blog.creative-tim.com">
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a href="https://www.creative-tim.com/license">
+                  Licenses
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div class="copyright float-right">
+            &copy;
+            <script>
+              document.write(new Date().getFullYear())
+            </script>, made with <i class="material-icons">favorite</i> by
+            <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+          </div>
+        </div>
+      </footer>
+    </div>
+ 
+
+{% endblock %}

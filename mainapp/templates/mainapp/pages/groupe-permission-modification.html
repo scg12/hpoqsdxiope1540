@@ -1,0 +1,217 @@
+{% load i18n static %}
+{% load customfilters %}
+{% load crispy_forms_tags %}<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static "css/styles.css" %}">
+<title>Groups Update</title>
+</head>
+<body>
+	
+<div style="display:flex;flex-direction: column; overflow: auto;" class="contenu">
+	<form action="{% url 'mainapp:groupe_permission_modification' 1 %}" method="post">
+		{% csrf_token %}
+	<h1 style="text-align: center; font-size: 1.8em;" title={% trans "Liste_des_groupes" %}>Groupe: <input type="text" value="{{ group.name|upper }}" name="{{ group.name }}" style="text-align: center;"> </h1>
+
+
+	<h3><a href="#" value="main" ><b value="main">-</b></a> <input type="checkbox" name="main" value="main" id="main" onclick="togglecheck(this.value)" checked>All</h3>
+	<div style="width: 90%; height: auto; margin-left:4rem  " >
+			  
+
+	{% for ps,psvalue,m in gpm_data  %}
+
+	  {% if forloop.counter|minus:1|modulo:4 == 0 %}
+		   <div style="width: auto%; height: auto; margin-left:-2rem  ">
+		  	<h3>
+				<a href="#" value="{{m}}" ><b value="{{m}}">-</b></a> <input type="checkbox" name="{{m}}" value="{{m}}" boss="boss" tocheck="{{forloop.counter|minus:1|divide:4}}" onclick="togglecheck(this.value)" checked>{{m|upper}}
+			</h3>
+		   </div>
+	  {% endif %}
+		{% if ps|isequal:1 and forloop.counter|minus:1|modulo:4 == 0 %}
+			<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}" checked > View</h4>
+		{% elif ps|isequal:0 and forloop.counter|minus:1|modulo:4 == 0 %}
+		  	<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}1" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}"> View</h4>
+		{% else %}
+				{% if ps|isequal:1 and forloop.counter|minus:1|modulo:4 == 1 %}
+				<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}" checked >Change</h4>
+			  {% elif ps|isequal:0 and forloop.counter|minus:1|modulo:4 == 1 %}
+			  	<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}1" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}">
+						Change</h4>
+			 {% else %}
+				{% if ps|isequal:1 and forloop.counter|minus:1|modulo:4 == 2 %}
+				<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}" checked >
+						 Add</h4>
+			  {% elif ps|isequal:0 and forloop.counter|minus:1|modulo:4 == 2 %}
+			  	<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}1" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}"> Add</h4>
+			  {% else %}
+				{% if ps|isequal:1 and forloop.counter|minus:1|modulo:4 == 3 %}
+				<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}" checked >Delete</h4>
+			  {% elif ps|isequal:0 and forloop.counter|minus:1|modulo:4 == 3 %}
+			  	<h4 id="{{m}}"><input type="checkbox" son="{{m}}" name="{{psvalue}}1" id="{{m}}" value="{{forloop.counter|minus:1|divide:4}}">
+				Delete</h4>
+			{% endif %}
+		   {% endif %}
+		  {% endif %}
+		{% endif %}
+
+			  
+		  
+    {% endfor %}
+     </div>
+	<input style="margin-left:45%" class="btn btn-primary" type="submit" value="update" />
+   </form>
+  </div>
+	<script type="text/javascript">
+		function togglecheck(value) {
+			text = ""
+			main = ""
+			nb = 0
+			if(value!="main")
+			  {	elt = document.getElementsByName(value)
+			  	elements = document.body.getElementsByTagName("input");
+				var elms_len = elements.length;
+				for (var i = 0; i < elms_len; i++) 
+	  				if(elements[i].getAttribute("son") == value)
+	  					{elements[i].checked = elt[0].checked
+	  					}
+	  			}
+  			else{ state = document.getElementById(value).checked
+  				document.getElementById(value).checked = !state
+  				//alert(document.getElementById(value).checked)
+  				elements = document.getElementsByTagName("input")
+
+					for (i = 0; i < elements.length; i++) { 
+					  elements[i].checked = state
+					}
+				 
+  			}
+		}
+	</script>
+
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+	<script
+	  src="https://code.jquery.com/jquery-3.3.1.min.js"
+	  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	  crossorigin="anonymous">
+  </script>
+  <script type="text/javascript">
+  $(document).ready(function() 
+  	{  n = $(":checkbox[son]").length
+	   m = $(":checkbox[son]:checked").length
+	   if(m!=n)
+	  	{	$(":checkbox[value=main]").prop('checked', false);
+   	        sons = $(":checkbox[son]:not(:checked)");
+   	        m = sons.length;
+   	      for(i = 0; i<m;i++){
+   	      	val = $(sons[i]).attr("value")
+   	      	$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+
+	  		// val2 = $(":checkbox[value='" + val +"']:checked").length
+	  		// if (val2 < 4)
+	  		// 	$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+   	       }
+   	     }
+
+
+  		$("a").click(function(){
+  	  val =$(this).attr("value");
+  	  if(val == "main")
+  	   { //alert($("b[value!='" + val +"']").text())
+  	   	 if ($("b[value='" + val +"']").text()=="+")
+	  	   	{ $("b[value='" + val +"']").text("-");
+	  	   	  $("h4").show();
+	  	   	  $("b[value!='" + val +"']").text('-')
+	  	   	  $("h4[id!='" + val +"']").show();
+
+	  	   	}
+  	   else 
+	  	   	{$("b[value='" + val +"']").text("+");
+	  	     $("h4").hide();
+	  	     $("b[value!='" + val +"']").text('+')
+	  	   	  $("h4[id!='" + val +"']").hide();
+	  	    }
+  	   }
+  	  else{
+  	   if ($("b[value='" + val +"']").text()=="+")
+  	   	{ $("b[value='" + val +"']").text("-");
+  	   	  $("h4[id='" + val +"']").show();
+  	   	}
+  	   else 
+  	   	{$("b[value='" + val +"']").text("+");
+  	     $("h4[id='" + val +"']").hide();
+  	    }
+      }
+  	   });
+	  	$(":checkbox[son]").click(function(){
+	  		n = $(":checkbox[son]").length
+	  		m = $(":checkbox[son]:checked").length
+	  		val = $(this).attr("value")
+	  		val2 = $(":checkbox[value='" + val +"']:checked").length
+	  		//alert(val+'__'+val2+'__'+$(":checkbox[tocheck='" + val +"']").attr("tocheck"));
+	  		if (val2 < 4)
+	  			$(":checkbox[tocheck='" + val +"']").prop('checked', false)
+	  		else 
+	  			$(":checkbox[tocheck='" + val +"']").prop('checked', true)
+		  	if(m!=n)
+		  		$(":checkbox[value=main]").prop('checked', false);
+		  	else 
+		  		$(":checkbox[value=main]").prop('checked', true);
+
+	  		
+	  	});
+
+	  	$(":checkbox[boss]").click(function(){	
+	  		n = $(":checkbox[boss]").length
+	  		m = $(":checkbox[boss]:checked").length
+	  		if(m!=n)
+		  		$(":checkbox[value=main]").prop('checked', false);
+		  	else 
+		  		$(":checkbox[value=main]").prop('checked', true);
+
+	  	});
+  
+	});
+
+
+  function sortTable() {
+  var table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementById("myTable");
+  switching = true;
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[0];
+      y = rows[i + 1].getElementsByTagName("TD")[0];
+      // Check if the two rows should switch place:
+      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        // If so, mark as a switch and break the loop:
+        shouldSwitch = true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+}
+  
+  </script>
+  </body>
+</html>

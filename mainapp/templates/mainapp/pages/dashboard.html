@@ -1,0 +1,85 @@
+{% extends 'mainapp/layouts/base-dashbord.html' %}
+
+{% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/dashboard.js' %}"></script>
+      <link rel="stylesheet" type="text/css" href="{% static 'assets/css/dashboard.css' %}" />
+
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+
+
+      </style>
+      
+  {% endblock %}
+
+{% block language %}
+      <form action="/i18n/setlang/" method="post">
+              {% csrf_token %}
+              <input name="next" type="hidden" value="{% url 'mainapp:dashboard' %}" />
+              
+              <select name="language" onchange="this.form.submit()">
+              {% for lang in LANGUAGES %}
+                {% if LANGUAGE_CODE == lang.0 %}
+                  <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                {% elif LANGUAGE_CODE != lang.0 %}
+                  <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                }
+                {% endif %}
+              {% endfor %}
+              </select>
+         </form>
+{% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_dashboard.html' %}
+{% endblock %}
+                              
+{% block content %} 
+
+  <div class="container-fluid">
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="card">
+          
+          <div class="card-body">
+            <h1>Mon Tableau de bord</h1>
+            <br>
+            
+          </div>
+
+
+        </div>
+      </div>
+
+      
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block script_page %}
+  
+  
+{% endblock %}
+

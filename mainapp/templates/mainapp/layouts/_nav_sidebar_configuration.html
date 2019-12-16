@@ -1,0 +1,122 @@
+	{% load static %}
+  <div class="sidebar"  data-background-color="black" >
+      <!--
+        Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+        data-color="azure"
+        data-image="{% static 'assets/img/sidebar-bleu.png' %}"
+        Tip 2: you can also add an image using data-image tag
+
+    -->
+       <!--  <img src="../assets/img/logo-small.png"> -->
+       <div class="logo" style = "padding-left:30px;padding-top:10px;">
+          <a href="{% url 'mainapp:accueil' %}">
+			       <img src="/static/images/logo.png" height="50px" width="140px">
+		      </a>
+       </div>
+
+      <div class="sidebar-wrapper">
+         <div class="user logo" style="position: relative; margin: 20px auto 0; padding-left: 30px;padding-top: 0; ">
+          <div class="photo" style="display: inline; padding-right: 5px">
+            <img src="/../../media/photos/22_signe.jpeg" height="34px" width="34px" style="border-radius: 50px">
+          </div>
+          <div class="user-info" style="display: inline">
+            <a data-toggle="collapse" href="#collapseExample" class="username collapsed" aria-expanded="false">
+              <span>
+                Tania Andrew
+                <b class="caret"></b>
+              </span>
+            </a>
+            <div class="collapse" id="collapseExample" style="">
+              <ul class="nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <span class="sidebar-mini"> MP </span>
+                    <span class="sidebar-normal"> My Profile </span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <span class="sidebar-mini"> EP </span>
+                    <span class="sidebar-normal"> Edit Profile </span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <span class="sidebar-mini"> S </span>
+                    <span class="sidebar-normal"> Settings </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          </div>
+        <ul class="nav" style="">
+          <li class="nav-item ">
+            <a class="nav-link" href="{% url 'mainapp:dashboard' %}">
+              <i class="material-icons">dashboard</i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+
+          <li class="nav-item active">
+            
+            <a class="nav-link configuration" >
+              <i class="material-icons">settings</i>
+              <p>Configuration</p>
+            </a>
+          </li>
+
+			     <li class="nav-item ">
+              <a class="nav-link personnel">
+                <i class="material-icons">person</i>
+                <p>Personnel</p>
+              </a>
+            </li>
+
+          <li class="nav-item ">
+            <a class="nav-link apprenant" >
+              <i class="material-icons">image</i>
+              <p>Apprenants</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link cours">
+              <i class="material-icons">image</i>
+              <p>Classe</p>
+            </a>
+          </li>
+
+          <li class="nav-item ">
+            <a class="nav-link emploi-du-temps" >
+              <i class="material-icons">content_paste</i>
+              <p>Emploi du Temps</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link documents" >
+              <i class="material-icons">bubble_chart</i>
+              <p>Finances</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link notes">
+              <i class="material-icons">bubble_chart</i>
+              <p>Santé</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link finances" >
+              <i class="material-icons">bubble_chart</i>
+              <p>Securité</p>
+            </a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link discipline" >
+              <i class="material-icons">bubble_chart</i>
+              <p>Options</p>
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>

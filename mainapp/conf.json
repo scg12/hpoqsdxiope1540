@@ -1,0 +1,64 @@
+{
+	"services" : 
+	{
+
+		"etudiant_service" : 
+		{		
+			"description" : "service des etudiants",
+			"type_requete" :  "http",
+			"debut_requete" : "http://",
+			"serveur_ip" : "127.0.0.1",
+			"serveur_port" : "8000",
+			"port_separateur" : ":",
+			"url_separateur" : "/",
+			"header_content_type" : "application/json",
+			"nom_application" : "etudiantapp",
+			"operations" : 
+				{
+					"creation" : {
+						"nom" : "creer",
+						"description" : "",
+						"url" : "creation-etudiant-json",
+						"parametres" : ["etudiant_data"]
+							
+					},
+
+					"modification" : {
+						"nom" : "modifier",
+						"description" : "",
+						"url" : "modification-etudiant-json",
+						"parametres" : ["id", "etudiant_data"] 
+
+					},
+
+					"suppression" : {
+						"nom" : "supprimer",
+						"description" : "",
+						"url" : "suppression-etudiant-json",
+						"parametres" : ["id"]
+
+					},
+
+					"recherche" : {
+						"nom" : "rechercher",
+						"description" : "",
+						"url" : "recherche-etudiant-json",
+						"parametres" : ["recherche"]
+
+					},
+
+					"liste" : {
+						"nom" : "lister",
+						"description" : "",
+						"url" : "liste-etudiants-json",
+						"parametres" : []
+					}
+
+				}
+		}
+
+	}
+
+
+}
+

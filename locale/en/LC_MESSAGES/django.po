@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-11-22 18:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\mainapp\forms.py:10
+msgid "MATRICULE"
+msgstr "REGISTRATION N°"
+
+#: .\mainapp\forms.py:20
+msgid "PRENOM"
+msgstr "FIRST NAME"
+
+#: .\mainapp\forms.py:44
+msgid "NOM"
+msgstr "NAME"
+
+#: .\mainapp\templates\mainapp\pages\dashboard.html:51
+msgid "mon tableau de bord!!!"
+msgstr "My Dashboard !!!"
+
+#: .\mainapp\templates\mainapp\pages\groupe-permission-modification.html:18
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:188
+msgid "Liste_des_groupes"
+msgstr "Groups_List"
+
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:11
+msgid "Groupe"
+msgstr "Group"
+
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:188
+msgid "Liste des groupes"
+msgstr "Groups' List"
+
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:189
+msgid ""
+"\n"
+"\t\t\t    \n"
+"\t\t\t"
+msgstr ""
+
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:202
+msgid "Page"
+msgstr "Page"
+
+#: .\mainapp\templates\mainapp\pages\liste-groupes.html:202
+msgid "sur"
+msgstr "on"
+
+#: .\mainapp\templates\mainapp\pages\liste-profils.html:690
+msgid "Nom"
+msgstr "Name"
+
+#: .\mainapp\templates\mainapp\pages\liste-profils.html:695
+msgid "Prenom"
+msgstr "First name"
+
+#: .\mainapp\templates\mainapp\pages\liste-profils.html:713
+msgid "Numero de telephone"
+msgstr "Phone number"
+
+#: .\mainapp\templates\mainapp\pages\liste-profils.html:724
+msgid "Ville de residence"
+msgstr "town of residence"
+
+#: .\mainapp\templates\mainapp\pages\liste-profils.html:731
+msgid "Quartier"
+msgstr "Quater"
+
+#: .\mainproject\settings.py:137
+msgid "French"
+msgstr "Français"
+
+#: .\mainproject\settings.py:138
+msgid "English"
+msgstr "Anglais"

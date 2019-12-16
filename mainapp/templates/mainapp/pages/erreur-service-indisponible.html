@@ -1,0 +1,49 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load static %}
+
+  {% load crispy_forms_tags %}
+
+  {% block content %}
+
+        <div class="content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-body">
+
+                      <div class="card-title text-danger">
+                          
+                          <p class="h2 text-center">
+                            <i class="material-icons text-danger">warning</i>
+                            {{ message_title }}
+                          </p>
+                      </div>
+
+                      <div class="card-body">
+                        <p class="h3">{{ message_body }}</p>
+                      </div>
+
+                      <div>
+
+                  <p class="h4 text-primary"><i class="material-icons">local_phone</i>{{ message_phone1 }}</p>
+                  <p class="h4 text-primary"><i class="material-icons">local_phone</i>{{ message_phone2 }}</p>
+                  <p class="h4 text-primary"><i class="material-icons">email</i>{{ message_email1 }}</p>
+                  <p class="h4 text-primary"><i class="material-icons">email</i>{{ message_email2 }}</p>
+
+                      </div>
+                    
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+  {% endblock %}
+
+
