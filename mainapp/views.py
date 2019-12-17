@@ -25,8 +25,7 @@ from .models import Etab, SousEtab, Cycle, Niveau, Classe, AnneeScolaire, Cours,
     Matiere, TypeEnseignant, DivisionTemps, TypePayementDivers, TypePayementEleve,\
     TypePayementAdminStaff, Groupe, TypeReunion, Enseignant
 
-from mainapp.serializers import UserSerializer, ProfilSerializer, EtudiantSerializer, EtabSerializer,\
-     SousEtabSerializer, CycleSerializer
+from mainapp.serializers import *
 
 from pymongo import MongoClient
 
@@ -112,6 +111,44 @@ def creation_etablissement(request):
         return render(request, 'mainapp/pages/creation-etablissement.html',{'form':EtablissementForm})
     elif request.method == 'POST':
         form = EtablissementForm(request.POST)
+        if form.is_valid():
+
+            nom_etab = form.cleaned_data['nom_etab']
+            date_creation = form.cleaned_data['date_creation']
+            nom_fondateur = form.cleaned_data['nom_fondateur']
+            localisation = form.cleaned_data['localisation']
+            bp = form.cleaned_data['bp']
+            email = form.cleaned_data['email']
+            tel = form.cleaned_data['tel']
+            devise = form.cleaned_data['devise']
+            langue = form.cleaned_data['langue']
+            annee_scolaire = form.cleaned_data['annee_scolaire']
+            site_web = form.cleaned_data['site_web']
+
+            etab = Etab()
+            etab.nom_etab = nom_etab
+            etab.date_creation = date_creation
+            etab.nom_fondateur = nom_fondateur
+            etab.localisation = localisation
+            etab.bp = bp
+            etab.email = email
+            etab.tel = tel
+            etab.devise = devise
+            etab.langue = langue
+            etab.annee_scolaire = annee_scolaire
+            etab.site_web = site_web
+
+            etab.save()
+
+        return redirect('mainapp:liste_etablissements')
+
+def creation_cycle(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-cycle.html',{'form':CycleForm})
+    elif request.method == 'POST':
+        form = CycleForm(request.POST)
         if form.is_valid():
 
             nom_etab = form.cleaned_data['nom_etab']
@@ -299,7 +336,15 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
                     data.append(cycle)
     for d in data:
         print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
-                    
+    recherche ="etoilek"
+
+    infos = []
+    # s.lower()
+    for dictn in data:
+        if recherche in dictn['nom_etab'] or recherche in dictn['nom_sousetab'] or recherche in dictn['nom_cycle']:
+            infos.append(dictn)
+
+    [print(info) for info in infos]
                     # print(e.nom_etab," "," ",e.nom_fondateur," ",p," ",cy[0])
                     # for niv in cy[0].niveaux_id:
                     #     nivs = Niveau.objects.filter(pk=niv)
@@ -436,25 +481,26 @@ def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
     data =[]
 
-    etabs = Etab.objects.all()
-    for e in etabs:
-        for s in e.sous_etabs_id:
-            se = SousEtab.objects.filter(pk=s)
-            for p in se:
-                for c in p.cycles_id:
-                    cy = Cycle.objects.filter(pk=c)
-                    cycle = dict(
-                            nom_etab = e.nom_etab,
-                            nom_sousetab = p.nom_sousetab,
-                            nom_cycle = cy[0].nom_cycle,
-                            cycle_id = cy[0].id
-                    )
-                    data.append(cycle)
-    for d in data:
-        print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
+    etabs = Etab.objects.all().order_by('-id')
+    # for e in etabs:
+    #     for s in e.sous_etabs_id:
+    #         se = SousEtab.objects.filter(pk=s)
+    #         for p in se:
+    #             for c in p.cycles_id:
+    #                 cy = Cycle.objects.filter(pk=c)
+    #                 cycle = dict(
+    #                         nom_etab = e.nom_etab,
+    #                         nom_sousetab = p.nom_sousetab,
+    #                         nom_cycle = cy[0].nom_cycle,
+    #                         cycle_id = cy[0].id
+    #                 )
+    #                 data.append(cycle)
+    # for d in data:
+    #     print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
+
 
     form = CycleForm  
-    paginator = Paginator(data, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+    paginator = Paginator(etabs, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
         # La définition de nos URL autorise comme argument « page » uniquement 
@@ -620,6 +666,13 @@ def suppression_sous_etablissement(request):
 
     return redirect('mainapp:liste_sous_etablissements')
 
+def suppression_cycle(request):
+
+    id = request.POST['id_supp']    
+    Cycle.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_cycles')
+
 def modification_etudiant(request):
 
     id = request.POST['id_modif']
@@ -735,6 +788,47 @@ def modification_sous_etablissement(request):
             localisation=localisation)
 
         return redirect('mainapp:liste_sous_etablissements')
+
+def modification_cycle(request):
+
+    id = request.POST['id_modif']
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+
+    form = CycleForm(request.POST)
+
+    if form.is_valid():
+
+        nom_cycle = form.cleaned_data['nom_cycle']
+        nom_etab = form.cleaned_data['nom_etab']
+        date_creation = form.cleaned_data['date_creation']
+        nom_fondateur = form.cleaned_data['nom_fondateur']
+        localisation = form.cleaned_data['localisation']
+        bp = form.cleaned_data['bp']
+        email = form.cleaned_data['email']
+        tel = form.cleaned_data['tel']
+        devise = form.cleaned_data['devise']
+        langue = form.cleaned_data['langue']
+        annee_scolaire = form.cleaned_data['annee_scolaire']
+        site_web = form.cleaned_data['site_web']
+
+        # etab = Etab.objects.filter(pk=id)[0]
+
+        # etab.nom_etab = nom_etab
+        # etab.date_creation = date_creation
+        # etab.nom_fondateur = nom_fondateur
+        # etab.localisation = localisation
+        # etab.bp = bp
+        # etab.email = email
+        # etab.tel = tel
+        # etab.devise = devise
+        # etab.langue = langue
+        # etab.annee_scolaire = annee_scolaire
+        # etab.site_web = site_web
+
+        # etab.save()
+        Cycle.objects.filter(pk=id).update(nom_cycle=nom_cycle)
+
+        return redirect('mainapp:liste_cycles')
 
 def recherche_etudiant(request):
     
@@ -1141,7 +1235,7 @@ def recherche_cycle(request):
             
             cycles = find_cycle(donnees_recherche,trier_par)
 
-
+            
             if (nbre_element_par_page == -1):
                 nbre_element_par_page = len(cycles)
 
@@ -1201,7 +1295,7 @@ def recherche_cycle(request):
 
 
             data = {
-                "cycles": cycles,
+                "etablissements": cycles,
                 "message_resultat":"",
                 "numero_page_active" : int(numero_page_active),
                 "liste_page" : liste_page,
@@ -1220,6 +1314,36 @@ def recherche_cycle(request):
             return JSONResponse(data) 
 
 def find_cycle(recherche, trier_par):
+
+    data =[]
+
+    etabs = Etab.objects.all()
+    # for e in etabs:
+    #     for s in e.sous_etabs_id:
+    #         se = SousEtab.objects.filter(pk=s)
+    #         for p in se:
+    #             for c in p.cycles_id:
+    #                 cy = Cycle.objects.filter(pk=c)
+    #                 cycle = dict(
+    #                         nom_etab = e.nom_etab,
+    #                         nom_sousetab = p.nom_sousetab,
+    #                         nom_cycle = cy[0].nom_cycle,
+    #                         cycle_id = cy[0].id
+    #                 )
+    #                 data.append(cycle)
+
+    # infos = []
+    
+    # if recherche == "" or not recherche:
+    #     cycles = data
+    # else:
+    #     if (trier_par == "non defini"):
+    #         for dictn in data:
+    #             if recherche in dictn['nom_etab'] or recherche in dictn['nom_sousetab'] or recherche in dictn['nom_cycle']:
+    #                 infos.append(dictn)
+    #         cycles = infos
+    #     else:
+
     
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
@@ -1232,33 +1356,38 @@ def find_cycle(recherche, trier_par):
             # Q(archived ="0") &
             cycles = Etab.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
-                Q(date_creation__icontains=recherche) |
-                Q(nom_fondateur__icontains=recherche) |
-                Q(localisation__icontains=recherche)|
-                Q(bp__icontains=recherche) |
-                Q(email__icontains=recherche) |
-                Q(tel__icontains=recherche) |
-                Q(devise__icontains=recherche)|
-                Q(langue__icontains=recherche))
-            ).distinct()
+                Q(sous_etabs__nom_sousetab__icontains=recherche) |
+                Q(sous_etabs__cycles__nom_cycle__icontains=recherche)
+                # Q(localisation__icontains=recherche)|
+                # Q(bp__icontains=recherche) |
+                # Q(email__icontains=recherche) |
+                # Q(tel__icontains=recherche) |
+                # Q(devise__icontains=recherche)|
+                # Q(langue__icontains=recherche)
+                )
+            ).distinct('nom_etab','sous_etabs__nom_sousetab','sous_etabs__cycles__nom_cycle')
 
         else:
 
             cycles = Etab.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
-                Q(date_creation__icontains=recherche) |
-                Q(nom_fondateur__icontains=recherche) |
-                Q(localisation__icontains=recherche)|
-                Q(bp__icontains=recherche) |
-                Q(email__icontains=recherche) |
-                Q(tel__icontains=recherche) |
-                Q(devise__icontains=recherche)|
-                Q(langue__icontains=recherche))
-            ).distinct().order_by(trier_par)
+                Q(sous_etabs__nom_sousetab__icontains=recherche) |
+                Q(sous_etabs__cycles__nom_cycle__icontains=recherche)
+                # Q(localisation__icontains=recherche)|
+                # Q(bp__icontains=recherche) |
+                # Q(email__icontains=recherche) |
+                # Q(tel__icontains=recherche) |
+                # Q(devise__icontains=recherche)|
+                # Q(langue__icontains=recherche)
+                )
+            ).distinct('nom_etab','sous_etabs__nom_sousetab',sous_etabs__cycles__nom_cycle).order_by(trier_par)
 
-    etablissements_serializers = EtabSerializer(cycles, many=True)
+            print("======" , cycles)
+            [print(c) for c in cycles]
 
-    return etablissements_serializers.data
+    cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+
+    return cycles_serializers.data
 
 def recherche_profil(request):
     

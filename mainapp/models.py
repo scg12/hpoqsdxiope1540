@@ -662,6 +662,8 @@ class Cycle(models.Model):
     )
     
     objects = models.DjongoManager()
+    class Meta:
+        ordering = ['nom_cycle']
     def __str__(self):
             return self.nom_cycle
 # Payements liées aux adminstaff et aux enseignants

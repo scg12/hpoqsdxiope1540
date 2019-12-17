@@ -9,6 +9,7 @@ urlpatterns = [
 url('dashboard/', views.dashboard, name="dashboard"),
 url('creation-etudiant/', views.creation_etudiant, name="creation_etudiant"),
 url('creation-profil/', views.creation_profil, name="creation_profil"),
+url('creation-cycle/', views.creation_cycle, name="creation_cycle"),
 url(r'^liste-etudiants/(?P<page>\d+)$', views.liste_etudiants, name='liste_etudiants'),
 url('liste-etudiants/', views.liste_etudiants, name="liste_etudiants"),
 url('liste-groupes/', views.liste_groupes, name="liste_groupes"),
@@ -45,7 +46,9 @@ url(r'^suppression-etablissement/$', views.suppression_etablissement, name='supp
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
-
+url(r'^suppression-cycle/$', views.suppression_cycle, name='suppression_cycle'),
+url(r'^recherche-cycle/$', views.recherche_cycle, name='recherche_cycle'),
+url(r'^modification-cycle/$', views.modification_cycle, name='modification_cycle'),
 url('', views.accueil, name="accueil"),
 
 ]

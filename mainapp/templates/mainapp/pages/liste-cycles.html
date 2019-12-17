@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                              <form action="{% url 'mainapp:recherche_etablissement' %}" class="recherche_etablissement" method="GET">
+                              <form action="{% url 'mainapp:recherche_cycle' %}" class="recherche_cycle" method="GET">
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
@@ -108,17 +108,17 @@
                               <tr>
                                 <th scope="col" class="fix-col" >#</th>
                                 
-                                <th scope="col" class="nom_sousetab fix-col1" >
+                                <th scope="col" class="sous_etabs__cycles fix-col1" >
                                     <span class="tri tri-asc">Cycle
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="date_creation">
+                                <th scope="col" class="sous_etabs__nom_sousetab">
                                     <span class="tri tri-asc">Sous Etab
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
-                                <th scope="col" class="nom_fondateur">
+                                <th scope="col" class="nom_etab">
                                     <span class="tri tri-asc">Etablissement
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span> 
@@ -126,7 +126,7 @@
                                 </th>
                                 <th scope="col" class="text-right">
                                   {% if perms.mainapp.can_add_sousetab or perms.mainapp.add_sousetab %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-eleve-link" data-toggle="modal" data-target="#modal_ajouter_eleve">
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-cycle-link" data-toggle="modal" data-target="#modal_ajouter_cycle">
                                       <i class="material-icons">person_add</i>
                                   </button>
                                   {% endif %}
@@ -135,27 +135,29 @@
                               </tr>
                             </thead>
                             <tbody>
-                                {% for cycl in page_active  %}
-                                    <tr class="{{ cycl.cycle_id }}²²{{ cycl.nom_cycle }}²²{{ cycl.nom_etab }}²²{{ cycl.nom_sousetab }}">
-                                      <th scope="row" class="detail-eleve-link-td fix-col">{{ forloop.counter }}</th>
+                                {% for etab in page_active  %}
+                                  {% for ssetab in etab.sous_etabs.all  %}
+                                    {% for cycl in ssetab.cycles.all  %}
+                                    <tr class="{{ cycl.id }}²²{{ cycl.nom_cycle }}²²{{ etab.nom_etab }}²²{{ ssetab.nom_sousetab }}">
+                                      <th scope="row" class="detail-cycle-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ cycl.nom_cycle }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cycl.nom_sousetab }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ cycl.nom_etab }}</td>
+                                      <td class="detail-cycle-link-td fix-col1" style="text-transform: uppercase;">{{ cycl.nom_cycle }}</td>
+                                      <td class="detail-cycle-link-td" style="text-transform: uppercase;">{{ ssetab.nom_sousetab }}</td>
+                                      <td class="detail-cycle-link-td" style="text-transform: capitalize;">{{ etab.nom_etab }}</td>
                                       <td class="td-actions text-right"> 
 <!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
-                                        <button rel="tooltip" class="btn detail-eleve-link">
+                                        <button rel="tooltip" class="btn detail-cycle-link">
                                             <i class="material-icons">visibility</i>
                                         </button>
                                       {% endif %} -->
-                                      {% if perms.mainapp.can_change_sousetab or perms.mainapp.change_sousetab %}
-                                        <button rel="tooltip" class="btn modifier-eleve-link">
+                                      {% if perms.mainapp.can_change_cycle or perms.mainapp.change_cycle %}
+                                        <button rel="tooltip" class="btn modifier-cycle-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
-                                        {% if perms.mainapp.can_delete_sousetab or perms.mainapp.delete_sousetab %}
-                                        <button class="btn btn-danger supprimer-eleve-link">
+                                        {% if perms.mainapp.can_delete_cycle or perms.mainapp.delete_cycle %}
+                                        <button class="btn btn-danger supprimer-cycle-link">
                                             <i class="material-icons">close</i>
                                         </button>
                                         {% endif %}
@@ -168,6 +170,8 @@
                                       <tr>
                                         <td colspan="7" class="text-center h4">Aucun cycle(s) créé(s) </td>
                                       </tr>
+                                {% endfor %}
+                                {% endfor %}
                                 {% endfor %}
 
                             </tbody>
@@ -218,7 +222,7 @@
 
 
   <!-- Detail-Dialog box -->
-<!--     <div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
+<div class="modal fade" id="modal_detail_cycle" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -227,8 +231,8 @@
 
             <div class="modal-body ">
                 <div class="card-body card-primary">
-                  <p class="h4 text-center">DETAIL ELEVE</p>
-                  <form method="post"  class="detail_eleve" action=" ">
+                  <p class="h4 text-center">DETAIL CYCLE</p>
+                  <form method="post"  class="detail_cycle" action=" ">
                       {% csrf_token %}
                       {{ form.as_p }}
 
@@ -245,11 +249,10 @@
         </div>
     </div>
 </div>
- -->
 
 
-  <!-- dialog box ajouter eleve  -->
-<!--     <div class="modal fade" id="modal_ajouter_eleve" tabindex="-1" role="">
+  <!-- dialog box ajouter cycle  -->
+<div class="modal fade" id="modal_ajouter_cycle" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -257,8 +260,8 @@
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER ELEVE</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_etudiant' %}">
+                    <p class="h4 text-center">AJOUTER CYCLE</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_cycle' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
 
@@ -275,12 +278,12 @@
    
         </div>
     </div>
-</div> -->
+</div>
 
 
 
-  <!-- dialog box modifier eleve  -->
-<!--     <div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
+  <!-- dialog box modifier cycle  -->
+<div class="modal fade" id="modal_modifier_cycle" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -289,8 +292,8 @@
 
             <div class="modal-body ">
               <div class="card-body">
-                <p class="h4 text-center">MODIFIER ELEVE</p>
-                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_etudiant' %}">
+                <p class="h4 text-center">MODIFIER CYCLE</p>
+                   <form method="post" class="modifier_cycle" action="{% url 'mainapp:modification_cycle' %}">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -307,12 +310,12 @@
                     
         </div>
     </div>
-</div> -->
+</div>
 
 
 
   <!-- Suppression-Dialog box -->
-<!--     <div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
+<div class="modal fade" id="modal_supprimer_cycle" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -321,29 +324,24 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_eleve" action="{% url 'mainapp:suppression_etudiant' %} ">
-                    <p class="h4 text-center">SUPPRIMER ELEVE</p>
+                  <form method="post"  class="suppression_cycle" action="{% url 'mainapp:suppression_cycle' %} ">
+                    <p class="h4 text-center">SUPPRIMER CYCLE</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
                         <div class="form-group">
-                          <label class="">Matricule : </label>
-                          <label class="matricule text-primary"></label>
+                          <label class="">Cycle : </label>
+                          <label class="nom_cycle text-primary"></label>
                         </div>
 
                         <div class="form-group">
-                          <label class="">Nom : </label>
-                          <label class="nom text-primary"></label>
+                          <label class="">Sous Etab : </label>
+                          <label class="nom_sousetab text-primary"></label>
                         </div>
 
                         <div class="form-group">
-                          <label class="">Prenom : </label>
-                          <label class="prenom text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">Age : </label>
-                          <label class="age text-primary"></label>
+                          <label class="">etablissement : </label>
+                          <label class="nom_etab text-primary"></label>
                         </div>
                         
                         <div class="card-body">Voulez vous vraiment supprimer?</div>
@@ -360,7 +358,7 @@
                
         </div>
     </div>
-</div> -->
+</div>
 
 
   <!-- input with datetimepicker -->

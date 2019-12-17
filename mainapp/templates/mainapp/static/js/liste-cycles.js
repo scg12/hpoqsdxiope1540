@@ -1,13 +1,13 @@
 $(document).ready(function(){
 
-/*    $("table tr .supprimer-eleve-link").click(function() {
+/*    $("table tr .supprimer-cycle-link").click(function() {
         alert("889812");
-        $('#supprimer-eleve-link2').modal('show');
-        $('#modal_supprimer_eleve2 .matricule2').text('show');
+        $('#supprimer-cycle-link2').modal('show');
+        $('#modal_supprimer_cycle2 .matricule2').text('show');
     
     });*/
-        //$('#modal_supprimer_eleve2').modal('show');
-       // $('#modal_supprimer_eleve2 .matricule2').text('show');
+        //$('#modal_supprimer_cycle2').modal('show');
+       // $('#modal_supprimer_cycle2 .matricule2').text('show');
 
    $(".recherche").keyup(function(e) {
 
@@ -18,7 +18,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_etablissement");
+        var form = $(".recherche_cycle");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -42,7 +42,7 @@ $(document).ready(function(){
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("etab") == -1){
+          if(data.permissions.indexOf("cycle") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -80,31 +80,29 @@ $(document).ready(function(){
               if (liste_etablissements.length != 0){
 
                   for (var i = debut; i < fin; i++) {
-                      id = liste_etablissements[i].id;
-                      matricule = liste_etablissements[i].nom_etab;
-                      nom = liste_etablissements[i].date_creation;
-                      prenom = liste_etablissements[i].nom_fondateur;
-                      age = liste_etablissements[i].localisation;
-                      bp = liste_etablissements[i].bp;
-                      email = liste_etablissements[i].email;
-                      tel = liste_etablissements[i].tel;
-                      devise = liste_etablissements[i].devise;
-                      langue = liste_etablissements[i].langue;
-                      annee_scolaire = liste_etablissements[i].annee_scolaire;
-                      site_web = liste_etablissements[i].site_web;
-                      
 
-                    nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule+ '²²'+ nom +'²²'+ prenom +'²²' + age +'²²'+ bp + '²²'+ email +'²²'+ tel +'²²' + devise+'²²' + langue + '²²'+annee_scolaire+ '²²' +site_web+"'>" + '<th scope="row">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-eleve-link-td">'+ matricule + '</td><td style="text-transform: uppercase;" class="detail-eleve-link-td">' + nom + '</td><td style="text-transform: capitalize;" class="detail-eleve-link-td">' + prenom + '</td><td>'+ age +'</td><td class="detail-eleve-link-td">' + bp + '</td><td class="detail-eleve-link-td">' + email + '</td><td class="detail-eleve-link-td">'+ tel + '</td><td class="detail-eleve-link-td">' + devise +'</td><td class="detail-eleve-link-td">'+ langue+ '</td><td class="td-actions text-right detail-eleve-link-td">';
-                    view = '<button type="button" rel="tooltip" class="btn detail-eleve-link-td" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
-                    change ='&nbsp;<button type="button" rel="tooltip" class="btn modifier-eleve-link-td"><i class="material-icons">edit</i></button>';
-                    del = '&nbsp;<button rel="tooltip" class="btn btn-danger supprimer-eleve-link-td"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                      nom_etab = liste_etablissements[i].nom_etab;
+                      nom_sousetab = liste_etablissements[i].sous_etabs[0].nom_sousetab                      
+
+                      lg = liste_etablissements[i].sous_etabs[0].cycles.length;
+                      
+                      // nom_cycle = liste_etablissements[i].nom_cycle;
+                      //alert(lg);
+                      liste_etablissements[i].sous_etabs[0].cycles.forEach(function(item){
+                        nom_cycle = item.nom_cycle;
+                        id = item.cycle_id;
+
+                        nouvelle_ligne = "<tr class='"+ id+'²²'+ nom_cycle+ '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-cycle-link-td fix-col1">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-cycle-link-td">' + nom_sousetab + '</td><td class="detail-cycle-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
+                    view = '<button type="button" rel="tooltip" class="btn detail-cycle-link-td" data-toggle="modal" data-target="#modal_detail_cycle"><i class="material-icons">visibility</i></button>';
+                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-cycle-link btn"><i class="material-icons">edit</i></button>';
+                    del = '&nbsp;<button rel="tooltip" class="supprimer-cycle-link btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
                    
-                    //$("table tbody button:last").addClass("supprimer-eleve-link");
+                    //$("table tbody button:last").addClass("supprimer-cycle-link");
                     // alert(data.permissions.indexOf("etablissements"));
 
-                        index_model = data.permissions.indexOf("etab")
+                        index_model = data.permissions.indexOf("cycle")
                         /*if(data.permissions[index_model + 1] ==1 ){
                           nouvelle_ligne += view;
                         } */                     
@@ -113,13 +111,15 @@ $(document).ready(function(){
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
                         if(data.permissions[index_model + 3] ==0 ){
-                          $("button .ajouter-eleve-link").remove();
+                          $("button .ajouter-cycle-link").remove();
                         }                      
                         if(data.permissions[index_model + 4] ==1 ){
                           nouvelle_ligne += del;
                         }
 
                         $("table tbody").append(nouvelle_ligne);
+                      });
+                    
                     
                     
 
@@ -201,183 +201,99 @@ $(document).ready(function(){
 
 /*
 
-    $(".ajouter-eleve-link").click(function() {
+    $(".ajouter-cycle-link").click(function() {
 
-        $('#modal_ajouter_eleve').modal('show');
+        $('#modal_ajouter_cycle').modal('show');
 
-        $(".matricule").removeAttr("disabled");
+        $(".nom_cycle").removeAttr("disabled");
         $(".nom").removeAttr("disabled");
         $(".prenom").removeAttr("disabled");
         $(".age").removeAttr("disabled");
 
-        $(".matricule").val("");
+        $(".nom_cycle").val("");
         $(".nom").val("");
         $(".prenom").val("");
         $(".age").val("");
 
     });*/
 
-    $("body").on("click", ".ajouter-eleve-link", function() {
+    $("body").on("click", ".ajouter-cycle-link", function() {
         
-        $('#modal_ajouter_eleve').modal('show');
+        $('#modal_ajouter_cycle').modal('show');
 
-        $(".nom_etab").val(matricule);
-        $(".date_creation").val(nom);
-        $(".nom_fondateur").val(prenom);
-        $(".localisation").val(age);
-        $(".bp").val(bp);
-        $(".email").val(email);
-        $(".tel").val(tel);
-        $(".devise").val(devise);
-        $(".langue").val(langue);
-        $(".annee_scolaire").val(annee_scolaire);
-        $(".site_web").val(site_web);
-        $("#id_modif").val(id);
+        $(".nom_cycle").val(nom_cycle);
+        $(".nom_sousetab").val(nom_sousetab);
+        $(".nom_etab").val(nom_etab);
+        $("#id_modif").val(cycle_id);
 
+        $(".nom_cycle").val("");
+        $(".nom_sousetab").val("");
         $(".nom_etab").val("");
-        $(".date_creation").val("");
-        $(".nom_fondateur").val("");
-        $(".localisation").val("");
-        $(".bp").val("");
-        $(".email").val("");
-        $(".tel").val("");
-        $(".devise").val("");
-        $(".langue").val("");
-        $(".annee_scolaire").val("");
-        $(".site_web").val("");
 
     });
 
-    // $(".detail-eleve-link-td").click(function() {
-     $("body").on("click", ".detail-eleve-link-td", function() {
+    // $(".detail-cycle-link-td").click(function() {
+     $("body").on("click", ".detail-cycle-link-td", function() {
 
-        $('#modal_detail_eleve').modal('show');
+        $('#modal_detail_cycle').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
-        id = tab_element[0];
-        matricule = tab_element[1];
-        nom = tab_element[2];
-        prenom = tab_element[3];
-        age = tab_element[4];
-        bp = tab_element[5];
-        email = tab_element[6];
-        tel = tab_element[7];
-        devise = tab_element[8];
-        langue = tab_element[9];
-        annee_scolaire = tab_element[10];
-        site_web = tab_element[11];
-
-        $(".nom_etab").val(matricule);
-        $(".date_creation").val(nom);
-        $(".nom_fondateur").val(prenom);
-        $(".localisation").val(age);
-        $(".bp").val(bp);
-        $(".email").val(email);
-        $(".tel").val(tel);
-        $(".devise").val(devise);
-        $(".langue").val(langue);
-        $(".annee_scolaire").val(annee_scolaire);
-        $(".site_web").val(site_web);
+        nom_etab = tab_element[0];
+        nom_sousetab = tab_element[1];
+        nom_cycle = tab_element[2];
+        id = tab_element[3];
+      
+        $(".nom_cycle").val(nom_cycle);
+        $(".nom_sousetab").val(nom_sousetab);
+        $(".nom_etab").val(nom_etab);
         $("#id_modif").val(id);
 
+        $(".nom_cycle").attr("disabled", "True");
+        $(".nom_sousetab").attr("disabled", "True");
         $(".nom_etab").attr("disabled", "True");
-        $(".date_creation").attr("disabled", "True");
-        $(".nom_fondateur").attr("disabled", "True");
-        $(".localisation").attr("disabled", "True");
-        $(".bp").attr("disabled", "True");
-        $(".email").attr("disabled", "True");
-        $(".tel").attr("disabled", "True");
-        $(".devise").attr("disabled", "True");
-        $(".langue").attr("disabled", "True");
-        $(".annee_scolaire").attr("disabled", "True");
-        $(".site_web").attr("disabled", "True");
-        $(".matricule").attr("disabled", "True");
-        $(".nom").attr("disabled", "True");
-        $(".prenom").attr("disabled", "True");
-        $(".age").attr("disabled", "True");
 
     });
 
 
-    $(".modifier-eleve-link").click(function() {
-        $('#modal_modifier_eleve').modal('show');
+    $(".modifier-cycle-link").click(function() {
+        $('#modal_modifier_cycle').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
-        id = tab_element[0];
-        matricule = tab_element[1];
-        nom = tab_element[2];
-        prenom = tab_element[3];
-        age = tab_element[4];
-        bp = tab_element[5];
-        email = tab_element[6];
-        tel = tab_element[7];
-        devise = tab_element[8];
-        langue = tab_element[9];
-        annee_scolaire = tab_element[10];
-        site_web = tab_element[11];
+        nom_etab = tab_element[0];
+        nom_sousetab = tab_element[1];
+        nom_cycle = tab_element[2];
+        id = tab_element[3];
 
-        $(".nom_etab").val(matricule);
-        $(".date_creation").val(nom);
-        $(".nom_fondateur").val(prenom);
-        $(".localisation").val(age);
-        $(".bp").val(bp);
-        $(".email").val(email);
-        $(".tel").val(tel);
-        $(".devise").val(devise);
-        $(".langue").val(langue);
-        $(".annee_scolaire").val(annee_scolaire);
-        $(".site_web").val(site_web);
+        $(".nom_cycle").val(nom_cycle);
+        $(".nom_sousetab").val(nom_sousetab);
+        $(".nom_etab").val(nom_etab);
         $("#id_modif").val(id);
 
+        $(".nom_cycle").removeAttr("disabled");
+        $(".nom_sousetab").removeAttr("disabled");
         $(".nom_etab").removeAttr("disabled");
-        $(".date_creation").removeAttr("disabled");
-        $(".nom_fondateur").removeAttr("disabled");
-        $(".localisation").removeAttr("disabled");
-        $(".bp").removeAttr("disabled");
-        $(".email").removeAttr("disabled");
-        $(".tel").removeAttr("disabled");
-        $(".devise").removeAttr("disabled");
-        $(".langue").removeAttr("disabled");
-        $(".annee_scolaire").removeAttr("disabled");
-        $(".site_web").removeAttr("disabled");
 
     });
 
 
 
-    $(".supprimer-eleve-link").click(function() {
+    $(".supprimer-cycle-link").click(function() {
 
-      $('#modal_supprimer_eleve').modal('show');
+      $('#modal_supprimer_cycle').modal('show');
 
       var classe = $(this).parents("tr").attr('class');
       tab_element = classe.split("²²");
-      id = tab_element[0];
-      matricule = tab_element[1];
-      nom = tab_element[2];
-      prenom = tab_element[3];
-      age = tab_element[4];
-      bp = tab_element[5];
-      email = tab_element[6];
-      tel = tab_element[7];
-      devise = tab_element[8];
-      langue = tab_element[9];
-      annee_scolaire = tab_element[10];
-      site_web = tab_element[11];
+      nom_etab = tab_element[0];
+      nom_sousetab = tab_element[1];
+      nom_cycle = tab_element[2];
+      id = tab_element[3];
       
       $("#id_supp").val(id);
-      $("#modal_supprimer_eleve .matricule").text(matricule);
-      $("#modal_supprimer_eleve .nom").text(nom);
-      $("#modal_supprimer_eleve .prenom").text(prenom);
-      $("#modal_supprimer_eleve .age").text(age);
-      $("#modal_supprimer_eleve .bp").text(bp);
-      $("#modal_supprimer_eleve .email").text(email);
-      $("#modal_supprimer_eleve .tel").text(tel);
-      $("#modal_supprimer_eleve .devise").text(devise);
-      $("#modal_supprimer_eleve .langue").text(langue);
-      $("#modal_supprimer_eleve .annee_scolaire").text(annee_scolaire);
-      $("#modal_supprimer_eleve .site_web").text(site_web);
+      $("#modal_supprimer_cycle .nom_cycle").text(nom_cycle);
+      $("#modal_supprimer_cycle .nom_sousetab").text(nom_sousetab);
+      $("#modal_supprimer_cycle .nom_cycle").text(nom_cycle);
     
     });
 
@@ -389,7 +305,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
 
-        var form = $(".recherche_etablissement");
+        var form = $(".recherche_cycle");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -426,14 +342,14 @@ $(document).ready(function(){
 
     });
       
-    $("body").on("click", ".supprimer-eleve-link-ajax", function() {
+    $("body").on("click", ".supprimer-cycle-link-ajax", function() {
         
-        $('#modal_supprimer_eleve').modal('show');
+        $('#modal_supprimer_cycle').modal('show');
 
          var classe = $(this).parents("tr").attr('class');
           tab_element = classe.split("²²");
           id = tab_element[0];
-          matricule = tab_element[1];
+          nom_cycle = tab_element[1];
           nom = tab_element[2];
           prenom = tab_element[3];
           age = tab_element[4];
@@ -446,29 +362,29 @@ $(document).ready(function(){
           site_web = tab_element[11];
           
           $("#id_supp").val(id);
-          $("#modal_supprimer_eleve .matricule").text(matricule);
-          $("#modal_supprimer_eleve .nom").text(nom);
-          $("#modal_supprimer_eleve .prenom").text(prenom);
-          $("#modal_supprimer_eleve .age").text(age);
-          $("#modal_supprimer_eleve .bp").text(bp);
-          $("#modal_supprimer_eleve .email").text(email);
-          $("#modal_supprimer_eleve .tel").text(tel);
-          $("#modal_supprimer_eleve .devise").text(devise);
-          $("#modal_supprimer_eleve .langue").text(langue);
-          $("#modal_supprimer_eleve .annee_scolaire").text(annee_scolaire);
-          $("#modal_supprimer_eleve .site_web").text(site_web);
+          $("#modal_supprimer_cycle .nom_cycle").text(nom_cycle);
+          $("#modal_supprimer_cycle .nom").text(nom);
+          $("#modal_supprimer_cycle .prenom").text(prenom);
+          $("#modal_supprimer_cycle .age").text(age);
+          $("#modal_supprimer_cycle .bp").text(bp);
+          $("#modal_supprimer_cycle .email").text(email);
+          $("#modal_supprimer_cycle .tel").text(tel);
+          $("#modal_supprimer_cycle .devise").text(devise);
+          $("#modal_supprimer_cycle .langue").text(langue);
+          $("#modal_supprimer_cycle .annee_scolaire").text(annee_scolaire);
+          $("#modal_supprimer_cycle .site_web").text(site_web);
 
     });
 
 
-    $("body").on("click", ".modifier-eleve-link-ajax", function() {
+    $("body").on("click", ".modifier-cycle-link-ajax", function() {
         
-        $('#modal_modifier_eleve').modal('show');
+        $('#modal_modifier_cycle').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
         id = tab_element[0];
-        matricule = tab_element[1];
+        nom_cycle = tab_element[1];
         nom = tab_element[2];
         prenom = tab_element[3];
         age = tab_element[4];
@@ -480,7 +396,7 @@ $(document).ready(function(){
         annee_scolaire = tab_element[10];
         site_web = tab_element[11];
 
-        $(".nom_etab").val(matricule);
+        $(".nom_etab").val(nom_cycle);
         $(".date_creation").val(nom);
         $(".nom_fondateur").val(prenom);
         $(".localisation").val(age);
@@ -509,13 +425,13 @@ $(document).ready(function(){
 
 
       
-  /*  $("body").on("click", ".detail-eleve-link-ajax", function() {
-        $('#modal_detail_eleve').modal('show');
+  /*  $("body").on("click", ".detail-cycle-link-ajax", function() {
+        $('#modal_detail_cycle').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
         id = tab_element[0];
-        matricule = tab_element[1];
+        nom_cycle = tab_element[1];
         nom = tab_element[2];
         prenom = tab_element[3];
         age = tab_element[4];
@@ -527,7 +443,7 @@ $(document).ready(function(){
         annee_scolaire = tab_element[10];
         site_web = tab_element[11];
 
-        $(".nom_etab").val(matricule);
+        $(".nom_etab").val(nom_cycle);
         $(".date_creation").val(nom);
         $(".nom_fondateur").val(prenom);
         $(".localisation").val(age);
@@ -568,7 +484,7 @@ $(document).ready(function(){
 
           var recherche = $("#recherche").val().trim();
 
-          var form = $(".recherche_etablissement");
+          var form = $(".recherche_cycle");
           var url_action = form.attr("action");
 
           var trier_par = "non defini";
@@ -621,9 +537,10 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " ";
 
-        var form = $(".recherche_etablissement");
+        var form = $(".recherche_cycle");
         var url_action = form.attr("action");
-        var trier_par = $(this).parents("th").attr("class");
+        var trier_par = $(this).parents("th").attr("class").split(" ")[0];
+        
 
         $(this).attr("class", trier_par + " tri tri-desc");
 
@@ -658,9 +575,10 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_etablissement");
+        var form = $(".recherche_cycle");
         var url_action = form.attr("action");
-        var trier_par = $(this).parents("th").attr("class")
+        var trier_par = $(this).parents("th").attr("class").split(" ")[0];
+        
 
         $(this).attr("class", trier_par + " tri tri-asc");
 
