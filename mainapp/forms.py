@@ -2,7 +2,7 @@ from django import forms
 
 from django.contrib.auth.models import Group, User
 
-from .models import Etab, SousEtab
+# from .models import Etab, SousEtab
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,7 +28,6 @@ class EtudiantForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
     )
 
-
 class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
@@ -38,7 +37,6 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('first_name','last_name','email')
-
 
 class ProfilForm(forms.Form):
 
@@ -99,6 +97,7 @@ class InitialisationForm(forms.Form):
         label='Selectionner un fichier',     
         widget=forms.ClearableFileInput(attrs={ 'class': ''}),
     ) # for creating file input  
+
 class EtablissementForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     nom_etab = forms.CharField(
@@ -160,6 +159,7 @@ class EtablissementForm(forms.Form):
     #     label='ÂGE',
     #     widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
     # )
+
 class SousEtablissementForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     nom_etab = forms.CharField(
@@ -221,3 +221,22 @@ class SousEtablissementForm(forms.Form):
     #     label='ÂGE',
     #     widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
     # )
+
+class CycleForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_cycle= forms.CharField(
+        label=_('Cycle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom Cycle', 'class': 'form-control form-group nom_cycle' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etab',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+    )
+    nom_etab = forms.CharField(
+        label=_('Etablissement'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
+    )
+    

@@ -1,6 +1,6 @@
 #from django.shortcuts import render
 from django.shortcuts import render,redirect
-from mainapp.forms import EtudiantForm, ProfilForm, GroupForm, EtablissementForm, SousEtablissementForm
+from mainapp.forms import EtudiantForm, ProfilForm, GroupForm, EtablissementForm, SousEtablissementForm, CycleForm
 from mainapp import services
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,7 +26,7 @@ from .models import Etab, SousEtab, Cycle, Niveau, Classe, AnneeScolaire, Cours,
     TypePayementAdminStaff, Groupe, TypeReunion, Enseignant
 
 from mainapp.serializers import UserSerializer, ProfilSerializer, EtudiantSerializer, EtabSerializer,\
-     SousEtabSerializer
+     SousEtabSerializer, CycleSerializer
 
 from pymongo import MongoClient
 
@@ -282,13 +282,6 @@ def creation_profil(request):
 def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     data =[]
-    # cycles = Cycle.objects.all()
-    # setabs = SousEtab.objects.all()
-    # for c in cycles:
-    #     print(c.id)
-    #     for s in setabs:
-    #         if c.id in s.cycles_id:
-    #             print (s," ",c)
 
     etabs = Etab.objects.all()
     for e in etabs:
@@ -297,13 +290,23 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
             for p in se:
                 for c in p.cycles_id:
                     cy = Cycle.objects.filter(pk=c)
-                    print(e.nom_etab," "," ",e.nom_fondateur," ",p," ",cy[0])
-                    for niv in cy[0].niveaux_id:
-                        nivs = Niveau.objects.filter(pk=niv)
-                        for n in nivs:
-                            for clss_id in n.classes_id:
-                                clss = Classe.objects.filter(pk=clss_id)
-                                print(n," ",clss[0])
+                    cycle = dict(
+                            nom_etab = e.nom_etab,
+                            nom_sousetab = p.nom_sousetab,
+                            nom_cycle = cy[0].nom_cycle,
+                            cycle_id = cy[0].id
+                    )
+                    data.append(cycle)
+    for d in data:
+        print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
+                    
+                    # print(e.nom_etab," "," ",e.nom_fondateur," ",p," ",cy[0])
+                    # for niv in cy[0].niveaux_id:
+                    #     nivs = Niveau.objects.filter(pk=niv)
+                    #     for n in nivs:
+                    #         for clss_id in n.classes_id:
+                    #             clss = Classe.objects.filter(pk=clss_id)
+                    #             print(n," ",clss[0])
 
 
 
@@ -425,6 +428,65 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
 
   
     return render(request, 'mainapp/pages/liste-sous-etablissements.html', locals())
+
+def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    # cycle = Cycle.objects.all().order_by('-id')
+
+    data =[]
+
+    etabs = Etab.objects.all()
+    for e in etabs:
+        for s in e.sous_etabs_id:
+            se = SousEtab.objects.filter(pk=s)
+            for p in se:
+                for c in p.cycles_id:
+                    cy = Cycle.objects.filter(pk=c)
+                    cycle = dict(
+                            nom_etab = e.nom_etab,
+                            nom_sousetab = p.nom_sousetab,
+                            nom_cycle = cy[0].nom_cycle,
+                            cycle_id = cy[0].id
+                    )
+                    data.append(cycle)
+    for d in data:
+        print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
+
+    form = CycleForm  
+    paginator = Paginator(data, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-cycles.html', locals())
 
 def suppression_profil(request):
 
@@ -1061,6 +1123,142 @@ def find_sous_etablissement(recherche, trier_par):
     sous_etablissements_serializers = SousEtabSerializer(sous_etablissements, many=True)
 
     return sous_etablissements_serializers.data
+
+def recherche_cycle(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            cycles = find_cycle(donnees_recherche,trier_par)
+
+
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(cycles)
+
+            #form = EtudiantForm
+            paginator = Paginator(cycles, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "cycles": cycles,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_cycle(recherche, trier_par):
+    
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            cycles = Etab.objects.order_by('-id')
+        else:
+            cycles = Etab.objects.order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+            # Q(archived ="0") &
+            cycles = Etab.objects.filter(Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(date_creation__icontains=recherche) |
+                Q(nom_fondateur__icontains=recherche) |
+                Q(localisation__icontains=recherche)|
+                Q(bp__icontains=recherche) |
+                Q(email__icontains=recherche) |
+                Q(tel__icontains=recherche) |
+                Q(devise__icontains=recherche)|
+                Q(langue__icontains=recherche))
+            ).distinct()
+
+        else:
+
+            cycles = Etab.objects.filter(Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(date_creation__icontains=recherche) |
+                Q(nom_fondateur__icontains=recherche) |
+                Q(localisation__icontains=recherche)|
+                Q(bp__icontains=recherche) |
+                Q(email__icontains=recherche) |
+                Q(tel__icontains=recherche) |
+                Q(devise__icontains=recherche)|
+                Q(langue__icontains=recherche))
+            ).distinct().order_by(trier_par)
+
+    etablissements_serializers = EtabSerializer(cycles, many=True)
+
+    return etablissements_serializers.data
 
 def recherche_profil(request):
     

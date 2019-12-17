@@ -36,6 +36,7 @@ url('liste-etablissements/', views.liste_etablissements, name="liste_etablisseme
 url(r'^recherche-etablissement/$', views.recherche_etablissement, name='recherche_etablissement'),
 url('liste-sous-etablissements/', views.liste_sous_etablissements, name="liste_sous_etablissements"),
 url('liste-cours/', views.liste_cours, name="liste_cours"),
+url('liste-cycles/', views.liste_cycles, name="liste_cycles"),
 
 url(r'^recherche-sous-etablissement/$', views.recherche_sous_etablissement, name='recherche_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
