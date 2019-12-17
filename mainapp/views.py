@@ -279,10 +279,34 @@ def creation_profil(request):
         # else:
         #     return render(request, '400.html')
 
-
 def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    
+    data =[]
+    # cycles = Cycle.objects.all()
+    # setabs = SousEtab.objects.all()
+    # for c in cycles:
+    #     print(c.id)
+    #     for s in setabs:
+    #         if c.id in s.cycles_id:
+    #             print (s," ",c)
+
+    etabs = Etab.objects.all()
+    for e in etabs:
+        for s in e.sous_etabs_id:
+            se = SousEtab.objects.filter(pk=s)
+            for p in se:
+                for c in p.cycles_id:
+                    cy = Cycle.objects.filter(pk=c)
+                    print(e.nom_etab," "," ",e.nom_fondateur," ",p," ",cy[0])
+                    for niv in cy[0].niveaux_id:
+                        nivs = Niveau.objects.filter(pk=niv)
+                        for n in nivs:
+                            for clss_id in n.classes_id:
+                                clss = Classe.objects.filter(pk=clss_id)
+                                print(n," ",clss[0])
+
+
+
     etudiants = Etudiant.objects.all().order_by('-id')
 
     
@@ -320,7 +344,6 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 
   
     return render(request, 'mainapp/pages/liste-etudiants.html', locals())
-
 
 def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -362,7 +385,6 @@ def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_
   
     return render(request, 'mainapp/pages/liste-etablissements.html', locals())
 
-
 def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
@@ -403,7 +425,6 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
 
   
     return render(request, 'mainapp/pages/liste-sous-etablissements.html', locals())
-
 
 def suppression_profil(request):
 
@@ -497,12 +518,9 @@ def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_p
   
     return render(request, 'mainapp/pages/liste-cours.html', locals())
 
-
-
 def accueil(request):
     verrou = "Verrouiller"
     return render(request, 'mainapp/pages/accueil.html', locals())
-
 
 def suppression_etudiant(request):
 
@@ -526,17 +544,19 @@ def suppression_etudiant(request):
 def suppression_etablissement(request):
 
     id = request.POST['id_supp']
-    Etab.objects.get(pk=id).delete()
+    # Etab.objects.get(pk=id).delete()
+    
+    Etab.objects.filter(pk=id).update(archived="1")
 
     return redirect('mainapp:liste_etablissements')
 
 def suppression_sous_etablissement(request):
 
     id = request.POST['id_supp']
-    Etab.objects.get(pk=id).delete()
+    # SousEtab.objects.get(pk=id).delete()
+    SousEtab.objects.filter(pk=id).update(archived="1")
 
     return redirect('mainapp:liste_sous_etablissements')
-
 
 def modification_etudiant(request):
 
@@ -749,7 +769,6 @@ def recherche_etudiant(request):
            
             return JSONResponse(data)
         
-
 def find_etudiant(recherche, trier_par):
     
     if recherche == "" or not recherche:
@@ -780,7 +799,6 @@ def find_etudiant(recherche, trier_par):
     etudiants_serializers = EtudiantSerializer(etudiants, many=True)
 
     return etudiants_serializers.data
-
 
 def recherche_etablissement(request):
     
@@ -875,8 +893,7 @@ def recherche_etablissement(request):
             }
 
            
-            return JSONResponse(data)
-        
+            return JSONResponse(data) 
 
 def find_etablissement(recherche, trier_par):
     
@@ -1014,7 +1031,6 @@ def recherche_sous_etablissement(request):
            
             return JSONResponse(data)
         
-
 def find_sous_etablissement(recherche, trier_par):
     
     if recherche == "" or not recherche:
@@ -1046,7 +1062,6 @@ def find_sous_etablissement(recherche, trier_par):
 
     return sous_etablissements_serializers.data
 
- 
 def recherche_profil(request):
     
     if (request.method == 'POST'):
@@ -1146,8 +1161,6 @@ def recherche_profil(request):
 
 
             return JSONResponse(data)
-        
-
 
 def find_profil(recherche, trier_par):
     
@@ -1188,8 +1201,6 @@ def find_profil(recherche, trier_par):
 
     return profils_serializers.data
 
-
-
 def login_user(request):
 
     if request.POST:
@@ -1215,7 +1226,6 @@ def login_user(request):
             return redirect('mainapp:liste_etablissements')
 
     return render(request, "mainapp/pages/login.html" , locals())
-
 
 def deverrouiller(request):
 
@@ -1272,8 +1282,6 @@ def verrouiller(request):
     #logout(request)
 
     return render(request, "mainapp/pages/deverrouiller.html", locals())
-
-
 
 def liste_groupes(request):
 
@@ -1467,7 +1475,6 @@ def add_perms_group(model, permss, group, app='mainapp'):
 
     return status
 
-
 def group_perms_list(group_name, app='mainapp'):
     ''' Permet d'avoir la liste des permissions d'un groupe sur un modèle donné 
     '''
@@ -1478,7 +1485,6 @@ def group_perms_list(group_name, app='mainapp'):
     for p in perms:
         print(p.name)
     return perms
-
 
 def add_user_group(user,group_name):
     ''' Permet d'ajouter un user à un group
@@ -1503,7 +1509,6 @@ def del_user_group(user,group_name):
 def logout_user(request):
     logout(request)
     return redirect('mainapp:login')
-
 
 def mlab(request):
 
@@ -1592,9 +1597,6 @@ def permissions_of_a_user(user):
         permissions = []               
 
     return permissions
-
-
-
 
 def emploi_de_temps(request):    
     
