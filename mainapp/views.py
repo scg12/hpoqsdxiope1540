@@ -32,6 +32,7 @@ from pymongo import MongoClient
 from django.db.models import Q
 from mainapp.models import Etudiant
 from django.apps import apps
+from django.db import transaction
 
 from .forms import InitialisationForm 
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -477,11 +478,15 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
 def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
-    # cycle = Cycle.objects.all().order_by('-id')
+    cycle = Cycle.objects.get(id=1)
+    print("Cycle id n°---" , cycle.id)
+    print("sous etablissement du cycle : ", cycle.sous_etablissement())
+    print("etablissement du cycle : ", cycle.etablissement())
 
     data =[]
 
-    etabs = Etab.objects.all().order_by('-id')
+    # etabs = Etab.objects.all().order_by('-id')
+    cycles = Cycle.objects.all().order_by('-id')
     # for e in etabs:
     #     for s in e.sous_etabs_id:
     #         se = SousEtab.objects.filter(pk=s)
@@ -500,7 +505,7 @@ def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
 
     form = CycleForm  
-    paginator = Paginator(etabs, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+    paginator = Paginator(cycles, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
         # La définition de nos URL autorise comme argument « page » uniquement 
@@ -743,9 +748,17 @@ def modification_etablissement(request):
         # etab.site_web = site_web
 
         # etab.save()
-        Etab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
-            localisation=localisation,bp=bp,email=email,tel=tel,devise=devise,langue=langue,\
-            annee_scolaire=annee_scolaire,site_web=site_web)
+
+        ####ajouter une transaction
+        with transaction.atomic():
+
+            if(Etab.objects.filter(pk=id)[0].nom_etab.lower() != nom_etab.lower()):
+                Cycle.objects.filter(id_etab = id).update(nom_etab = nom_etab)
+
+            Etab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
+                localisation=localisation,bp=bp,email=email,tel=tel,devise=devise,langue=langue,\
+                annee_scolaire=annee_scolaire,site_web=site_web)
+
 
         return redirect('mainapp:liste_etablissements')
 
@@ -1295,7 +1308,7 @@ def recherche_cycle(request):
 
 
             data = {
-                "etablissements": cycles,
+                "cycles": cycles,
                 "message_resultat":"",
                 "numero_page_active" : int(numero_page_active),
                 "liste_page" : liste_page,
@@ -1315,9 +1328,9 @@ def recherche_cycle(request):
 
 def find_cycle(recherche, trier_par):
 
-    data =[]
+    # data =[]
 
-    etabs = Etab.objects.all()
+    # etabs = Etab.objects.all()
     # for e in etabs:
     #     for s in e.sous_etabs_id:
     #         se = SousEtab.objects.filter(pk=s)
@@ -1347,17 +1360,19 @@ def find_cycle(recherche, trier_par):
     
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            cycles = Etab.objects.order_by('-id')
+            cycles = Cycle.objects.order_by('-id')
         else:
-            cycles = Etab.objects.order_by(trier_par)
+            cycles = Cycle.objects.order_by(trier_par)
 
     else:
         if (trier_par == "non defini"):
             # Q(archived ="0") &
-            cycles = Etab.objects.filter(Q(archived ="0") &
+            # print("*******recherche ",recherche)
+
+            cycles = Cycle.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
-                Q(sous_etabs__nom_sousetab__icontains=recherche) |
-                Q(sous_etabs__cycles__nom_cycle__icontains=recherche)
+                Q(nom_sousetab__icontains=recherche) |
+                Q(nom_cycle__icontains=recherche)
                 # Q(localisation__icontains=recherche)|
                 # Q(bp__icontains=recherche) |
                 # Q(email__icontains=recherche) |
@@ -1365,14 +1380,14 @@ def find_cycle(recherche, trier_par):
                 # Q(devise__icontains=recherche)|
                 # Q(langue__icontains=recherche)
                 )
-            ).distinct('nom_etab','sous_etabs__nom_sousetab','sous_etabs__cycles__nom_cycle')
+            ).distinct()
 
         else:
-
+            print("*******recherche ",recherche)
             cycles = Etab.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
-                Q(sous_etabs__nom_sousetab__icontains=recherche) |
-                Q(sous_etabs__cycles__nom_cycle__icontains=recherche)
+                Q(nom_sousetab__icontains=recherche) |
+                Q(nom_cycle__icontains=recherche)
                 # Q(localisation__icontains=recherche)|
                 # Q(bp__icontains=recherche) |
                 # Q(email__icontains=recherche) |
@@ -1380,12 +1395,12 @@ def find_cycle(recherche, trier_par):
                 # Q(devise__icontains=recherche)|
                 # Q(langue__icontains=recherche)
                 )
-            ).distinct('nom_etab','sous_etabs__nom_sousetab',sous_etabs__cycles__nom_cycle).order_by(trier_par)
+            ).distinct().order_by(trier_par)
 
-            print("======" , cycles)
-            [print(c) for c in cycles]
+            
 
-    cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    cycles_serializers = CycleSerializer(cycles, many=True)
 
     return cycles_serializers.data
 
@@ -1550,7 +1565,7 @@ def login_user(request):
             request.session['verrou']= 0
             #return status, user
             #return render(request, "mainapp/pages/liste-etudiants.html")
-            return redirect('mainapp:liste_etablissements')
+            return redirect('mainapp:accueil')
 
     return render(request, "mainapp/pages/login.html" , locals())
 

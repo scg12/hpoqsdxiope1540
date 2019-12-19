@@ -93,8 +93,9 @@ WSGI_APPLICATION = 'mainproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'cursusdjongodb',
+        # 'NAME': 'cursusdjongodb',
         # 'NAME': 'maindb',
+        'NAME': 'cursusdb',
     }
 }
 

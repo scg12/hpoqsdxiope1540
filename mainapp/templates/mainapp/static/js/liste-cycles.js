@@ -35,14 +35,13 @@ $(document).ready(function(){
              success: gererSucces,
              error: gererErreur,
          });
-        
 
     });
 
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("cycle") == -1){
+          if(data.permissions.indexOf("etab") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -55,7 +54,7 @@ $(document).ready(function(){
             //$("table thead").remove();
               //alert("1");
 
-              liste_etablissements = data.etablissements;
+              liste_cycles = data.cycles;
               nbre_element_par_page = data.nbre_element_par_page;
               numero_page_active = data.numero_page_active;
               liste_page = data.liste_page;
@@ -74,23 +73,17 @@ $(document).ready(function(){
       /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
-                fin = data.etablissements.length;
+                fin = data.cycles.length;
               }
 
-              if (liste_etablissements.length != 0){
+              if (liste_cycles.length != 0){
 
                   for (var i = debut; i < fin; i++) {
 
-                      nom_etab = liste_etablissements[i].nom_etab;
-                      nom_sousetab = liste_etablissements[i].sous_etabs[0].nom_sousetab                      
-
-                      lg = liste_etablissements[i].sous_etabs[0].cycles.length;
-                      
-                      // nom_cycle = liste_etablissements[i].nom_cycle;
-                      //alert(lg);
-                      liste_etablissements[i].sous_etabs[0].cycles.forEach(function(item){
-                        nom_cycle = item.nom_cycle;
-                        id = item.cycle_id;
+                      nom_etab = liste_cycles[i].nom_etab;
+                      nom_sousetab = liste_cycles[i].nom_sousetab                      
+                      nom_cycle = liste_cycles[i].nom_cycle;
+                      id = liste_cycles[i].cycle_id;
 
                         nouvelle_ligne = "<tr class='"+ id+'²²'+ nom_cycle+ '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
                     '</th><td style="text-transform: uppercase;" class="detail-cycle-link-td fix-col1">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-cycle-link-td">' + nom_sousetab + '</td><td class="detail-cycle-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
@@ -100,7 +93,7 @@ $(document).ready(function(){
                     
                    
                     //$("table tbody button:last").addClass("supprimer-cycle-link");
-                    // alert(data.permissions.indexOf("etablissements"));
+                    // alert(data.permissions.indexOf("cycles"));
 
                         index_model = data.permissions.indexOf("cycle")
                         /*if(data.permissions[index_model + 1] ==1 ){
@@ -118,7 +111,7 @@ $(document).ready(function(){
                         }
 
                         $("table tbody").append(nouvelle_ligne);
-                      });
+                      
                     
                     
                     
@@ -234,15 +227,15 @@ $(document).ready(function(){
 
     // $(".detail-cycle-link-td").click(function() {
      $("body").on("click", ".detail-cycle-link-td", function() {
-
+//class="{{ cycl.id }}²²{{ cycl.nom_cycle }}²²{{ cycl.sous_cycle }}²²{{ cycl.cycle }}"
         $('#modal_detail_cycle').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
-        nom_etab = tab_element[0];
-        nom_sousetab = tab_element[1];
-        nom_cycle = tab_element[2];
-        id = tab_element[3];
+        id = tab_element[0];
+        nom_cycle = tab_element[1];
+        nom_sousetab = tab_element[2];
+        nom_etab = tab_element[3];
       
         $(".nom_cycle").val(nom_cycle);
         $(".nom_sousetab").val(nom_sousetab);

@@ -197,23 +197,6 @@ $(document).ready(function(){
       }
 
 
-/*
-
-    $(".ajouter-eleve-link").click(function() {
-
-        $('#modal_ajouter_eleve').modal('show');
-
-        $(".matricule").removeAttr("disabled");
-        $(".nom").removeAttr("disabled");
-        $(".prenom").removeAttr("disabled");
-        $(".age").removeAttr("disabled");
-
-        $(".matricule").val("");
-        $(".nom").val("");
-        $(".prenom").val("");
-        $(".age").val("");
-
-    }); */
 
     $("body").on("click", ".ajouter-eleve-link", function() {
         

@@ -642,6 +642,7 @@ class Niveau(models.Model):
     code = models.CharField(max_length=100)
     annee_scolaire = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+
     classes = models.ArrayReferenceField(
         to=Classe,
         #on_delete=models.CASCADE,
@@ -656,16 +657,32 @@ class Cycle(models.Model):
     code = models.CharField(max_length=100)
     annee_scolaire = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+    id_etab = models.IntegerField(default=1)
+    id_sousetab = models.IntegerField(default=1)
+    nom_etab = models.CharField(max_length=100,default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
+
     niveaux = models.ArrayReferenceField(
         to=Niveau,
         #on_delete=models.CASCADE,
     )
-    
-    objects = models.DjongoManager()
+ 
+    def sous_etablissement_id(self):
+        my_sous_etab = SousEtab.objects.filter(cycles__id = self.id )
+        return my_sous_etab[0].id
+    def sous_etablissement(self):
+        my_sous_etab = SousEtab.objects.filter(cycles__id = self.id )
+        return my_sous_etab[0].nom_sousetab
+
+    def etablissement(self):
+        my_etab = Etab.objects.filter(sous_etabs__id = self.sous_etablissement_id())
+        return my_etab[0].nom_etab
     class Meta:
         ordering = ['nom_cycle']
     def __str__(self):
             return self.nom_cycle
+    
+    objects = models.DjongoManager()
 # Payements liées aux adminstaff et aux enseignants
 class TypePayementAdminStaff(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
@@ -832,8 +849,13 @@ class SousEtab(models.Model):
         #on_delete=models.CASCADE,
     )
     objects = models.DjongoManager()
+
     def __str__(self):
             return self.nom_sousetab
+
+    def liste_cycles(self):
+        #print("-----self.cycles.objects.all()--------")
+        return self.cycles.objects.all()
 
 class Etab(models.Model):
 
@@ -861,3 +883,7 @@ class Etab(models.Model):
 
     def __str__(self):
         return self.nom_etab
+
+    # def cycles(self):
+    #     my_cycles = C.objects.filter(cycles__id = self.id )
+    #     return my_sous_etab[0].nom_sousetab
