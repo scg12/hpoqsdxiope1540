@@ -107,34 +107,41 @@ class SousEtabSerializer(serializers.Serializer):
         instance.nom_fondateur = validated_data.get('nom_fondateur', instance.nom_fondateur.lower())
         instance.localisation = validated_data.get('localisation', instance.localisation.lower())
 
-class SousEtabCyclesSerializer(serializers.Serializer):
-    """docstring for SousEtabSerializer"""
-    nom_sousetab = serializers.CharField(max_length=150)
-    cycles = CycleSerializer(many = True, read_only=True)
 
-    class Meta:
-        """docstring for Met"""
-        model = SousEtab
-        fields = ('nom_sousetab', 'cycles')
-
-class EtabCyclesSerializer(serializers.Serializer):
+class NiveauSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
+    niveau_id = serializers.IntegerField(read_only=True)
     nom_etab = serializers.CharField(max_length=150)
-    sous_etabs = SousEtabCyclesSerializer(many = True, read_only=True)
-    # cycles = CycleSerializer(many = True, read_only=True)
-    
-    class Meta:
-        """docstring for Meta"""
-        model = Etab
-        fields = ('nom_etab', 'sous_etabs')
-            
-class EtabDepthSerializer(serializers.Serializer):
-    # fields = ['id', 'nom_etab']
-    # fields = '__all__'
+    nom_sousetab = serializers.CharField(max_length=150)
+    nom_cycle = serializers.CharField(max_length=150)
+    nom_niveau = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return Niveau.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
+        instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.niveau_id = validated_data.get('niveau_id', instance.niveau_id)
+
+class ClasseSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    classe_id = serializers.IntegerField(read_only=True)
     nom_etab = serializers.CharField(max_length=150)
-    sous_etabs = SousEtabCyclesSerializer(many = True, read_only=True)
+    nom_sousetab = serializers.CharField(max_length=150)
+    nom_cycle = serializers.CharField(max_length=150)
+    nom_niveau = serializers.CharField(max_length=150)
+    nom_classe = serializers.CharField(max_length=150)
 
-
-    class Meta:
-        model = Etab
-        fields = ('nom_etab', 'sous_etabs')
+    def create(self, validated_data):
+        return Classe.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
+        instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
+        instance.classe_id = validated_data.get('classe_id', instance.classe_id)

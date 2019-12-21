@@ -6,7 +6,6 @@ from django.contrib.auth.models import Group, User
 
 from django.utils.translation import ugettext_lazy as _
 
-
 class EtudiantForm(forms.Form):
     matricule = forms.CharField(
         label=_('MATRICULE'),
@@ -233,12 +232,68 @@ class CycleForm(forms.Form):
         label='Sous Etablissement',
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
-        disabled = True  
+        # disabled = True  
     )
     nom_etab = forms.CharField(
         label=_('Etablissement'),
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
-        required=False
+        # required=False
+    )    
+
+class NiveauForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_niveau= forms.CharField(
+        label=_('Niveau'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom Niveau', 'class': 'form-control form-group nom_niveau' }),
     )
-    
+    nom_cycle= forms.CharField(
+        label=_('Cycle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom Cycle', 'class': 'form-control form-group nom_cycle' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+    nom_etab = forms.CharField(
+        label=_('Etablissement'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
+        # required=False
+    )
+   
+
+class ClasseForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_classe= forms.CharField(
+        label=_('Classe'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom classe', 'class': 'form-control form-group nom_classe' }),
+    )
+    nom_niveau= forms.CharField(
+        label=_('Niveau'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom Niveau', 'class': 'form-control form-group nom_niveau' }),
+    )
+    nom_cycle= forms.CharField(
+        label=_('Cycle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom Cycle', 'class': 'form-control form-group nom_cycle' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+    nom_etab = forms.CharField(
+        label=_('Etablissement'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
+        # required=False
+    )
+   
