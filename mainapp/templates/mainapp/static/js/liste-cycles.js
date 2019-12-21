@@ -84,7 +84,7 @@ $(document).ready(function(){
                       nom_sousetab = liste_cycles[i].nom_sousetab                      
                       nom_cycle = liste_cycles[i].nom_cycle;
                       id = liste_cycles[i].cycle_id;
-
+                      // alert(nom_etab, nom_sousetab, nom_cycle, id);
                         nouvelle_ligne = "<tr class='"+ id+'²²'+ nom_cycle+ '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
                     '</th><td style="text-transform: uppercase;" class="detail-cycle-link-td fix-col1">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-cycle-link-td">' + nom_sousetab + '</td><td class="detail-cycle-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="btn detail-cycle-link-td" data-toggle="modal" data-target="#modal_detail_cycle"><i class="material-icons">visibility</i></button>';
