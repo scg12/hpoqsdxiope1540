@@ -477,31 +477,7 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
 
 def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    
-    cycle = Cycle.objects.get(id=1)
-    print("Cycle id n°---" , cycle.id)
-    print("sous etablissement du cycle : ", cycle.sous_etablissement())
-    print("etablissement du cycle : ", cycle.etablissement())
-
-    data =[]
-
-    # etabs = Etab.objects.all().order_by('-id')
     cycles = Cycle.objects.all().order_by('-id')
-    # for e in etabs:
-    #     for s in e.sous_etabs_id:
-    #         se = SousEtab.objects.filter(pk=s)
-    #         for p in se:
-    #             for c in p.cycles_id:
-    #                 cy = Cycle.objects.filter(pk=c)
-    #                 cycle = dict(
-    #                         nom_etab = e.nom_etab,
-    #                         nom_sousetab = p.nom_sousetab,
-    #                         nom_cycle = cy[0].nom_cycle,
-    #                         cycle_id = cy[0].id
-    #                 )
-    #                 data.append(cycle)
-    # for d in data:
-    #     print(d['nom_etab'],"_",d['nom_sousetab'],"_",d['nom_cycle'],"_",d['cycle_id'])
 
 
     form = CycleForm  
@@ -538,57 +514,6 @@ def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
   
     return render(request, 'mainapp/pages/liste-cycles.html', locals())
-
-def suppression_profil(request):
-
-    id = int(request.POST['id_supp'])
-
-    profil = Profil.objects.get(pk=id)
-    profil.archived = "1"
-    profil.save()
-
-    return redirect('mainapp:liste_profils')
-
-def liste_profils(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
-
-    profils = Profil.objects.filter(archived="0").order_by('-id')
-    
-    form = ProfilForm
-    paginator = Paginator(profils, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
-
-    try:
-        # La définition de nos URL autorise comme argument « page » uniquement 
-        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
-        page_active = paginator.page(page)
-    except PageNotAnInteger:
-        page_active = paginator.page(1)
-    except EmptyPage:
-        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
-        # Par convention, nous renvoyons la dernière page dans ce cas
-        page_active = paginator.page(paginator.num_pages)
-
-    groupes = Group.objects.all().order_by('name')
-
-
-    #gerer les preferences utilisateur en terme de theme et couleur
-    if (request.user.id != None):
-        if(request.user.is_superuser == True):
-            data_color = data_color_default
-            sidebar_class = sidebar_class_default
-            theme_class = theme_class_default
-        else:          
-            #print(request.user.is_superuser)
-            prof = Profil.objects.get(user=request.user)
-            data_color = prof.data_color
-            sidebar_class = prof.sidebar_class
-            theme_class = prof.theme_class
-    else:
-        data_color = data_color_default
-        sidebar_class = sidebar_class_default
-        theme_class = theme_class_default
-        
-
-    return render(request, 'mainapp/pages/liste-profils.html', locals())
 
 def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -631,9 +556,265 @@ def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_p
   
     return render(request, 'mainapp/pages/liste-cours.html', locals())
 
+def liste_progressions(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    cours = SousEtab.objects.all().order_by('-id')
+
+    
+    #form = EtudiantForm  
+    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-progressions.html', locals())
+
+def liste_reunions(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    cours = SousEtab.objects.all().order_by('-id')
+
+    
+    #form = EtudiantForm  
+    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-reunions.html', locals())
+
+def parametres_progression(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    cours = SousEtab.objects.all().order_by('-id')
+
+    
+    #form = EtudiantForm  
+    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/parametres-progression.html', locals())
+
+def parametres_reunion(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    cours = SousEtab.objects.all().order_by('-id')
+
+    
+    #form = EtudiantForm  
+    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/parametres-reunion.html', locals())
+
+def parametres_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    cours = SousEtab.objects.all().order_by('-id')
+
+    
+    #form = EtudiantForm  
+    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/parametres-cours.html', locals())
+
+def liste_profils(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    profils = Profil.objects.filter(archived="0").order_by('-id')
+    
+    form = ProfilForm
+    paginator = Paginator(profils, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+    groupes = Group.objects.all().order_by('name')
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+        
+
+    return render(request, 'mainapp/pages/liste-profils.html', locals())
+
 def accueil(request):
     verrou = "Verrouiller"
     return render(request, 'mainapp/pages/accueil.html', locals())
+
+def suppression_profil(request):
+
+    id = int(request.POST['id_supp'])
+
+    profil = Profil.objects.get(pk=id)
+    profil.archived = "1"
+    profil.save()
+
+    return redirect('mainapp:liste_profils')
 
 def suppression_etudiant(request):
 
@@ -1542,6 +1723,7 @@ def find_profil(recherche, trier_par):
     profils_serializers = ProfilSerializer(profils, many=True)
 
     return profils_serializers.data
+
 
 def login_user(request):
 

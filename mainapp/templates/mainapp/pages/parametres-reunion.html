@@ -1,0 +1,391 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/liste-cours.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_etablissements' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+  {% block content %}
+        
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+
+                <div class="card">
+
+                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
+                  </div> -->
+
+                  <div class="card-body">
+                      <div class="row">
+
+                        <div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center">Paramètres Reunion</p>
+                        </div>
+
+                      </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12 col-md-8">
+                                
+                                 <label>Afficher </label> 
+                                 <select id="nbre_element_par_page" class="form-control-sm">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="-1">Tout</option>
+                                  </select> 
+                                  <label>Elements</label> 
+                                
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                              <form action="{% url 'mainapp:recherche_etablissement' %}" class="recherche_etablissement" method="GET">
+                                {% csrf_token %}
+                                  <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                                  <div id="message" ></div>
+                              </form>
+                              
+                            </div>
+
+                        </div><br>
+
+                  <div class="table-responsive">
+
+                        <table class="table table-striped table-hover">
+                            <thead class="">
+                              <tr>
+                                <th scope="col">#</th>
+                                
+                                <th scope="col" class="nom_etab">
+                                    <span class="tri tri-asc">Etablissement
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                                       
+                                </th>
+                                <th scope="col" class="date_creation">
+                                    <span class="tri tri-asc">Date de Creation
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="nom_fondateur">
+                                    <span class="tri tri-asc">Nom Fondateur
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span> 
+                                   
+                                </th>
+                                <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">localisation
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="text-right">
+                                  {% if perms.mainapp.can_add_etablissement or perms.mainapp.add_etablissement %}
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-eleve-link" data-toggle="modal" data-target="#modal_ajouter_eleve">
+                                      <i class="material-icons">person_add</i>
+                                  </button>
+                                  {% endif %}
+                                </th>
+
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for etablissement in page_active  %}
+                                    <tr class="{{ etablissement.id }}²²{{ etablissement.nom_etab }}²²{{ etablissement.date_creation }}²²{{ etablissement.nom_fondateur }}²²{{ etablissement.localisation }}">
+                                      <th scope="row" class="detail-eleve-link-td">{{ forloop.counter }}</th>
+                                     
+                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ etablissement.nom_etab }}</td>
+                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ etablissement.date_creation }}</td>
+                                      <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ etablissement.nom_fondateur }}</td>
+                                      <td class="detail-eleve-link-td">{{ etablissement.localisation}}</td>
+                                      <td class="td-actions text-right"> 
+<!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
+                                        <button rel="tooltip" class="btn detail-eleve-link">
+                                            <i class="material-icons">visibility</i>
+                                        </button>
+                                      {% endif %} -->
+                                      {% if perms.mainapp.can_change_etablissement or perms.mainapp.change_etablissement %}
+                                        <button rel="tooltip" class="btn modifier-eleve-link">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        {% endif %}
+
+                                        {% if perms.mainapp.can_delete_etablissement or perms.mainapp.delete_etablissement %}
+                                        <button class="btn btn-danger supprimer-eleve-link">
+                                            <i class="material-icons">close</i>
+                                        </button>
+                                        {% endif %}
+
+                                      </td>
+
+                                    </tr>
+
+                                    {% empty %}
+                                      <tr>
+                                        <td colspan="7" class="text-center h4">Aucun etablissement(s) créé(s) </td>
+                                      </tr>
+                                {% endfor %}
+
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Etablissement</th>
+                                <th scope="col">Date de creation</th>
+                                <th scope="col">Nom Fondateur</th>
+                                <th scope="col">Localisation</th>                              
+                                <th scope="col">Actions</th>                              
+
+                              </tr>
+                            </tfoot>
+                      
+                        </table>
+
+                  </div>      
+
+<!--                  <div id="menu-fixed"  class="fixed-plugin">
+
+                          <div class="menu-element" style="margin-top: 5px;margin-bottom: 5px">
+                            <img id="settings" src="{% static 'images/settings.png' %}" style="height: 40px; width: 40px;" />
+                          </div>
+
+                      </div>
+
+                         -->
+
+                          <!-- <hr> -->
+                           <!-- pagination -->
+                           {% block pagination %}
+                              {% include 'mainapp/layouts/_pagination.html' %}
+                          {% endblock %}
+                              
+                      
+                      
+                  </div>
+
+                </div>
+
+
+
+              </div>
+            </div>
+          </div>
+
+
+  <!-- Detail-Dialog box -->
+<!--     <div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+                  <p class="h4 text-center">DETAIL ELEVE</p>
+                  <form method="post"  class="detail_eleve" action=" ">
+                      {% csrf_token %}
+                      {{ form.as_p }}
+
+                        <div class="text-center">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                       </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div>
+ -->
+
+
+  <!-- dialog box ajouter eleve  -->
+<!--     <div class="modal fade" id="modal_ajouter_eleve" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body">
+                    <p class="h4 text-center">AJOUTER ELEVE</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_etudiant' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                         <label id="message"></label><br>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Créer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
+                    </form>
+
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div> -->
+
+
+
+  <!-- dialog box modifier eleve  -->
+<!--     <div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+              <div class="card-body">
+                <p class="h4 text-center">MODIFIER ELEVE</p>
+                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_etudiant' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <div class="text-center">
+                        <button type="submit" class="btn">Modifier</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+              </div>
+              
+            </div>
+                    
+        </div>
+    </div>
+</div> -->
+
+
+
+  <!-- Suppression-Dialog box -->
+<!--     <div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+
+                  <form method="post"  class="suppression_eleve" action="{% url 'mainapp:suppression_etudiant' %} ">
+                    <p class="h4 text-center">SUPPRIMER ELEVE</p>
+                      {% csrf_token %}
+                        <input type="hidden" name="id_supp" id="id_supp">
+
+                        <div class="form-group">
+                          <label class="">Matricule : </label>
+                          <label class="matricule text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Nom : </label>
+                          <label class="nom text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Prenom : </label>
+                          <label class="prenom text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Age : </label>
+                          <label class="age text-primary"></label>
+                        </div>
+                        
+                        <div class="card-body">Voulez vous vraiment supprimer?</div>
+                        <div class="text-center">
+                          <button type="submit" class="btn">OUI</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                        </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div> -->
+
+
+  <!-- input with datetimepicker -->
+  <!-- <div class="form-group">
+      <label class="label-control">Datetime Picker</label>
+      <input type="text" class="form-control datetimepicker" value="21/06/2018"/>
+      <input type="date" class="form-control" value="21/06/2018"/>
+      <input type="time" class="form-control" value="21/06/2018"/>
+  </div>
+   -->
+
+
+  {% endblock %}
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_cours.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+    
+    
+  {% endblock %}
