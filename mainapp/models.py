@@ -589,6 +589,14 @@ class Classe(models.Model):
     code = models.CharField(max_length=100)
     annee_scolaire = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+    id_etab = models.IntegerField(default=1)
+    id_sousetab = models.IntegerField(default=1)
+    id_cycle = models.IntegerField(default=1)
+    id_niveau = models.IntegerField(default=1)
+    nom_etab = models.CharField(max_length=100,default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
+    nom_cycle = models.CharField(max_length=100,default="")
+    nom_niveau = models.CharField(max_length=100,default="")
 
     annees = models.ArrayReferenceField(
         to=AnneeScolaire,
@@ -642,6 +650,12 @@ class Niveau(models.Model):
     code = models.CharField(max_length=100)
     annee_scolaire = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+    id_etab = models.IntegerField(default=1)
+    id_sousetab = models.IntegerField(default=1)
+    id_cycle = models.IntegerField(default=1)
+    nom_etab = models.CharField(max_length=100,default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
+    nom_cycle = models.CharField(max_length=100,default="")
 
     classes = models.ArrayReferenceField(
         to=Classe,
@@ -792,6 +806,9 @@ class SousEtab(models.Model):
     mat_yearindex = models.CharField(max_length=10)
     mat_varyindex = models.CharField(max_length=10)
     archived = models.CharField(max_length=2,default="0")
+    nom_etab = models.CharField(max_length=10)
+    id_etab = models.IntegerField()
+
     cycles = models.ArrayReferenceField(
         to=Cycle,
         #on_delete=models.CASCADE,

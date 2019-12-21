@@ -233,10 +233,12 @@ class CycleForm(forms.Form):
         label='Sous Etablissement',
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        disabled = True  
     )
     nom_etab = forms.CharField(
         label=_('Etablissement'),
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
+        required=False
     )
     
