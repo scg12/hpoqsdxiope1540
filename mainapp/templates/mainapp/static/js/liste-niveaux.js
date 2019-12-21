@@ -1,14 +1,5 @@
 $(document).ready(function(){
 
-/*    $("table tr .supprimer-cycle-link").click(function() {
-        alert("889812");
-        $('#supprimer-cycle-link2').modal('show');
-        $('#modal_supprimer_cycle2 .matricule2').text('show');
-    
-    });*/
-        //$('#modal_supprimer_cycle2').modal('show');
-       // $('#modal_supprimer_cycle2 .matricule2').text('show');
-
    $(".recherche").keyup(function(e) {
 
         e.stopImmediatePropagation(); 
@@ -18,7 +9,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_cycle");
+        var form = $(".recherche_niveau");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -41,7 +32,7 @@ $(document).ready(function(){
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("cycle") == -1){
+          if(data.permissions.indexOf("niveau") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -54,7 +45,7 @@ $(document).ready(function(){
             //$("table thead").remove();
               //alert("1");
 
-              liste_cycles = data.cycles;
+              liste_niveaux = data.niveaux;
               nbre_element_par_page = data.nbre_element_par_page;
               numero_page_active = data.numero_page_active;
               liste_page = data.liste_page;
@@ -73,29 +64,30 @@ $(document).ready(function(){
       /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
-                fin = data.cycles.length;
+                fin = data.niveaux.length;
               }
 
-              if (liste_cycles.length != 0){
+              if (liste_niveaux.length != 0){
 
                   for (var i = debut; i < fin; i++) {
 
-                      nom_etab = liste_cycles[i].nom_etab;
-                      nom_sousetab = liste_cycles[i].nom_sousetab                      
-                      nom_cycle = liste_cycles[i].nom_cycle;
-                      id = liste_cycles[i].cycle_id;
-                      // alert(nom_etab, nom_sousetab, nom_cycle, id);
-                        nouvelle_ligne = "<tr class='"+ id+'²²'+ nom_cycle+ '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-cycle-link-td fix-col1">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-cycle-link-td">' + nom_sousetab + '</td><td class="detail-cycle-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
-                    view = '<button type="button" rel="tooltip" class="detail-cycle-link-td btn" data-toggle="modal" data-target="#modal_detail_cycle"><i class="material-icons">visibility</i></button>';
-                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-cycle-link-ajax btn"><i class="material-icons">edit</i></button>';
-                    del = '&nbsp;<button rel="tooltip" class="supprimer-cycle-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                      nom_etab = liste_niveaux[i].nom_etab;
+                      nom_sousetab = liste_niveaux[i].nom_sousetab                      
+                      nom_niveau = liste_niveaux[i].nom_niveau;
+                      nom_cycle = liste_niveaux[i].nom_cycle;
+                      id = liste_niveaux[i].niveau_id;
+                      // alert(nom_etab, nom_sousetab, nom_niveau, id);
+                        nouvelle_ligne = "<tr class='"+ id +'²²'+ nom_niveau +'²²'+ nom_cycle + '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-niveau-link-td fix-col1">'+ nom_niveau + '</td><td style="text-transform: uppercase;" class="detail-niveau-link-td">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-niveau-link-td">' + nom_sousetab + '</td><td class="detail-niveau-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
+                    view = '<button type="button" rel="tooltip" class="detail-niveau-link-td btn" data-toggle="modal" data-target="#modal_detail_niveau"><i class="material-icons">visibility</i></button>';
+                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-niveau-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    del = '&nbsp;<button rel="tooltip" class="supprimer-niveau-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
                    
-                    //$("table tbody button:last").addClass("supprimer-cycle-link");
-                    // alert(data.permissions.indexOf("cycles"));
+                    //$("table tbody button:last").addClass("supprimer-niveau-link");
+                    // alert(data.permissions.indexOf("niveaux"));
 
-                        index_model = data.permissions.indexOf("cycle")
+                        index_model = data.permissions.indexOf("niveau")
                         /*if(data.permissions[index_model + 1] ==1 ){
                           nouvelle_ligne += view;
                         } */                     
@@ -104,7 +96,7 @@ $(document).ready(function(){
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
                         if(data.permissions[index_model + 3] ==0 ){
-                          $("button .ajouter-cycle-link").remove();
+                          $("button .ajouter-niveau-link").remove();
                         }                      
                         if(data.permissions[index_model + 4] ==1 ){
                           nouvelle_ligne += del;
@@ -192,56 +184,43 @@ $(document).ready(function(){
       }
 
 
-/*
-
-    $(".ajouter-cycle-link").click(function() {
-
-        $('#modal_ajouter_cycle').modal('show');
-
-        $(".nom_cycle").removeAttr("disabled");
-        $(".nom").removeAttr("disabled");
-        $(".prenom").removeAttr("disabled");
-        $(".age").removeAttr("disabled");
-
-        $(".nom_cycle").val("");
-        $(".nom").val("");
-        $(".prenom").val("");
-        $(".age").val("");
-
-    });*/
-
-    $("body").on("click", ".ajouter-cycle-link", function() {
+    $("body").on("click", ".ajouter-niveau-link", function() {
         
-        $('#modal_ajouter_cycle').modal('show');
+        $('#modal_ajouter_niveau').modal('show');
 
+        $(".nom_niveau").val(nom_niveau);
         $(".nom_cycle").val(nom_cycle);
         $(".nom_sousetab").val(nom_sousetab);
         $(".nom_etab").val(nom_etab);
         $("#id_modif").val(id);
 
+        $(".nom_niveau").val("");
         $(".nom_cycle").val("");
         $(".nom_sousetab").val("");
         $(".nom_etab").val("");
 
     });
 
-    // $(".detail-cycle-link-td").click(function() {
-     $("body").on("click", ".detail-cycle-link-td", function() {
-//class="{{ cycl.id }}²²{{ cycl.nom_cycle }}²²{{ cycl.sous_cycle }}²²{{ cycl.cycle }}"
-        $('#modal_detail_cycle').modal('show');
+    // $(".detail-niveau-link-td").click(function() {
+     $("body").on("click", ".detail-niveau-link-td", function() {
+//class="{{ cycl.id }}²²{{ cycl.nom_niveau }}²²{{ cycl.sous_niveau }}²²{{ cycl.niveau }}"
+        $('#modal_detail_niveau').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
         id = tab_element[0];
-        nom_cycle = tab_element[1];
-        nom_sousetab = tab_element[2];
-        nom_etab = tab_element[3];
+        nom_niveau = tab_element[1];
+        nom_cycle = tab_element[2];
+        nom_sousetab = tab_element[3];
+        nom_etab = tab_element[4];
       
+        $(".nom_niveau").val(nom_niveau);
         $(".nom_cycle").val(nom_cycle);
         $(".nom_sousetab").val(nom_sousetab);
         $(".nom_etab").val(nom_etab);
         $("#id_modif").val(id);
 
+        $(".nom_niveau").attr("disabled", "True");
         $(".nom_cycle").attr("disabled", "True");
         $(".nom_sousetab").attr("disabled", "True");
         $(".nom_etab").attr("disabled", "True");
@@ -249,25 +228,24 @@ $(document).ready(function(){
     });
 
 
-    $(".modifier-cycle-link").click(function() {
-        $('#modal_modifier_cycle').modal('show');
+    $(".modifier-niveau-link").click(function() {
+        $('#modal_modifier_niveau').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
-        // nom_etab = tab_element[0];
-        // nom_sousetab = tab_element[1];
-        // nom_cycle = tab_element[2];
-        // id = tab_element[3];
         id = tab_element[0];
-        nom_cycle = tab_element[1];
-        nom_sousetab = tab_element[2];
-        nom_etab = tab_element[3];
+        nom_niveau = tab_element[1];
+        nom_cycle = tab_element[2];
+        nom_sousetab = tab_element[3];
+        nom_etab = tab_element[4];
 
+        $(".nom_niveau").val(nom_niveau);
         $(".nom_cycle").val(nom_cycle);
         $(".nom_sousetab").val(nom_sousetab);
         $(".nom_etab").val(nom_etab);
         $("#id_modif").val(id);
 
+        $(".nom_niveau").removeAttr("disabled");
         $(".nom_cycle").removeAttr("disabled");
         $(".nom_sousetab").removeAttr("disabled");
         $(".nom_etab").removeAttr("disabled");
@@ -276,25 +254,23 @@ $(document).ready(function(){
 
 
 
-    $(".supprimer-cycle-link").click(function() {
+    $(".supprimer-niveau-link").click(function() {
 
-      $('#modal_supprimer_cycle').modal('show');
+      $('#modal_supprimer_niveau').modal('show');
 
       var classe = $(this).parents("tr").attr('class');
       tab_element = classe.split("²²");
-      /*nom_etab = tab_element[0];
-      nom_sousetab = tab_element[1];
-      nom_cycle = tab_element[2];
-      id = tab_element[3];*/
       id = tab_element[0];
-      nom_cycle = tab_element[1];
-      nom_sousetab = tab_element[2];
-      nom_etab = tab_element[3];
+      nom_niveau = tab_element[1];
+      nom_cycle = tab_element[2];
+      nom_sousetab = tab_element[3];
+      nom_etab = tab_element[4];
       
       $("#id_supp").val(id);
-      $("#modal_supprimer_cycle .nom_cycle").text(nom_cycle);
-      $("#modal_supprimer_cycle .nom_sousetab").text(nom_sousetab);
-      $("#modal_supprimer_cycle .nom_etab").text(nom_etab);
+      $("#modal_supprimer_niveau .nom_niveau").text(nom_niveau);
+      $("#modal_supprimer_niveau .nom_cycle").text(nom_cycle);
+      $("#modal_supprimer_niveau .nom_sousetab").text(nom_sousetab);
+      $("#modal_supprimer_niveau .nom_etab").text(nom_etab);
     
     });
 
@@ -306,7 +282,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
 
-        var form = $(".recherche_cycle");
+        var form = $(".recherche_niveau");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -343,136 +319,51 @@ $(document).ready(function(){
 
     });
       
-    $("body").on("click", ".supprimer-cycle-link-ajax", function() {
+    $("body").on("click", ".supprimer-niveau-link-ajax", function() {
         
-        $('#modal_supprimer_cycle').modal('show');
+        $('#modal_supprimer_niveau').modal('show');
 
          var classe = $(this).parents("tr").attr('class');
           tab_element = classe.split("²²");
           id = tab_element[0];
-          nom_cycle = tab_element[1];
-          nom_sousetab = tab_element[2];
-          nom_etab = tab_element[3];
-          age = tab_element[4];
-          bp = tab_element[5];
-          email = tab_element[6];
-          tel = tab_element[7];
-          devise = tab_element[8];
-          langue = tab_element[9];
-          annee_scolaire = tab_element[10];
-          site_web = tab_element[11];
+          nom_niveau = tab_element[1];
+          nom_cycle = tab_element[2];
+          nom_sousetab = tab_element[3];
+          nom_etab = tab_element[4];
           
           $("#id_supp").val(id);
-          $("#modal_supprimer_cycle .nom_cycle").text(nom_cycle);
-          $("#modal_supprimer_cycle .nom_sousetab").text(nom_sousetab);
-          $("#modal_supprimer_cycle .nom_etab").text(nom_etab);
-          // $("#modal_supprimer_cycle .id").text(id);
-          $("#modal_supprimer_cycle .bp").text(bp);
-          $("#modal_supprimer_cycle .email").text(email);
-          $("#modal_supprimer_cycle .tel").text(tel);
-          $("#modal_supprimer_cycle .devise").text(devise);
-          $("#modal_supprimer_cycle .langue").text(langue);
-          $("#modal_supprimer_cycle .annee_scolaire").text(annee_scolaire);
-          $("#modal_supprimer_cycle .site_web").text(site_web);
+          $("#modal_supprimer_niveau .nom_niveau").text(nom_niveau);
+          $("#modal_supprimer_niveau .nom_cycle").text(nom_cycle);
+          $("#modal_supprimer_niveau .nom_sousetab").text(nom_sousetab);
+          $("#modal_supprimer_niveau .nom_etab").text(nom_etab);
 
     });
 
 
-    $("body").on("click", ".modifier-cycle-link-ajax", function() {
+    $("body").on("click", ".modifier-niveau-link-ajax", function() {
         
-        $('#modal_modifier_cycle').modal('show');
+        $('#modal_modifier_niveau').modal('show');
 
         var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
         id = tab_element[0];
-        nom_cycle = tab_element[1];
-        nom_sousetab = tab_element[2];
-        nom_etab = tab_element[3];
-        age = tab_element[4];
-        bp = tab_element[5];
-        email = tab_element[6];
-        tel = tab_element[7];
-        devise = tab_element[8];
-        langue = tab_element[9];
-        annee_scolaire = tab_element[10];
-        site_web = tab_element[11];
+        nom_niveau = tab_element[1];
+        nom_cycle = tab_element[2];
+        nom_sousetab = tab_element[3];
+        nom_etab = tab_element[4];
 
         $(".nom_etab").val(nom_etab);
         $(".nom_sousetab").val(nom_sousetab);
         $(".nom_cycle").val(nom_cycle);
-        $(".localisation").val(age);
-        $(".bp").val(bp);
-        $(".email").val(email);
-        $(".tel").val(tel);
-        $(".devise").val(devise);
-        $(".langue").val(langue);
-        $(".annee_scolaire").val(annee_scolaire);
-        $(".site_web").val(site_web);
+        $(".nom_niveau").val(nom_niveau);
         $("#id_modif").val(id);
 
         $(".nom_etab").removeAttr("disabled");
         $(".nom_sousetab").removeAttr("disabled");
+        $(".nom_niveau").removeAttr("disabled");
         $(".nom_cycle").removeAttr("disabled");
-        $(".localisation").removeAttr("disabled");
-        $(".bp").removeAttr("disabled");
-        $(".email").removeAttr("disabled");
-        $(".tel").removeAttr("disabled");
-        $(".devise").removeAttr("disabled");
-        $(".langue").removeAttr("disabled");
-        $(".annee_scolaire").removeAttr("disabled");
-        $(".site_web").removeAttr("disabled");
 
     });
-
-
-      
-  /*  $("body").on("click", ".detail-cycle-link-ajax", function() {
-        $('#modal_detail_cycle').modal('show');
-
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
-        id = tab_element[0];
-        nom_cycle = tab_element[1];
-        nom = tab_element[2];
-        prenom = tab_element[3];
-        age = tab_element[4];
-        bp = tab_element[5];
-        email = tab_element[6];
-        tel = tab_element[7];
-        devise = tab_element[8];
-        langue = tab_element[9];
-        annee_scolaire = tab_element[10];
-        site_web = tab_element[11];
-
-        $(".nom_etab").val(nom_cycle);
-        $(".date_creation").val(nom);
-        $(".nom_fondateur").val(prenom);
-        $(".localisation").val(age);
-        $(".bp").val(bp);
-        $(".email").val(email);
-        $(".tel").val(tel);
-        $(".devise").val(devise);
-        $(".langue").val(langue);
-        $(".annee_scolaire").val(annee_scolaire);
-        $(".site_web").val(site_web);
-        $("#id_modif").val(id);
-
-        $(".nom_etab").attr("disabled", "True");
-        $(".date_creation").attr("disabled", "True");
-        $(".nom_fondateur").attr("disabled", "True");
-        $(".localisation").attr("disabled", "True");
-        $(".bp").attr("disabled", "True");
-        $(".email").attr("disabled", "True");
-        $(".tel").attr("disabled", "True");
-        $(".devise").attr("disabled", "True");
-        $(".langue").attr("disabled", "True");
-        $(".annee_scolaire").attr("disabled", "True");
-        $(".site_web").attr("disabled", "True");
-        $("#id_modif").attr("disabled", "True");
-
-    });*/
-
-
 
 
     $("body").on("click", ".pagination-element", function(e) {
@@ -485,7 +376,7 @@ $(document).ready(function(){
 
           var recherche = $("#recherche").val().trim();
 
-          var form = $(".recherche_cycle");
+          var form = $(".recherche_niveau");
           var url_action = form.attr("action");
 
           var trier_par = "non defini";
@@ -538,7 +429,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " ";
 
-        var form = $(".recherche_cycle");
+        var form = $(".recherche_niveau");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
@@ -576,7 +467,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_cycle");
+        var form = $(".recherche_niveau");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
