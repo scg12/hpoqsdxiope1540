@@ -264,8 +264,7 @@ class NiveauForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
         # required=False
-    )
-   
+    )  
 
 class ClasseForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
@@ -296,4 +295,25 @@ class ClasseForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
         # required=False
     )
+   
+
+class MatiereForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_matiere= forms.CharField(
+        label=_('Matière'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer la Matière', 'class': 'form-control form-group nom_matiere' }),
+    )
+    code= forms.CharField(
+        label=_('Code'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer le Code', 'class': 'form-control form-group code' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+
    

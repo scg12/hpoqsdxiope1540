@@ -107,7 +107,6 @@ class SousEtabSerializer(serializers.Serializer):
         instance.nom_fondateur = validated_data.get('nom_fondateur', instance.nom_fondateur.lower())
         instance.localisation = validated_data.get('localisation', instance.localisation.lower())
 
-
 class NiveauSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
     niveau_id = serializers.IntegerField(read_only=True)
@@ -145,3 +144,19 @@ class ClasseSerializer(serializers.Serializer):
         instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
         instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
         instance.classe_id = validated_data.get('classe_id', instance.classe_id)
+
+class MatiereSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    matiere_id = serializers.IntegerField(read_only=True)
+    nom_matiere = serializers.CharField(max_length=150)
+    code = serializers.CharField(max_length=150)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return Matiere.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.matiere_id = validated_data.get('matiere_id', instance.matiere_id)
+        instance.nom_matiere = validated_data.get('nom_matiere', instance.nom_matiere.lower())
+        instance.code = validated_data.get('code', instance.code.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())

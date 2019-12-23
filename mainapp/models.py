@@ -451,12 +451,14 @@ class Message(models.Model):
             return self.infos
 
 class Matiere(models.Model):
-    titre = models.CharField(max_length=100)
+    nom_matiere = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
 
     def __str__(self):
-            return self.titre
+            return self.titre + " " + self.nom_sousetab
 
 class Eleve(models.Model):
     matricule = models.CharField(max_length=30)

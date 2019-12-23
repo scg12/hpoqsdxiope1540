@@ -209,6 +209,28 @@ def creation_classe(request):
 
         return redirect('mainapp:liste_classes')
 
+def creation_matiere(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-matiere.html',{'form':MatiereForm})
+    elif request.method == 'POST':
+        form = MatiereForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data['code']
+            nom_matiere = form.cleaned_data['nom_matiere']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            print(nom_matiere," ",code," ",nom_sousetab)
+
+            matiere = Matiere()
+            matiere.nom_matiere = nom_matiere
+            matiere.code = code
+            matiere.nom_sousetab = nom_sousetab
+            matiere.save()
+
+        return redirect('mainapp:liste_matieres')
+
 def creation_sous_etablissement(request):
 
     if request.method == 'GET':
@@ -622,6 +644,46 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
 
   
     return render(request, 'mainapp/pages/liste-classes.html', locals())
+
+def liste_matieres(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    matieres = Matiere.objects.filter(archived = "0").order_by('-id')
+
+
+    form = MatiereForm  
+    paginator = Paginator(matieres, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-matieres.html', locals())
 
 def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1148,6 +1210,14 @@ def suppression_classe(request):
 
     return redirect('mainapp:liste_classes')
 
+def suppression_matiere(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    Matiere.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_matieres')
+
 def modification_etudiant(request):
 
     id = request.POST['id_modif']
@@ -1274,12 +1344,13 @@ def modification_sous_etablissement(request):
         with transaction.atomic():
 
             if(SousEtab.objects.filter(pk=id)[0].nom_sousetab.lower() != nom_sousetab.lower()):
-                Cycle.objects.filter(id_sousetab = id).update(nom_sousetab = nom_etab)
-                Niveau.objects.filter(id_sousetab = id).update(nom_sousetab = nom_etab)
-                Classe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_etab)
+                Cycle.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Niveau.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Classe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Matiere.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
 
 
-            SousEtab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
+            SousEtab.objects.filter(pk=id).update(nom_sousetab=nom_sousetab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
                 localisation=localisation)
 
         return redirect('mainapp:liste_sous_etablissements')
@@ -1354,6 +1425,25 @@ def modification_classe(request):
         Classe.objects.filter(pk=id).update(nom_classe = nom_classe)
 
         return redirect('mainapp:liste_classes')
+
+def modification_matiere(request):
+
+    id = request.POST['id_modif']
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = MatiereForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+
+        nom_matiere = form.cleaned_data['nom_matiere']
+        code = form.cleaned_data['code']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        Matiere.objects.filter(pk=id).update(nom_matiere = nom_matiere, code= code, nom_sousetab=nom_sousetab)
+
+        return redirect('mainapp:liste_matieres')
 
 def recherche_etudiant(request):
     
@@ -2133,6 +2223,135 @@ def find_classe(recherche, trier_par):
 
     return classes_serializers.data
 
+def recherche_matiere(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            matieres = find_matiere(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(matieres)
+
+            #form = EtudiantForm
+            paginator = Paginator(matieres, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "matieres": matieres,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_matiere(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            matieres = Matiere.objects.filter(archived = "0").order_by('-id')
+        else:
+            matieres = Matiere.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            matieres = Matiere.objects.filter(Q(archived ="0") &
+                (Q(code__icontains=recherche) |
+                Q(nom_matiere__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            matieres = Matiere.objects.filter(Q(archived ="0") &
+                (Q(code__icontains=recherche) |
+                Q(nom_matiere__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    matieres_serializers = MatiereSerializer(matieres, many=True)
+
+    return matieres_serializers.data
+
 def recherche_profil(request):
     
     if (request.method == 'POST'):
@@ -2602,10 +2821,10 @@ def mlab(request):
 
 def permissions_of_a_user(user):
 
-    print("test user")
+    # print("test user")
 
     if user.id != None:
-        print("fin test user")
+        # print("fin test user")
         # if user == "AnonymousUser"
         groups_user = user.groups.all()
         models = []
@@ -3197,6 +3416,8 @@ def initialisation(request):
 
                         matiere = Matiere()
                         matiere.titre = df['Unnamed: 13'].values[index_matiere]
+                        matiere.id_sousetab = sousEtab.id
+                        matiere.nom_sousetab = sousEtab.nom_sousetab
                         matiere.save()
 
                         print("   {}".format(df['Unnamed: 13'].values[index_matiere]))
