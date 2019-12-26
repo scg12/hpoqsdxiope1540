@@ -4,7 +4,7 @@
 
   {% block header %}
       
-      <script src="{% static 'js/liste-sous-etablissements.js' %}"></script>
+      <script src="{% static 'js/liste-type-apprenants.js' %}"></script>
 
       <style type="text/css">
         
@@ -22,10 +22,7 @@
                   user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
       }
 
-      .dropdown{
-        margin-bottom: 8px!important;
-        
-      }
+
 
       </style>
       
@@ -35,7 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_sous_etablissements' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_type_apprenants' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
@@ -61,16 +58,12 @@
               <div class="col-md-12">
 
                 <div class="card">
-
-                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
-                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
-                  </div> -->
-
+                  
                   <div class="card-body">
                       <div class="row">
 
                         <div class="col-sm-12 col-md-12">
-                          <p class="h3 text-center">Liste Sous Etablissement</p>
+                          <p class="h3 text-center">Liste Types d'Apprenants</p>
                         </div>
 
                       </div>
@@ -94,7 +87,7 @@
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                              <form action="{% url 'mainapp:recherche_sous_etablissement' %}" class="recherche_sous_etablissement" method="GET">
+                              <form action="{% url 'mainapp:recherche_type_apprenant' %}" class="recherche_type_apprenant" method="GET">
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
@@ -104,7 +97,6 @@
 
                         </div><br>
 
-
                   <div class="table-responsive">
                         <div class="table-scroll">
                           <table class="table table-striped table-hover">
@@ -112,30 +104,20 @@
                               <tr>
                                 <th scope="col" class="fix-col" >#</th>
                                 
-                                <th scope="col" class="nom_sousetab fix-col1" >
-                                    <span class="tri tri-asc">Sous Etab
+                                <th scope="col" class="nom_type_apprenant fix-col1" >
+                                    <span class="tri tri-asc">Type Apprenant
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="date_creation">
-                                    <span class="tri tri-asc">Date de Creation
+                                
+                                <th scope="col" class="nom_sousetab">
+                                    <span class="tri tri-asc">Sous Etab
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
-                                <th scope="col" class="nom_fondateur">
-                                    <span class="tri tri-asc">Nom Fondateur
-                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span> 
-                                   
-                                </th>
-                                <th scope="col" class="localisation">
-                                    <span class="tri tri-asc">Localisation
-                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span>                                   
-                                </th>
                                 <th scope="col" class="text-right">
-                                  {% if perms.mainapp.can_add_sousetab or perms.mainapp.add_sousetab %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-sousetab-link" data-toggle="modal" data-target="#modal_ajouter_sousetab">
+                                  {% if perms.mainapp.can_add_typeapprenant or perms.mainapp.add_typeapprenant %}
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-type-apprenant-link" data-toggle="modal" data-target="#modal_ajouter_type_apprenant">
                                       <i class="material-icons">person_add</i>
                                   </button>
                                   {% endif %}
@@ -144,28 +126,23 @@
                               </tr>
                             </thead>
                             <tbody>
-                                {% for s_etab in s_etablissements  %}
-                                    <tr class="{{ s_etab.id }}²²{{ s_etab.nom_sousetab }}²²{{ s_etab.date_creation }}²²{{ s_etab.nom_fondateur }}²²{{ s_etab.localisation }}">
-                                      <th scope="row" class="detail-sousetab-link-td fix-col">{{ forloop.counter }}</th>
+                               
+                                    {% for type_apprenant in type_apprenants  %}
+                                    <tr class="{{ type_apprenant.id }}²²{{ ntype_apprenant.nom_type_apprenant }}²²{{ type_apprenant.nom_sousetab }}">
+                                      <th scope="row" class="detail-type-apprenant-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-sousetab-link-td fix-col1" style="text-transform: uppercase;">{{ s_etab.nom_sousetab }}</td>
-                                      <td class="detail-sousetab-link-td" style="text-transform: uppercase;">{{ s_etab.date_creation }}</td>
-                                      <td class="detail-sousetab-link-td" style="text-transform: capitalize;">{{ s_etab.nom_fondateur }}</td>
-                                      <td class="detail-sousetab-link-td">{{ s_etab.localisation}}</td>
+                                      <td class="detail-nom-type-apprenant-link-td fix-col1" style="text-transform: uppercase;">{{ type_apprenant.nom_type_apprenant }}</td>
+                                      <td class="detail-nom-type-apprenant-link-td" style="text-transform: uppercase;">{{ type_apprenant.nom_sousetab }}</td>
                                       <td class="td-actions text-right"> 
-<!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
-                                        <button rel="tooltip" class="btn detail-sousetab-link">
-                                            <i class="material-icons">visibility</i>
-                                        </button>
-                                      {% endif %} -->
-                                      {% if perms.mainapp.can_change_sousetab or perms.mainapp.change_sousetab %}
-                                        <button rel="tooltip" class="btn modifier-sousetab-link">
+
+                                      {% if perms.mainapp.can_change_typeapprenant or perms.mainapp.change_typeapprenant %}
+                                        <button rel="tooltip" class="btn modifier-type-apprenant-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
-                                        {% if perms.mainapp.can_delete_sousetab or perms.mainapp.delete_sousetab %}
-                                        <button class="btn btn-danger supprimer-sousetab-link">
+                                        {% if perms.mainapp.can_delete_typeapprenant or perms.mainapp.delete_typeapprenant %}
+                                        <button class="btn btn-danger supprimer-type-apprenant-link">
                                             <i class="material-icons">close</i>
                                         </button>
                                         {% endif %}
@@ -176,7 +153,7 @@
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucun sous-etablissement(s) créé(s) </td>
+                                        <td colspan="7" class="text-center h4">Aucune Type d'Apprenant(s) créée(s) </td>
                                       </tr>
                                 {% endfor %}
 
@@ -184,10 +161,8 @@
                             <tfoot>
                               <tr>
                                 <th scope="col" class="fix-col">#</th>
-                                <th scope="col" class="fix-col1">Sous Etab</th>
-                                <th scope="col">Date de creation</th>
-                                <th scope="col">Nom Fondateur</th>
-                                <th scope="col">Localisation</th>                              
+                                <th scope="col" class="fix-col1">Type Apprenant</th>
+                                <th scope="col">Sous Etab</th>                           
                                 <th scope="col">Actions</th>                              
 
                               </tr>
@@ -199,24 +174,17 @@
 
                   </div>      
 
-<!--                  <div id="menu-fixed"  class="fixed-plugin">
-
-                          <div class="menu-element" style="margin-top: 5px;margin-bottom: 5px">
-                            <img id="settings" src="{% static 'images/settings.png' %}" style="height: 40px; width: 40px;" />
-                          </div>
-
-                      </div>
-
-                         -->
-
-                          <!-- <hr> -->
-                           <!-- pagination -->
                            {% block pagination %}
                               {% include 'mainapp/layouts/_pagination.html' %}
                           {% endblock %}
                               
+                      
+                      
+                  </div>
 
                 </div>
+
+
 
               </div>
             </div>
@@ -224,7 +192,7 @@
 
 
   <!-- Detail-Dialog box -->
-<div class="modal fade" id="modal_detail_sousetab" tabindex="-1" role="">
+<div class="modal fade" id="modal_detail_type_apprenant" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -233,8 +201,8 @@
 
             <div class="modal-body ">
                 <div class="card-body card-primary">
-                  <p class="h4 text-center">DETAIL SOUS ETABLISSEMENT</p>
-                  <form method="post"  class="detail_sousetab" action=" ">
+                  <p class="h4 text-center">DETAIL TYPE APPRENANT</p>
+                  <form method="post"  class="detail_type_apprenant" action=" ">
                       {% csrf_token %}
                       {{ form.as_p }}
 
@@ -253,8 +221,8 @@
 </div>
 
 
-  <!-- dialog box ajouter sousetab  -->
-<div class="modal fade" id="modal_ajouter_sousetab" tabindex="-1" role="">
+  <!-- dialog box ajouter nom_type_apprenant  -->
+<div class="modal fade" id="modal_ajouter_type_apprenant" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -262,8 +230,8 @@
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER SOUS ETABLISSEMENT</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_sous_etablissement' %}">
+                    <p class="h4 text-center">AJOUTER TYPE APPRENANT</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_type_apprenant' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
 
@@ -284,8 +252,8 @@
 
 
 
-  <!-- dialog box modifier sousetab  -->
-<div class="modal fade" id="modal_modifier_sousetab" tabindex="-1" role="">
+  <!-- dialog box modifier nom_type_apprenant  -->
+<div class="modal fade" id="modal_modifier_type_apprenant" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -294,8 +262,8 @@
 
             <div class="modal-body ">
               <div class="card-body">
-                <p class="h4 text-center">MODIFIER SOUS ETABLISSEMENT</p>
-                   <form method="post" class="modifier_sousetab" action="{% url 'mainapp:modification_sous_etablissement' %}">
+                <p class="h4 text-center">MODIFIER TYPE APPRENANT</p>
+                   <form method="post" class="modifier_type_apprenant" action="{% url 'mainapp:modification_type_apprenant' %}">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -317,7 +285,7 @@
 
 
   <!-- Suppression-Dialog box -->
-<div class="modal fade" id="modal_supprimer_sousetab" tabindex="-1" role="">
+<div class="modal fade" id="modal_supprimer_type_apprenant" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -326,29 +294,18 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_sousetab" action="{% url 'mainapp:suppression_sous_etablissement' %} ">
-                    <p class="h4 text-center">SUPPRIMER SOUS ETABLISSEMENT</p>
+                  <form method="post"  class="suppression_type_apprenant" action="{% url 'mainapp:suppression_type_apprenant' %} ">
+                    <p class="h4 text-center">SUPPRIMER TYPE APPRENANT</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
                         <div class="form-group">
-                          <label class="">Sous Etab: </label>
+                          <label class="">Type Apprenant : </label>
+                          <label class="nom_type_apprenant text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Sous Etab : </label>
                           <label class="nom_sousetab text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">Date Création : </label>
-                          <label class="date_creation text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">Fondateur : </label>
-                          <label class="nom_fondateur text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">Localisation : </label>
-                          <label class="localisation text-primary"></label>
                         </div>
                         
                         <div class="card-body">Voulez vous vraiment supprimer?</div>
@@ -368,17 +325,15 @@
 </div>
 
 
-  <!-- input with datetimepicker -->
-  <!-- <div class="form-group">
-      <label class="label-control">Datetime Picker</label>
-      <input type="text" class="form-control datetimepicker" value="21/06/2018"/>
-      <input type="date" class="form-control" value="21/06/2018"/>
-      <input type="time" class="form-control" value="21/06/2018"/>
-  </div>
-   -->
+  <br><br>
+  <!-- markup -->
+  <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+      <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+
+<button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
+
 
   {% endblock %}
-
 
 {% block menu_fixed %}    
     {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
@@ -387,77 +342,5 @@
 
   {% block script_page %}
     
-    <script type="text/javascript">
-    $(document).ready(function() {
-
-      var i = 0;
-        $(".etab-link").click(function(){
-          //alert("message?: DOMString");
-            // $(".etab").toggleClass("show");
-            if(i%2 == 0)
-              $(".etab").css("visibility", "hidden");
-            else
-              $(".etab").css("visibility", "visible");
-            i++;
-
-        });
-
-
-          $(".theme").click(function(e) {
-      
-          e.stopImmediatePropagation(); 
-
-          var url_action = $("#changer_theme").attr("class");
-
-          classe = $(this).children("div").attr("class");
-          tab_element = classe.split("²²");
-
-          data_color = tab_element[0];
-          sidebar_class = tab_element[1];
-          theme_class = tab_element[2];
-
-          var donnees = data_color + "²²~~" + sidebar_class + "²²~~" + theme_class;
-
-           $.ajax({
-               method: 'POST',
-               url: url_action,
-               data: {
-                 form_data : donnees,
-                 csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
-               },
-               success: themeSucces,
-               error: themeError,
-           });
-
-    });
-
-
-     function themeSucces(data){
-        console.log(data);
-
-            $(".sidebar").attr("data-color", data.data_color);
-            $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
-
-            $(".btn").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
-
-            $(".moving-tab").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
-
-            $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(data.theme_class);
-
-            $(".loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + data.theme_class);
-
-            $("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
-        
-     }
-
-     function themeError(error){
-        console.log(error);
-     }
-
-    });
-
-
-
-    </script>
     
   {% endblock %}

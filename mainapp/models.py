@@ -66,6 +66,9 @@ class AppellationModuleChapitreLecon(models.Model):
     appellation_chapitre = models.CharField(max_length=200)
     appellation_lecon = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+   
     def __str__(self):
             return self.appellation_module+" "+appellation_chapitre+" "+appellation_lecon
 class AppellationApprenantFormateur(models.Model):
@@ -73,8 +76,18 @@ class AppellationApprenantFormateur(models.Model):
     appellation_apprenant = models.CharField(max_length=200)
     appellation_formateur = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
     def __str__(self):
-            return self.appellation_apprenant+" "+appellation_formateur
+            return self.appellation_apprenant+" "+self.appellation_formateur
+class TypeApprenant(models.Model):
+    annee_scolaire = models.CharField(max_length=20)
+    nom_type_apprenant = models.CharField(max_length=200)
+    archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    def __str__(self):
+            return self.nom_type_apprenant
 
 class Document(models.Model):
     annee_scolaire = models.CharField(max_length=20)

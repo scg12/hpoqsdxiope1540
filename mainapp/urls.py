@@ -33,6 +33,9 @@ url('liste-reunions/', views.liste_reunions, name="liste_reunions"),
 url('liste-niveaux/', views.liste_niveaux, name="liste_niveaux"),
 url('liste-classes/', views.liste_classes, name="liste_classes"),
 url('liste-matieres/', views.liste_matieres, name="liste_matieres"),
+url('liste-appellation-apprenant-formateur/', views.liste_appellation_apprenant_formateur, name="liste_appellation_apprenant_formateur"),
+url('liste-type-apprenants/', views.liste_type_apprenants, name="liste_type_apprenants"),
+
 
 url('liste-types-paiements-eleve/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
 url('liste-types-paiements-pers-enseignant/', views.liste_types_paiements_pers_enseignant, name="liste_types_paiements_pers_enseignant"),
@@ -53,6 +56,8 @@ url(r'^recherche-sous-etablissement/$', views.recherche_sous_etablissement, name
 url(r'^recherche-niveau/$', views.recherche_niveau, name='recherche_niveau'),
 url(r'^recherche-classe/$', views.recherche_classe, name='recherche_classe'),
 url(r'^recherche-matiere/$', views.recherche_matiere, name='recherche_matiere'),
+url(r'^recherche-appellation-apprenant-formateur/$', views.recherche_appellation_apprenant_formateur, name='recherche_appellation_apprenant_formateur'),
+url(r'^recherche-type-apprenant/$', views.recherche_type_apprenant, name='recherche_type_apprenant'),
 
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
@@ -62,6 +67,8 @@ url('creation-cycle/', views.creation_cycle, name="creation_cycle"),
 url('creation-niveau/', views.creation_niveau, name="creation_niveau"),
 url('creation-classe/', views.creation_classe, name="creation_classe"),
 url('creation-matiere/', views.creation_matiere, name="creation_matiere"),
+url('creation-appellation-apprenant-formateur/', views.creation_appellation_apprenant_formateur, name="creation_appellation_apprenant_formateur"),
+url('creation-type-apprenant/', views.creation_type_apprenant, name="creation_type_apprenant"),
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
@@ -71,6 +78,8 @@ url(r'^suppression-cycle/$', views.suppression_cycle, name='suppression_cycle'),
 url(r'^suppression-niveau/$', views.suppression_niveau, name='suppression_niveau'),
 url(r'^suppression-classe/$', views.suppression_classe, name='suppression_classe'),
 url(r'^suppression-matiere/$', views.suppression_matiere, name='suppression_matiere'),
+url(r'^suppression-appellation-apprenant-formateur/$', views.suppression_appellation_apprenant_formateur, name='suppression_appellation_apprenant_formateur'),
+url(r'^suppression-type-apprenant/$', views.suppression_type_apprenant, name='suppression_type_apprenant'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -78,7 +87,11 @@ url(r'^modification-etudiant/$', views.modification_etudiant, name='modification
 url(r'^modification-cycle/$', views.modification_cycle, name='modification_cycle'),
 url(r'^modification-niveau/$', views.modification_niveau, name='modification_niveau'),
 url(r'^modification-classe/$', views.modification_classe, name='modification_classe'),
+url(r'^modification-classe/$', views.modification_classe, name='modification_classe'),
 url(r'^modification-matiere/$', views.modification_matiere, name='modification_matiere'),
+url(r'^modification-appellation-apprenant-formateur/$', views.modification_appellation_apprenant_formateur, name='modification_appellation_apprenant_formateur'),
+url(r'^modification-type_apprenant/$', views.modification_type_apprenant, name='modification_type_apprenant'),
+
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
 
 url('', views.accueil, name="accueil"),

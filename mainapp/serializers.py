@@ -160,3 +160,33 @@ class MatiereSerializer(serializers.Serializer):
         instance.nom_matiere = validated_data.get('nom_matiere', instance.nom_matiere.lower())
         instance.code = validated_data.get('code', instance.code.lower())
         instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+
+class AppellationApprenantFormateurSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    appellation_apprenant = serializers.CharField(max_length=150)
+    appellation_formateur = serializers.CharField(max_length=150)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return AppellationApprenantFormateur.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.id = validated_data.get('id', instance.id)
+        instance.appellation_apprenant = validated_data.get('appellation_apprenant', instance.appellation_apprenant.lower())
+        instance.appellation_formateur = validated_data.get('appellation_formateur', instance.appellation_formateur.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+
+class TypeApprenantSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    nom_type_apprenant = serializers.CharField(max_length=150)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return TypeApprenant.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.matiere_id = validated_data.get('id', instance.id)
+        instance.nom_type_apprenant = validated_data.get('nom_type_apprenant', instance.nom_type_apprenant.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())

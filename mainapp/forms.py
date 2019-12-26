@@ -161,10 +161,10 @@ class EtablissementForm(forms.Form):
 
 class SousEtablissementForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
-    nom_etab = forms.CharField(
-        label=_('Etablissement'),
+    nom_sousetab = forms.CharField(
+        label=_('Sous Etab'),
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Entrer Etablissement', 'class': 'form-control form-group nom_etab' }),
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etablissement', 'class': 'form-control form-group nom_sousetab' }),
     )
     date_creation = forms.CharField(
         label='Date Création',
@@ -296,7 +296,6 @@ class ClasseForm(forms.Form):
         # required=False
     )
    
-
 class MatiereForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     nom_matiere= forms.CharField(
@@ -311,6 +310,43 @@ class MatiereForm(forms.Form):
     )
     nom_sousetab = forms.CharField(
         label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+
+   
+
+class AppellationApprenantFormateurForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    apprenant= forms.CharField(
+        label=_('Apprenant'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Appellation Apprenant', 'class': 'form-control form-group appellation_apprenant' }),
+    )
+    formateur= forms.CharField(
+        label=_('Formateur'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Appellation Formateur', 'class': 'form-control form-group appellation_formateur' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etab',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+
+   
+
+class TypeApprenantForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_type_apprenant= forms.CharField(
+        label=_('Type Apprenant'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Type Apprenant', 'class': 'form-control form-group nom_type_apprenant' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etab',
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
         # disabled = True  
