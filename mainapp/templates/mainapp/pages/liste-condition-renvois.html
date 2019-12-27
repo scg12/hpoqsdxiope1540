@@ -1,0 +1,389 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/liste-condition-renvois.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_condition_renvois' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+  {% block content %}
+        
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+
+                <div class="card">
+                  
+                  <div class="card-body">
+                      <div class="row">
+
+                        <div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center">Liste Condition Renvoi</p>
+                        </div>
+
+                      </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12 col-md-8">
+                                
+                                 <label>Afficher </label> 
+                                 <select id="nbre_element_par_page" class="form-control-sm">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="-1">Tout</option>
+                                  </select> 
+                                  <label>Elements</label> 
+                                
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                              <form action="{% url 'mainapp:recherche_condition_renvoi' %}" class="recherche_condition_renvoi" method="GET">
+                                {% csrf_token %}
+                                  <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                                  <div id="message" ></div>
+                              </form>
+                              
+                            </div>
+
+                        </div><br>
+
+                  <div class="table-responsive">
+                        <div class="table-scroll">
+                          <table class="table table-striped table-hover">
+                            <thead class="">
+                              <tr>
+                                <th scope="col" class="fix-col" ></th>
+                                
+                                <th scope="col" class="nb_heures_max fix-col1" >
+                                    <span class="tri tri-asc"># Heures >
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                                       
+                                </th>
+                                <th scope="col" class="age" >
+                                    <span class="tri tri-asc">Age >
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                                       
+                                </th>
+                                <th scope="col" class="moyenne">
+                                    <span class="tri tri-asc">Moyenne <
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="nb_jours">
+                                    <span class="tri tri-asc"># Jours Abs NJ >
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="nom_niveau">
+                                    <span class="tri tri-asc">Niveau
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="nom_sousetab">
+                                    <span class="tri tri-asc">Sous Etab
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="text-right">
+                                  {% if perms.mainapp.can_add_condition_renvoi or perms.mainapp.add_condition_renvoi %}
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-condition-renvoi-link" data-toggle="modal" data-target="#modal_ajouter_condition_renvoi">
+                                      <i class="material-icons">person_add</i>
+                                  </button>
+                                  {% endif %}
+                                </th>
+
+                              </tr>
+                            </thead>
+                            <tbody>
+                               
+                                    {% for c_renvoi in c_renvois  %}
+                                    <tr class="{{ c_renvoi.id }}²²{{ c_renvoi.nb_heures_max }}²²{{ c_renvoi.age }}²²{{ c_renvoi.moyenne }}²²{{ c_renvoi.nb_jours }}²²{{ c_renvoi.nom_niveau }}²²{{ c_renvoi.nom_sousetab }}">
+                                      <th scope="row" class="detail-condition-renvoi-link-td fix-col">{{ forloop.counter }}</th>
+                                     
+                                      <td class="detail-condition-renvoi-link-td fix-col1" style="text-transform: uppercase;">{{ c_renvoi.nb_heures_max }}</td>
+                                      <td class="detail-condition-renvoi-link-td" style="text-transform: uppercase;">{{ c_renvoi.age }}</td>
+                                      <td class="detail-condition-renvoi-link-td" style="text-transform: uppercase;">{{ c_renvoi.moyenne }}</td>
+                                      <td class="detail-condition-renvoi-link-td" style="text-transform: uppercase;">{{ c_renvoi.nb_jours }}</td>
+                                      <td class="detail-condition-renvoi-link-td" style="text-transform: uppercase;">{{ c_renvoi.nom_niveau }}</td>
+                                      <td class="detail-condition-renvoi-link-td" style="text-transform: uppercase;">{{ c_renvoi.nom_sousetab }}</td>
+                                      <td class="td-actions text-right"> 
+
+                                      {% if perms.mainapp.can_change_conditionrenvoi or perms.mainapp.change_conditionrenvoi %}
+                                        <button rel="tooltip" class="btn modifier-condition-renvoi-link">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        {% endif %}
+
+                                        {% if perms.mainapp.can_delete_conditionrenvoi or perms.mainapp.delete_conditionrenvoi %}
+                                        <button class="btn btn-danger supprimer-condition-renvoi-link">
+                                            <i class="material-icons">close</i>
+                                        </button>
+                                        {% endif %}
+
+                                      </td>
+
+                                    </tr>
+
+                                    {% empty %}
+                                      <tr>
+                                        <td colspan="7" class="text-center h4">Aucune condition de renvoi définie </td>
+                                      </tr>
+                                {% endfor %}
+
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <th scope="col" class="fix-col"></th>
+                                <th scope="col" class="fix-col1"># Heures ></th>
+                                <th scope="col" >Age ></th>
+                                <th scope="col" >Moyenne <</th>
+                                <th scope="col" ># Jours Abs NJ ></th>
+                                <th scope="col">Niveau</th> 
+                                <th scope="col">Sous Etab</th>                           
+                                <th scope="col">Actions</th>                              
+
+                              </tr>
+                            </tfoot>
+                      
+                        </table>
+                        </div>
+                        
+
+                  </div>      
+
+                           {% block pagination %}
+                              {% include 'mainapp/layouts/_pagination.html' %}
+                          {% endblock %}
+                              
+                      
+                      
+                  </div>
+
+                </div>
+
+
+
+              </div>
+            </div>
+          </div>
+
+
+  <!-- Detail-Dialog box -->
+<div class="modal fade" id="modal_detail_condition_renvoi" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+                  <p class="h4 text-center">DETAIL CONDITION RENVOI</p>
+                  <form method="post"  class="detail_condition_renvoi" action=" ">
+                      {% csrf_token %}
+                      {{ form.as_p }}
+
+                        <div class="text-center">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                       </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div>
+
+
+  <!-- dialog box ajouter discipline  -->
+<div class="modal fade" id="modal_ajouter_condition_renvoi" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body">
+                    <p class="h4 text-center">AJOUTER CONDITION RENVOI</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_condition_renvoi' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                         <label id="message"></label><br>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Créer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
+                    </form>
+
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div>
+
+
+
+  <!-- dialog box modifier discipline  -->
+<div class="modal fade" id="modal_modifier_condition_renvoi" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+              <div class="card-body">
+                <p class="h4 text-center">MODIFIER CONDITION RENVOI</p>
+                   <form method="post" class="modifier_condition_renvoi" action="{% url 'mainapp:modification_condition_renvoi' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <div class="text-center">
+                        <button type="submit" class="btn">Modifier</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+              </div>
+              
+            </div>
+                    
+        </div>
+    </div>
+</div>
+
+
+
+  <!-- Suppression-Dialog box -->
+<div class="modal fade" id="modal_supprimer_condition_renvoi" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+
+                  <form method="post"  class="suppression_condition_renvoi" action="{% url 'mainapp:suppression_condition_renvoi' %} ">
+                    <p class="h4 text-center">SUPPRIMER CONDITION RENVOI</p>
+                      {% csrf_token %}
+                        <input type="hidden" name="id_supp" id="id_supp">
+
+                        <div class="form-group">
+                          <label class=""># Heures > : </label>
+                          <label class="nb_jours text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Age > : </label>
+                          <label class="age text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Moyenne < : </label>
+                          <label class="moyenne text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class=""># Jours Abs NJ > : </label>
+                          <label class="nb_jours text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Niveau : </label>
+                          <label class="nom_niveau text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Sous Etab : </label>
+                          <label class="nom_sousetab text-primary"></label>
+                        </div>
+                        
+                        <div class="card-body">Voulez vous vraiment supprimer?</div>
+                        <div class="text-center">
+                          <button type="submit" class="btn">OUI</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                        </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div>
+
+
+  <br><br>
+  <!-- markup -->
+  <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+      <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+
+<button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
+
+
+  {% endblock %}
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+    
+    
+  {% endblock %}

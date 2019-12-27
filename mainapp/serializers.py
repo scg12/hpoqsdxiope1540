@@ -190,3 +190,64 @@ class TypeApprenantSerializer(serializers.Serializer):
         instance.matiere_id = validated_data.get('id', instance.id)
         instance.nom_type_apprenant = validated_data.get('nom_type_apprenant', instance.nom_type_apprenant.lower())
         instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+
+class DisciplineSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    fait = serializers.CharField(max_length=150)
+    description = serializers.CharField(max_length=250)
+    nb_heures_min = serializers.FloatField()
+    nb_heures_max = serializers.FloatField()
+    nb_heures_max = serializers.FloatField()
+    sanction = serializers.CharField(max_length=250)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return Discipline.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.id = validated_data.get('id', instance.id)
+        instance.fait = validated_data.get('fait', instance.fait.lower())
+        instance.description = validated_data.get('description', instance.description.lower())
+        instance.nb_heures_min = validated_data.get('nb_heures_min', instance.nb_heures_min.lower())
+        instance.nb_heures_max = validated_data.get('nb_heures_max', instance.nb_heures_max.lower())
+        instance.sanction = validated_data.get('sanction', instance.sanction.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+
+class ConditionRenvoiSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    nb_heures_max = serializers.FloatField()
+    age = serializers.FloatField()
+    moyenne = serializers.FloatField()
+    nb_jours = serializers.FloatField()
+    nom_niveau = serializers.CharField(max_length=250)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return ConditionRenvoi.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.id = validated_data.get('id', instance.id)
+        instance.nb_heures_max = validated_data.get('nb_heures_max', instance.nb_heures_max)
+        instance.age = validated_data.get('age', instance.age)
+        instance.moyenne = validated_data.get('moyenne', instance.moyenne)
+        instance.nb_jours = validated_data.get('nb_jours', instance.nb_jours)
+        instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+
+class ConditionSuccesSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    moyenne = serializers.FloatField()
+    nom_niveau = serializers.CharField(max_length=250)
+    nom_sousetab = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return ConditionSucces.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.id = validated_data.get('id', instance.id)
+        instance.moyenne = validated_data.get('moyenne', instance.moyenne)
+        instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())

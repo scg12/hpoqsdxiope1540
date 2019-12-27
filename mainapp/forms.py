@@ -353,3 +353,86 @@ class TypeApprenantForm(forms.Form):
     )
 
    
+
+class DisciplineForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    fait= forms.CharField(
+        label=_('Titre'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer Titre', 'class': 'form-control form-group fait' }),
+    )
+    description= forms.CharField(
+        label=_('Description'),
+        max_length=250,
+        widget=forms.TextInput(attrs={'placeholder': 'Description', 'class': 'form-control form-group description' }),
+    )
+    nb_heures_min= forms.FloatField(
+        label=_('# Heures Min'),
+        widget=forms.TextInput(attrs={'placeholder': '12', 'class': 'form-control form-group nb_heures_min' }),
+    )
+    nb_heures_max= forms.FloatField(
+        label=_('# Heures Max'),
+        widget=forms.TextInput(attrs={'placeholder': '20', 'class': 'form-control form-group nb_heures_max' }),
+    )
+    sanction = forms.CharField(
+        label='Sanction',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sanction', 'class': 'form-control form-group sanction'}),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+    )
+
+   
+
+class ConditionRenvoiForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nb_heures_max= forms.FloatField(
+        label=_('# Heures >'),
+        widget=forms.TextInput(attrs={'placeholder': '40', 'class': 'form-control form-group nb_heures_max' }),
+    )
+    age= forms.FloatField(
+        label=_('Age >'),
+        widget=forms.TextInput(attrs={'placeholder': '22', 'class': 'form-control form-group age' }),
+    )
+    moyenne= forms.FloatField(
+        label=_('Moyenne <'),
+        widget=forms.TextInput(attrs={'placeholder': '7.50', 'class': 'form-control form-group moyenne' }),
+    )
+    nb_jours= forms.FloatField(
+        label=_('# Jours Abs NJ >'),
+        widget=forms.TextInput(attrs={'placeholder': '9', 'class': 'form-control form-group nb_jours' }),
+    )
+    nom_niveau = forms.CharField(
+        label='Niveau',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': '4e', 'class': 'form-control form-group nom_niveau'}),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+    )
+
+   
+
+class ConditionSuccesForm(forms.Form):
+
+    moyenne= forms.FloatField(
+        label=_('Moyenne >='),
+        widget=forms.TextInput(attrs={'placeholder': '10.00', 'class': 'form-control form-group moyenne' }),
+    )
+    nom_niveau = forms.CharField(
+        label='Niveau',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': '4e', 'class': 'form-control form-group nom_niveau'}),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+    )
+
+   

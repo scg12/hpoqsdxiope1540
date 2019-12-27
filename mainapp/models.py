@@ -312,9 +312,36 @@ class ConfigAnnee(models.Model):
 class Discipline(models.Model):
     fait = models.TextField()
     description = models.TextField()
+    nb_heures_min = models.FloatField(default=0)
+    nb_heures_max = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    sanction = models.TextField(default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.fait
+class ConditionRenvoi(models.Model):
+    nb_heures_max = models.FloatField(default=0)
+    age = models.FloatField(default=0)
+    moyenne = models.FloatField(default=0)
+    nb_jours = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    id_niveau = models.IntegerField(default=1)
+    nom_niveau = models.CharField(max_length=100,default="")
+
+    archived = models.CharField(max_length=2,default="0")
+    def __str__(self):
+            return self.nb_heures_max
+class ConditionSucces(models.Model):
+    moyenne = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    id_niveau = models.IntegerField(default=1)
+    nom_niveau = models.CharField(max_length=100,default="")
+    archived = models.CharField(max_length=2,default="0")
+    def __str__(self):
+            return self.moyenne
 
 class Note(models.Model):
     libelle = models.CharField(max_length=100)

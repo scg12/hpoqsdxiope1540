@@ -35,6 +35,10 @@ url('liste-classes/', views.liste_classes, name="liste_classes"),
 url('liste-matieres/', views.liste_matieres, name="liste_matieres"),
 url('liste-appellation-apprenant-formateur/', views.liste_appellation_apprenant_formateur, name="liste_appellation_apprenant_formateur"),
 url('liste-type-apprenants/', views.liste_type_apprenants, name="liste_type_apprenants"),
+url('liste-disciplines/', views.liste_disciplines, name="liste_disciplines"),
+url('liste-condition-renvois/', views.liste_condition_renvois, name="liste_condition_renvois"),
+url('liste-condition-succes/', views.liste_condition_succes, name="liste_condition_succes"),
+
 
 
 url('liste-types-paiements-eleve/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
@@ -58,6 +62,9 @@ url(r'^recherche-classe/$', views.recherche_classe, name='recherche_classe'),
 url(r'^recherche-matiere/$', views.recherche_matiere, name='recherche_matiere'),
 url(r'^recherche-appellation-apprenant-formateur/$', views.recherche_appellation_apprenant_formateur, name='recherche_appellation_apprenant_formateur'),
 url(r'^recherche-type-apprenant/$', views.recherche_type_apprenant, name='recherche_type_apprenant'),
+url(r'^recherche-discipline/$', views.recherche_discipline, name='recherche_discipline'),
+url(r'^recherche-condition-renvoi/$', views.recherche_condition_renvoi, name='recherche_condition_renvoi'),
+url(r'^recherche-condition-succes/$', views.recherche_condition_succes, name='recherche_condition_succes'),
 
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
@@ -69,6 +76,9 @@ url('creation-classe/', views.creation_classe, name="creation_classe"),
 url('creation-matiere/', views.creation_matiere, name="creation_matiere"),
 url('creation-appellation-apprenant-formateur/', views.creation_appellation_apprenant_formateur, name="creation_appellation_apprenant_formateur"),
 url('creation-type-apprenant/', views.creation_type_apprenant, name="creation_type_apprenant"),
+url('creation-discipline/', views.creation_discipline, name="creation_discipline"),
+url('creation-condition-renvoi/', views.creation_condition_renvoi, name="creation_condition_renvoi"),
+url('creation-condition-succes/', views.creation_condition_succes, name="creation_condition_succes"),
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
@@ -80,6 +90,9 @@ url(r'^suppression-classe/$', views.suppression_classe, name='suppression_classe
 url(r'^suppression-matiere/$', views.suppression_matiere, name='suppression_matiere'),
 url(r'^suppression-appellation-apprenant-formateur/$', views.suppression_appellation_apprenant_formateur, name='suppression_appellation_apprenant_formateur'),
 url(r'^suppression-type-apprenant/$', views.suppression_type_apprenant, name='suppression_type_apprenant'),
+url(r'^suppression-discipline/$', views.suppression_discipline, name='suppression_discipline'),
+url(r'^suppression-condition-renvoi/$', views.suppression_condition_renvoi, name='suppression_condition_renvoi'),
+url(r'^suppression-condition-succes/$', views.suppression_condition_succes, name='suppression_condition_succes'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -91,6 +104,9 @@ url(r'^modification-classe/$', views.modification_classe, name='modification_cla
 url(r'^modification-matiere/$', views.modification_matiere, name='modification_matiere'),
 url(r'^modification-appellation-apprenant-formateur/$', views.modification_appellation_apprenant_formateur, name='modification_appellation_apprenant_formateur'),
 url(r'^modification-type_apprenant/$', views.modification_type_apprenant, name='modification_type_apprenant'),
+url(r'^modification-discipline/$', views.modification_discipline, name='modification_discipline'),
+url(r'^modification-condition-renvoi/$', views.modification_condition_renvoi, name='modification_condition_renvoi'),
+url(r'^modification-condition-succes/$', views.modification_condition_succes, name='modification_condition_succes'),
 
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
 
