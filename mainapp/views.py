@@ -3415,7 +3415,7 @@ def initialisation(request):
                     while pd.isnull(df['Unnamed: 13'].values[index_matiere] ) == False:
 
                         matiere = Matiere()
-                        matiere.titre = df['Unnamed: 13'].values[index_matiere]
+                        matiere.nom_matiere = df['Unnamed: 13'].values[index_matiere]
                         matiere.id_sousetab = sousEtab.id
                         matiere.nom_sousetab = sousEtab.nom_sousetab
                         matiere.save()
@@ -3501,7 +3501,7 @@ def initialisation(request):
                                 current_groupe = df['Unnamed: '+str(col+max_niveau_classe+1)].values[index_niveau+j]
                                 
                                 if eff_coef != "_":
-                                    matiere = Matiere.objects.filter(titre=nom_matiere)[0]
+                                    matiere = Matiere.objects.filter(nom_matiere=nom_matiere)[0]
                                     cours = Cours()
                                     cours.nom_cours = nom_matiere
                                     cours.matiere.add(matiere)
