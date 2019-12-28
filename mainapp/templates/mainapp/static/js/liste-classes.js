@@ -76,7 +76,7 @@ $(document).ready(function(){
                       nom_niveau = liste_classes[i].nom_niveau;
                       nom_cycle = liste_classes[i].nom_cycle;
                       nom_classe = liste_classes[i].nom_classe;
-                      id = liste_classes[i].classe_id;
+                      id = liste_classes[i].id;
                       // alert(nom_etab, nom_sousetab, nom_classe, id);
                         nouvelle_ligne = "<tr class='"+ id +'²²'+ nom_classe +'²²'+ nom_niveau +'²²'+ nom_cycle + '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
                     '</th><td style="text-transform: uppercase;" class="detail-classe-link-td fix-col1">'+ nom_classe + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_niveau + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-classe-link-td">' + nom_sousetab + '</td><td class="detail-classe-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
@@ -399,13 +399,13 @@ $(document).ready(function(){
 
           var trier_par = "non defini";
 
-          $("body table thead th span").each(function () {
+          $("body table thead th").each(function () {
 
                 var classe = String($(this).attr("class"));
 
-                if(classe.search("text-primary") != -1){
+                if(classe.search("active") != -1){
 
-                    trier_par = $(this).parents("th").attr("class");
+                    trier_par = $(this).attr("class").split(" ")[0];
 
                     if (classe.search("tri-desc") != -1){
                         trier_par = "-" + trier_par; 

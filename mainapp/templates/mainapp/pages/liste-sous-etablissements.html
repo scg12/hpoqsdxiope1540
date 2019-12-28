@@ -135,7 +135,7 @@
                                 </th>
                                 <th scope="col" class="text-right">
                                   {% if perms.mainapp.can_add_sousetab or perms.mainapp.add_sousetab %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-eleve-link" data-toggle="modal" data-target="#modal_ajouter_eleve">
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-sousetab-link" data-toggle="modal" data-target="#modal_ajouter_sousetab">
                                       <i class="material-icons">person_add</i>
                                   </button>
                                   {% endif %}
@@ -144,28 +144,28 @@
                               </tr>
                             </thead>
                             <tbody>
-                                {% for sousetablissement in page_active  %}
-                                    <tr class="{{ sousetablissement.id }}²²{{ sousetablissement.nom_sousetab }}²²{{ sousetablissement.date_creation }}²²{{ sousetablissement.nom_fondateur }}²²{{ sousetablissement.localisation }}">
-                                      <th scope="row" class="detail-eleve-link-td fix-col">{{ forloop.counter }}</th>
+                                {% for s_etab in s_etablissements  %}
+                                    <tr class="{{ s_etab.id }}²²{{ s_etab.nom_sousetab }}²²{{ s_etab.date_creation }}²²{{ s_etab.nom_fondateur }}²²{{ s_etab.localisation }}">
+                                      <th scope="row" class="detail-sousetab-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ sousetablissement.nom_sousetab }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ sousetablissement.date_creation }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ sousetablissement.nom_fondateur }}</td>
-                                      <td class="detail-eleve-link-td">{{ sousetablissement.localisation}}</td>
+                                      <td class="detail-sousetab-link-td fix-col1" style="text-transform: uppercase;">{{ s_etab.nom_sousetab }}</td>
+                                      <td class="detail-sousetab-link-td" style="text-transform: uppercase;">{{ s_etab.date_creation }}</td>
+                                      <td class="detail-sousetab-link-td" style="text-transform: capitalize;">{{ s_etab.nom_fondateur }}</td>
+                                      <td class="detail-sousetab-link-td">{{ s_etab.localisation}}</td>
                                       <td class="td-actions text-right"> 
 <!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
-                                        <button rel="tooltip" class="btn detail-eleve-link">
+                                        <button rel="tooltip" class="btn detail-sousetab-link">
                                             <i class="material-icons">visibility</i>
                                         </button>
                                       {% endif %} -->
                                       {% if perms.mainapp.can_change_sousetab or perms.mainapp.change_sousetab %}
-                                        <button rel="tooltip" class="btn modifier-eleve-link">
+                                        <button rel="tooltip" class="btn modifier-sousetab-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
                                         {% if perms.mainapp.can_delete_sousetab or perms.mainapp.delete_sousetab %}
-                                        <button class="btn btn-danger supprimer-eleve-link">
+                                        <button class="btn btn-danger supprimer-sousetab-link">
                                             <i class="material-icons">close</i>
                                         </button>
                                         {% endif %}
@@ -224,7 +224,7 @@
 
 
   <!-- Detail-Dialog box -->
-<div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
+<div class="modal fade" id="modal_detail_sousetab" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -234,7 +234,7 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
                   <p class="h4 text-center">DETAIL SOUS ETABLISSEMENT</p>
-                  <form method="post"  class="detail_eleve" action=" ">
+                  <form method="post"  class="detail_sousetab" action=" ">
                       {% csrf_token %}
                       {{ form.as_p }}
 
@@ -253,8 +253,8 @@
 </div>
 
 
-  <!-- dialog box ajouter eleve  -->
-<div class="modal fade" id="modal_ajouter_eleve" tabindex="-1" role="">
+  <!-- dialog box ajouter sousetab  -->
+<div class="modal fade" id="modal_ajouter_sousetab" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -284,8 +284,8 @@
 
 
 
-  <!-- dialog box modifier eleve  -->
-<div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
+  <!-- dialog box modifier sousetab  -->
+<div class="modal fade" id="modal_modifier_sousetab" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -295,7 +295,7 @@
             <div class="modal-body ">
               <div class="card-body">
                 <p class="h4 text-center">MODIFIER SOUS ETABLISSEMENT</p>
-                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_sous_etablissement' %}">
+                   <form method="post" class="modifier_sousetab" action="{% url 'mainapp:modification_sous_etablissement' %}">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -317,7 +317,7 @@
 
 
   <!-- Suppression-Dialog box -->
-<div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
+<div class="modal fade" id="modal_supprimer_sousetab" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -326,29 +326,29 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_eleve" action="{% url 'mainapp:suppression_sous_etablissement' %} ">
+                  <form method="post"  class="suppression_sousetab" action="{% url 'mainapp:suppression_sous_etablissement' %} ">
                     <p class="h4 text-center">SUPPRIMER SOUS ETABLISSEMENT</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
                         <div class="form-group">
-                          <label class="">Etablissement : </label>
-                          <label class="matricule text-primary"></label>
+                          <label class="">Sous Etab: </label>
+                          <label class="nom_sousetab text-primary"></label>
                         </div>
 
                         <div class="form-group">
                           <label class="">Date Création : </label>
-                          <label class="nom text-primary"></label>
+                          <label class="date_creation text-primary"></label>
                         </div>
 
                         <div class="form-group">
                           <label class="">Fondateur : </label>
-                          <label class="prenom text-primary"></label>
+                          <label class="nom_fondateur text-primary"></label>
                         </div>
 
                         <div class="form-group">
                           <label class="">Localisation : </label>
-                          <label class="age text-primary"></label>
+                          <label class="localisation text-primary"></label>
                         </div>
                         
                         <div class="card-body">Voulez vous vraiment supprimer?</div>

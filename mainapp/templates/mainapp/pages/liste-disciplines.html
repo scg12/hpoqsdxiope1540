@@ -4,7 +4,7 @@
 
   {% block header %}
       
-      <script src="{% static 'js/liste-classes.js' %}"></script>
+      <script src="{% static 'js/liste-disciplines.js' %}"></script>
 
       <style type="text/css">
         
@@ -32,7 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_classes' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_disciplines' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
@@ -63,7 +63,7 @@
                       <div class="row">
 
                         <div class="col-sm-12 col-md-12">
-                          <p class="h3 text-center">Liste Classes</p>
+                          <p class="h3 text-center">Liste Cas De Discipline</p>
                         </div>
 
                       </div>
@@ -87,7 +87,7 @@
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                              <form action="{% url 'mainapp:recherche_classe' %}" class="recherche_classe" method="GET">
+                              <form action="{% url 'mainapp:recherche_discipline' %}" class="recherche_discipline" method="GET">
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
@@ -104,35 +104,39 @@
                               <tr>
                                 <th scope="col" class="fix-col" >#</th>
                                 
-                                <th scope="col" class="nom_classe fix-col1 active" >
-                                    <span class="tri tri-asc">Classe
+                                <th scope="col" class="fait fix-col1" >
+                                    <span class="tri tri-asc">Titre
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="nom_niveau" >
-                                    <span class="tri tri-asc">Niveau
+                                <th scope="col" class="description" >
+                                    <span class="tri tri-asc">Description
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="nom_cycle" >
-                                    <span class="tri tri-asc">Cycle
+                                <th scope="col" class="nb_heures_min">
+                                    <span class="tri tri-asc"># Heures Min
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span>                                                       
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="nb_heures_max">
+                                    <span class="tri tri-asc"># Heures Max
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="sanction">
+                                    <span class="tri tri-asc">Sanction
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
                                 </th>
                                 <th scope="col" class="nom_sousetab">
                                     <span class="tri tri-asc">Sous Etab
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
-                                <th scope="col" class="nom_etab">
-                                    <span class="tri tri-asc">Etablissement
-                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span> 
-                                   
-                                </th>
                                 <th scope="col" class="text-right">
-                                  {% if perms.mainapp.can_add_classe or perms.mainapp.add_classe %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
+                                  {% if perms.mainapp.can_add_discipline or perms.mainapp.add_discipline %}
+                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-discipline-link" data-toggle="modal" data-target="#modal_ajouter_discipline">
                                       <i class="material-icons">person_add</i>
                                   </button>
                                   {% endif %}
@@ -142,25 +146,26 @@
                             </thead>
                             <tbody>
                                
-                                    {% for classe in page_active  %}
-                                    <tr class="{{ classe.id }}²²{{ classe.nom_classe }}²²{{ classe.nom_niveau }}²²{{ classe.nom_cycle }}²²{{ classe.nom_sousetab }}²²{{ classe.nom_etab }}">
-                                      <th scope="row" class="detail-classe-link-td fix-col">{{ forloop.counter }}</th>
+                                    {% for discipline in disciplines  %}
+                                    <tr class="{{ discipline.id }}²²{{ discipline.fait }}²²{{ discipline.description }}²²{{ discipline.nb_heures_min }}²²{{ discipline.nb_heures_max }}²²{{ discipline.sanction }}²²{{ discipline.nom_sousetab }}">
+                                      <th scope="row" class="detail-discipline-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-classe-link-td fix-col1" style="text-transform: uppercase;">{{ classe.nom_classe }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_niveau }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_cycle }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_sousetab }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: capitalize;">{{ classe.nom_etab }}</td>
+                                      <td class="detail-discipline-link-td fix-col1" style="text-transform: uppercase;">{{ discipline.fait }}</td>
+                                      <td class="detail-discipline-link-td" style="text-transform: uppercase;">{{ discipline.description }}</td>
+                                      <td class="detail-discipline-link-td" style="text-transform: uppercase;">{{ discipline.nb_heures_min }}</td>
+                                      <td class="detail-discipline-link-td" style="text-transform: uppercase;">{{ discipline.nb_heures_max }}</td>
+                                      <td class="detail-discipline-link-td" style="text-transform: uppercase;">{{ discipline.sanction }}</td>
+                                      <td class="detail-discipline-link-td" style="text-transform: uppercase;">{{ discipline.nom_sousetab }}</td>
                                       <td class="td-actions text-right"> 
 
-                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
-                                        <button rel="tooltip" class="btn modifier-classe-link">
+                                      {% if perms.mainapp.can_change_discipline or perms.mainapp.change_discipline %}
+                                        <button rel="tooltip" class="btn modifier-discipline-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
-                                        {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
-                                        <button class="btn btn-danger supprimer-classe-link">
+                                        {% if perms.mainapp.can_delete_discipline or perms.mainapp.delete_discipline %}
+                                        <button class="btn btn-danger supprimer-discipline-link">
                                             <i class="material-icons">close</i>
                                         </button>
                                         {% endif %}
@@ -171,7 +176,7 @@
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucun classe(s) créé(s) </td>
+                                        <td colspan="7" class="text-center h4">Aucun cas de discipline créé </td>
                                       </tr>
                                 {% endfor %}
 
@@ -179,11 +184,12 @@
                             <tfoot>
                               <tr>
                                 <th scope="col" class="fix-col">#</th>
-                                <th scope="col" class="fix-col1">Classe</th>
-                                <th scope="col" >Niveau</th>
-                                <th scope="col" >Cycle</th>
-                                <th scope="col">Sous Etab</th>
-                                <th scope="col">Etablissement</th>                             
+                                <th scope="col" class="fix-col1">Titre</th>
+                                <th scope="col" >Description</th>
+                                <th scope="col" ># Heures Min</th>
+                                <th scope="col" ># Heures Max</th>
+                                <th scope="col">Sanction</th> 
+                                <th scope="col">Sous Etab</th>                           
                                 <th scope="col">Actions</th>                              
 
                               </tr>
@@ -213,7 +219,7 @@
 
 
   <!-- Detail-Dialog box -->
-<div class="modal fade" id="modal_detail_classe" tabindex="-1" role="">
+<div class="modal fade" id="modal_detail_discipline" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -222,8 +228,8 @@
 
             <div class="modal-body ">
                 <div class="card-body card-primary">
-                  <p class="h4 text-center">DETAIL CLASSE</p>
-                  <form method="post"  class="detail_classe" action=" ">
+                  <p class="h4 text-center">DETAIL CAS DE DISCIPLINE</p>
+                  <form method="post"  class="detail_discipline" action=" ">
                       {% csrf_token %}
                       {{ form.as_p }}
 
@@ -242,8 +248,8 @@
 </div>
 
 
-  <!-- dialog box ajouter classe  -->
-<div class="modal fade" id="modal_ajouter_classe" tabindex="-1" role="">
+  <!-- dialog box ajouter discipline  -->
+<div class="modal fade" id="modal_ajouter_discipline" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -251,8 +257,8 @@
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER CLASSE</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_classe' %}">
+                    <p class="h4 text-center">AJOUTER CAS DE DISCIPLINE</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_discipline' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
 
@@ -273,8 +279,8 @@
 
 
 
-  <!-- dialog box modifier classe  -->
-<div class="modal fade" id="modal_modifier_classe" tabindex="-1" role="">
+  <!-- dialog box modifier discipline  -->
+<div class="modal fade" id="modal_modifier_discipline" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -283,8 +289,8 @@
 
             <div class="modal-body ">
               <div class="card-body">
-                <p class="h4 text-center">MODIFIER CLASSE</p>
-                   <form method="post" class="modifier_classe" action="{% url 'mainapp:modification_classe' %}">
+                <p class="h4 text-center">MODIFIER CAS DE DISCIPLINE</p>
+                   <form method="post" class="modifier_discipline" action="{% url 'mainapp:modification_discipline' %}">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -306,7 +312,7 @@
 
 
   <!-- Suppression-Dialog box -->
-<div class="modal fade" id="modal_supprimer_classe" tabindex="-1" role="">
+<div class="modal fade" id="modal_supprimer_discipline" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -315,32 +321,34 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_classe" action="{% url 'mainapp:suppression_classe' %} ">
-                    <p class="h4 text-center">SUPPRIMER CLASSE</p>
+                  <form method="post"  class="suppression_discipline" action="{% url 'mainapp:suppression_discipline' %} ">
+                    <p class="h4 text-center">SUPPRIMER CAS DE DISCIPLINE</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
                         <div class="form-group">
-                          <label class="">Classe : </label>
-                          <label class="nom_classe"></label>
+                          <label class="">Titre : </label>
+                          <label class="fait text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Niveau : </label>
-                          <label class="nom_niveau"></label>
+                          <label class="">Description : </label>
+                          <label class="description text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Cycle : </label>
-                          <label class="nom_cycle"></label>
+                          <label class=""># Heures Min : </label>
+                          <label class="nb_heures_min text-primary"></label>
                         </div>
-
+                        <div class="form-group">
+                          <label class=""># Heures Max : </label>
+                          <label class="nb_heures_max text-primary"></label>
+                        </div>
+                        <div class="form-group">
+                          <label class="">Sanction : </label>
+                          <label class="sanction text-primary"></label>
+                        </div>
                         <div class="form-group">
                           <label class="">Sous Etab : </label>
-                          <label class="nom_sousetab"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">etablissement : </label>
-                          <label class="nom_etab"></label>
+                          <label class="nom_sousetab text-primary"></label>
                         </div>
                         
                         <div class="card-body">Voulez vous vraiment supprimer?</div>

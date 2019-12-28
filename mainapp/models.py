@@ -66,6 +66,9 @@ class AppellationModuleChapitreLecon(models.Model):
     appellation_chapitre = models.CharField(max_length=200)
     appellation_lecon = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+   
     def __str__(self):
             return self.appellation_module+" "+appellation_chapitre+" "+appellation_lecon
 class AppellationApprenantFormateur(models.Model):
@@ -73,8 +76,18 @@ class AppellationApprenantFormateur(models.Model):
     appellation_apprenant = models.CharField(max_length=200)
     appellation_formateur = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
     def __str__(self):
-            return self.appellation_apprenant+" "+appellation_formateur
+            return self.appellation_apprenant+" "+self.appellation_formateur
+class TypeApprenant(models.Model):
+    annee_scolaire = models.CharField(max_length=20)
+    nom_type_apprenant = models.CharField(max_length=200)
+    archived = models.CharField(max_length=2,default="0")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    def __str__(self):
+            return self.nom_type_apprenant
 
 class Document(models.Model):
     annee_scolaire = models.CharField(max_length=20)
@@ -299,9 +312,36 @@ class ConfigAnnee(models.Model):
 class Discipline(models.Model):
     fait = models.TextField()
     description = models.TextField()
+    nb_heures_min = models.FloatField(default=0)
+    nb_heures_max = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    sanction = models.TextField(default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.fait
+class ConditionRenvoi(models.Model):
+    nb_heures_max = models.FloatField(default=0)
+    age = models.FloatField(default=0)
+    moyenne = models.FloatField(default=0)
+    nb_jours = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    id_niveau = models.IntegerField(default=1)
+    nom_niveau = models.CharField(max_length=100,default="")
+
+    archived = models.CharField(max_length=2,default="0")
+    def __str__(self):
+            return self.nb_heures_max
+class ConditionSucces(models.Model):
+    moyenne = models.FloatField(default=0)
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    id_niveau = models.IntegerField(default=1)
+    nom_niveau = models.CharField(max_length=100,default="")
+    archived = models.CharField(max_length=2,default="0")
+    def __str__(self):
+            return self.moyenne
 
 class Note(models.Model):
     libelle = models.CharField(max_length=100)
@@ -703,6 +743,8 @@ class Cycle(models.Model):
 class TypePayementAdminStaff(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
+    # type peut etre: Pers Administratif, Pers Appui, Enseignant
+    type_payement = models.CharField(max_length=100,default="Pers Administratif")
     person = models.CharField(max_length=100)
     entree_sortie_caisee = models.CharField(max_length=2)
     montant = models.FloatField()
@@ -711,7 +753,17 @@ class TypePayementAdminStaff(models.Model):
 
     def __str__(self):
             return self.libelle
+# class TypePayementEnseignant(models.Model):
+#     annee_scolaire =  models.CharField(max_length=20)
+#     libelle = models.CharField(max_length=100)
+#     person = models.TextField()
+#     entree_sortie_caisee = models.CharField(max_length=2)
+#     montant = models.FloatField()
+#     archived = models.CharField(max_length=2,default="0")
+#     objects = models.DjongoManager()
 
+#     def __str__(self):
+#             return self.libelle
 class TypePayementDivers(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)

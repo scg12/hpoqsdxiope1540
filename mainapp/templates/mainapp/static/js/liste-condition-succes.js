@@ -1,19 +1,5 @@
 $(document).ready(function(){
 
-/*  document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});*/
-
-
-/*    $("table tr .supprimer-sousetab-link").click(function() {
-        alert("889812");
-        $('#supprimer-sousetab-link2').modal('show');
-        $('#modal_supprimer_sousetab2 .matricule2').text('show');
-    
-    });*/
-        //$('#modal_supprimer_sousetab2').modal('show');
-       // $('#modal_supprimer_sousetab2 .matricule2').text('show');
-
    $(".recherche").keyup(function(e) {
 
         e.stopImmediatePropagation(); 
@@ -23,7 +9,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_sous_etablissement");
+        var form = $(".recherche_condition_succes");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -40,14 +26,13 @@ $(document).ready(function(){
              success: gererSucces,
              error: gererErreur,
          });
-        
 
     });
 
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("sousetab") == -1){
+          if(data.permissions.indexOf("conditionsucces") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -60,7 +45,7 @@ $(document).ready(function(){
             //$("table thead").remove();
               //alert("1");
 
-              liste_sous_etablissements = data.s_etablissements;
+              liste_c_succes = data.c_success;
               nbre_element_par_page = data.nbre_element_par_page;
               numero_page_active = data.numero_page_active;
               liste_page = data.liste_page;
@@ -79,33 +64,29 @@ $(document).ready(function(){
       /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
-                fin = data.s_etablissements.length;
+                fin = data.c_success.length;
               }
 
-              if (liste_sous_etablissements.length != 0){
+              if (liste_c_succes.length != 0){
 
                   for (var i = debut; i < fin; i++) {
-
-                      id = liste_sous_etablissements[i].id;
-                      nom_sousetab = liste_sous_etablissements[i].nom_sousetab;
-                      date_creation = liste_sous_etablissements[i].date_creation;
-                      nom_fondateur = liste_sous_etablissements[i].nom_fondateur;
-                      localisation = liste_sous_etablissements[i].localisation;
-                      // alert(nom_sousetab+" "+date_creation+" "+nom_fondateur+" "+localisation);
-                      
-
-                    nouvelle_ligne = "<tr class='"+ id+'²²'+ nom_sousetab+ '²²'+ date_creation +'²²'+ nom_fondateur +'²²' + localisation +"'>" + '<th class="fix-col" scope="row">'+ (i+1) +
-                    '</th><td class="nom_sousetab fix-col1" style="text-transform: uppercase;">'+ nom_sousetab + '</td><td style="text-transform: uppercase;">' + date_creation + '</td><td style="text-transform: capitalize;">' + nom_fondateur + '</td><td>'+ localisation +'</td>' + '<td class="td-actions text-right">';
-                    view = '<button type="button" rel="tooltip" class="btn detail-sousetab-link-ajax" data-toggle="modal" data-target="#modal_detail_sousetab"><i class="material-icons">visibility</i></button>';
-                    change ='&nbsp;<button type="button" rel="tooltip" class="btn modifier-sousetab-link-ajax"><i class="material-icons">edit</i></button>';
-                    del = '&nbsp;<button rel="tooltip" class="btn btn-danger supprimer-sousetab-link-ajax"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                      moyenne = liste_c_succes[i].moyenne;
+                      nom_niveau = liste_c_succes[i].nom_niveau                      
+                      nom_sousetab = liste_c_succes[i].nom_sousetab                      
+                      id = liste_c_succes[i].id;
+                      // alert(nom_etab, nom_sousetab, nb_heures_max, id);
+                        nouvelle_ligne = "<tr class='"+ id +'²²'+moyenne +'²²'+ nom_niveau +'²²'+ nom_sousetab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-condition-succes-link-td fix-col1">'+ moyenne +'</td><td style="text-transform: uppercase;" class="detail-condition-succes-link-td">'+ nom_niveau + '</td><td style="text-transform: uppercase;" class="detail-condition-succes-link-td">'+ nom_sousetab +'</td><td class="td-actions text-right">';
+                    view = '<button type="button" rel="tooltip" class="detail-condition-succes-link-td btn" data-toggle="modal" data-target="#modal_detail_condition_succes"><i class="material-icons">visibility</i></button>';
+                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-condition-succes-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    del = '&nbsp;<button rel="tooltip" class="supprimer-condition-succes-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
                    
-                    //$("table tbody button:last").addClass("supprimer-sousetab-link");
-                    // alert(data.permissions.indexOf("etablissements"));
+                    //$("table tbody button:last").addClass("supprimer-condition-succes-link");
+                    // alert(data.permissions.indexOf("disciplines"));
 
-                        index_model = data.permissions.indexOf("sousetab")
-                       /* if(data.permissions[index_model + 1] ==1 ){
+                        index_model = data.permissions.indexOf("conditionsucces")
+                        /*if(data.permissions[index_model + 1] ==1 ){
                           nouvelle_ligne += view;
                         } */                     
                         if(data.permissions[index_model + 2] ==1 ){
@@ -113,13 +94,15 @@ $(document).ready(function(){
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
                         if(data.permissions[index_model + 3] ==0 ){
-                          $("button .ajouter-sousetab-link").remove();
+                          $("button .ajouter-condition-succes-link").remove();
                         }                      
                         if(data.permissions[index_model + 4] ==1 ){
                           nouvelle_ligne += del;
                         }
 
                         $("table tbody").append(nouvelle_ligne);
+                      
+                    
                     
                     
 
@@ -199,92 +182,84 @@ $(document).ready(function(){
       }
 
 
-
-    $("body").on("click", ".ajouter-sousetab-link", function() {
+    $("body").on("click", ".ajouter-condition-succes-link", function() {
         
-        $('#modal_ajouter_sousetab').modal('show');
+        $('#modal_ajouter_condition_succes').modal('show');
 
-        $("#modal_ajouter_sousetab .nom_sousetab").removeAttr("disabled");
-        $("#modal_ajouter_sousetab .date_creation").removeAttr("disabled");
-        $("#modal_ajouter_sousetab .nom_fondateur").removeAttr("disabled");
-        $("#modal_ajouter_sousetab .localisation").removeAttr("disabled");
-
-        $("#modal_ajouter_sousetab .nom_sousetab").val("");
-        $("#modal_ajouter_sousetab .date_creation").val("");
-        $("#modal_ajouter_sousetab .nom_fondateur").val("");
-        $("#modal_ajouter_sousetab .localisation").val("");
-
-    });
-
-    $(".detail-sousetab-link-td").click(function() {
-
-        $('#modal_detail_sousetab').modal('show');
-
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
-        id = tab_element[0];
-        nom_sousetab = tab_element[1];
-        date_creation = tab_element[2];
-        nom_fondateur = tab_element[3];
-        localisation = tab_element[4];
-
-        $("#modal_detail_sousetab .nom_sousetab").val(nom_sousetab);
-        $("#modal_detail_sousetab .date_creation").val(date_creation);
-        $("#modal_detail_sousetab .nom_fondateur").val(nom_fondateur);
-        $("#modal_detail_sousetab .localisation").val(localisation);
-
-        $("#modal_detail_sousetab .nom_sousetab").attr("disabled", "True");
-        $("#modal_detail_sousetab .date_creation").attr("disabled", "True");
-        $("#modal_detail_sousetab .nom_fondateur").attr("disabled", "True");
-        $("#modal_detail_sousetab .localisation").attr("disabled", "True");
-
-    });
-
-
-    $(".modifier-sousetab-link").click(function() {
-
-        $('#modal_modifier_sousetab').modal('show');
-
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
-        id = tab_element[0];
-        nom_sousetab = tab_element[1];
-        date_creation = tab_element[2];
-        nom_fondateur = tab_element[3];
-        localisation = tab_element[4];
-
-        $("#modal_modifier_sousetab .nom_sousetab").val(nom_sousetab);
-        $("#modal_modifier_sousetab .date_creation").val(date_creation);
-        $("#modal_modifier_sousetab .nom_fondateur").val(nom_fondateur);
-        $("#modal_modifier_sousetab .localisation").val(localisation);
+        
+        $("#modal_ajouter_condition_succes .moyenne").val(moyenne);
+        $("#modal_ajouter_condition_succes .nom_niveau").val(nom_niveau);
+        $("#modal_ajouter_condition_succes .nom_sousetab").val(nom_sousetab);
         $("#id_modif").val(id);
 
-        $("#modal_modifier_sousetab .nom_sousetab").removeAttr("disabled");
-        $("#modal_modifier_sousetab .date_creation").removeAttr("disabled");
-        $("#modal_modifier_sousetab .nom_fondateur").removeAttr("disabled");
-        $("#modal_modifier_sousetab .localisation").removeAttr("disabled");
+        $("#modal_ajouter_condition_succes .moyenne").val("");
+        $("#modal_ajouter_condition_succes .nom_niveau").val("");
+        $("#modal_ajouter_condition_succes .nom_sousetab").val("");
+
+    });
+
+    // $(".detail-condition-succes-link-td").click(function() {
+     $("body").on("click", ".detail-condition-succes-link-td", function() {
+//class="{{ cycl.id }}²²{{ cycl.nb_heures_max }}²²{{ cycl.sous_condition_succes }}²²{{ cycl.discipline }}"
+        $('#modal_detail_condition_succes').modal('show');
+
+        var discipline = $(this).parents("tr").attr('class');
+        tab_element = discipline.split("²²");
+        id = tab_element[0];
+        moyenne = tab_element[1];
+        nom_niveau = tab_element[2];
+        nom_sousetab = tab_element[3];
+      
+        $("#modal_detail_condition_succes .moyenne").val(moyenne);
+        $("#modal_detail_condition_succes .nom_niveau").val(nom_niveau);
+        $("#modal_detail_condition_succes .nom_sousetab").val(nom_sousetab);
+        $("#id_modif").val(id);
+
+        $("#modal_detail_condition_succes .moyenne").attr("disabled", "True");
+        $("#modal_detail_condition_succes .nom_niveau").attr("disabled", "True");
+        $("#modal_detail_condition_succes .nom_sousetab").attr("disabled", "True");
+
+    });
+
+
+    $(".modifier-condition-succes-link").click(function() {
+        $('#modal_modifier_condition_succes').modal('show');
+
+        var discipline = $(this).parents("tr").attr('class');
+        tab_element = discipline.split("²²");
+        id = tab_element[0];
+        moyenne = tab_element[1];
+        nom_niveau = tab_element[2];
+        nom_sousetab = tab_element[3];
+
+        $("#modal_modifier_condition_succes .moyenne").val(moyenne);
+        $("#modal_modifier_condition_succes .nom_niveau").val(nom_niveau);
+        $("#modal_modifier_condition_succes .nom_sousetab").val(nom_sousetab);
+        $("#id_modif").val(id);
+
+        $("#modal_modifier_condition_succes .moyenne").removeAttr("disabled");
+        $("#modal_modifier_condition_succes .nom_niveau").removeAttr("disabled");
+        $("#modal_modifier_condition_succes .nom_sousetab").removeAttr("disabled");
 
     });
 
 
 
-    $(".supprimer-sousetab-link").click(function() {
+    $(".supprimer-condition-succes-link").click(function() {
 
-      $('#modal_supprimer_sousetab').modal('show');
+      $('#modal_supprimer_condition_succes').modal('show');
 
-      var classe = $(this).parents("tr").attr('class');
-      tab_element = classe.split("²²");
+      var discipline = $(this).parents("tr").attr('class');
+      tab_element = discipline.split("²²");
       id = tab_element[0];
-      nom_sousetab = tab_element[1];
-      date_creation = tab_element[2];
-      nom_fondateur = tab_element[3];
-      localisation = tab_element[4];
+      moyenne = tab_element[1];
+      nom_niveau = tab_element[2];
+      nom_sousetab = tab_element[3];
       
       $("#id_supp").val(id);
-      $("#modal_supprimer_sousetab .nom_sousetab").text(nom_sousetab);
-      $("#modal_supprimer_sousetab .date_creation").text(date_creation);
-      $("#modal_supprimer_sousetab .nom_fondateur").text(nom_fondateur);
-      $("#modal_supprimer_sousetab .localisation").text(localisation);
+      $("#modal_supprimer_condition_succes .moyenne").text(moyenne);
+      $("#modal_supprimer_condition_succes .nom_niveau").text(nom_niveau);
+      $("#modal_supprimer_condition_succes .nom_sousetab").text(nom_sousetab);
     
     });
 
@@ -296,20 +271,20 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
 
-        var form = $(".recherche_sous_etablissement");
+        var form = $(".recherche_condition_succes");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
 
         $("body table thead th span").each(function () {
 
-              var classe = String($(this).attr("class"));
+              var discipline = String($(this).attr("class"));
 
-              if(classe.search("text-primary") != -1){
+              if(discipline.search("text-primary") != -1){
 
                   trier_par = $(this).parents("th").attr("class");
 
-                  if (classe.search("tri-desc") != -1){
+                  if (discipline.search("tri-desc") != -1){
                       trier_par = "-" + trier_par; 
                   }
 
@@ -333,79 +308,46 @@ $(document).ready(function(){
 
     });
       
-    $("body").on("click", ".supprimer-sousetab-link-ajax", function() {
+    $("body").on("click", ".supprimer-condition-succes-link-ajax", function() {
         
-        $('#modal_supprimer_sousetab').modal('show');
+        $('#modal_supprimer_condition_succes').modal('show');
 
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
-        id = tab_element[0];
-        matricule = tab_element[1];
-        nom = tab_element[2];
-        prenom = tab_element[3];
-        age = tab_element[4];
-        
-        $("#id_supp").val(id);
-        $("#modal_supprimer_sousetab .matricule").text(matricule);
-        $("#modal_supprimer_sousetab .nom").text(nom);
-        $("#modal_supprimer_sousetab .prenom").text(prenom);
-        $("#modal_supprimer_sousetab .age").text(age);
+         var discipline = $(this).parents("tr").attr('class');
+          tab_element = discipline.split("²²");
+          id = tab_element[0];
+          moyenne = tab_element[1];
+          nom_niveau = tab_element[2];
+          nom_sousetab = tab_element[3];
+
+          $("#id_supp").val(id);
+          $("#modal_supprimer_condition_succes .moyenne").text(moyenne);
+          $("#modal_supprimer_condition_succes .nom_niveau").text(nom_niveau);
+          $("#modal_supprimer_condition_succes .nom_sousetab").text(nom_sousetab);
 
     });
 
 
-    $("body").on("click", ".modifier-sousetab-link-ajax", function() {
+    $("body").on("click", ".modifier-condition-succes-link-ajax", function() {
         
-        $('#modal_modifier_sousetab').modal('show');
+        $('#modal_modifier_condition_succes').modal('show');
 
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
+        var discipline = $(this).parents("tr").attr('class');
+        tab_element = discipline.split("²²");
         id = tab_element[0];
-        nom_sousetab = tab_element[1];
-        date_creation = tab_element[2];
-        nom_fondateur = tab_element[3];
-        localisation = tab_element[4];
+        moyenne = tab_element[1];
+        nom_niveau = tab_element[2];
+        nom_sousetab = tab_element[3];
 
-        $(".nom_sousetab").val(nom_sousetab);
-        $(".date_creation").val(date_creation);
-        $(".nom_fondateur").val(nom_fondateur);
-        $(".localisation").val(localisation);
+        $("#modal_modifier_condition_succes .nom_niveau").val(nom_niveau);
+        $("#modal_modifier_condition_succes .nom_sousetab").val(nom_sousetab);
+        $("#modal_modifier_condition_succes .moyenne").val(moyenne);
         $("#id_modif").val(id);
 
-        $(".nom_sousetab").removeAttr("disabled");
-        $(".date_creation").removeAttr("disabled");
-        $(".nom_fondateur").removeAttr("disabled");
-        $(".localisation").removeAttr("disabled");
+        $("#modal_modifier_condition_succes .nom_niveau").removeAttr("disabled");
+        $("#modal_modifier_condition_succes .nom_sousetab").removeAttr("disabled");
+        $("#modal_modifier_condition_succes .moyenne").removeAttr("disabled");
 
     });
-
-
-      
-    $("body").on("click", ".detail-sousetab-link-ajax", function() {
-        
-        $('#modal_detail_sousetab').modal('show');
-
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
-        id = tab_element[0];
-        nom_sousetab = tab_element[1];
-        date_creation = tab_element[2];
-        nom_fondateur = tab_element[3];
-        localisation = tab_element[4];
-
-        $(".nom_sousetab").val(nom_sousetab);
-        $(".date_creation").val(date_creation);
-        $(".nom_fondateur").val(nom_fondateur);
-        $(".localisation").val(localisation);
-
-        $(".nom_sousetab").attr("disabled", "True");
-        $(".date_creation").attr("disabled", "True");
-        $(".nom_fondateur").attr("disabled", "True");
-        $(".localisation").attr("disabled", "True");
-
-    });
-
-
 
 
     $("body").on("click", ".pagination-element", function(e) {
@@ -418,20 +360,20 @@ $(document).ready(function(){
 
           var recherche = $("#recherche").val().trim();
 
-          var form = $(".recherche_sous_etablissement");
+          var form = $(".recherche_condition_succes");
           var url_action = form.attr("action");
 
           var trier_par = "non defini";
 
           $("body table thead th span").each(function () {
 
-                var classe = String($(this).attr("class"));
+                var discipline = String($(this).attr("class"));
 
-                if(classe.search("text-primary") != -1){
+                if(discipline.search("text-primary") != -1){
 
                     trier_par = $(this).parents("th").attr("class");
 
-                    if (classe.search("tri-desc") != -1){
+                    if (discipline.search("tri-desc") != -1){
                         trier_par = "-" + trier_par; 
                     }
 
@@ -471,9 +413,10 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " ";
 
-        var form = $(".recherche_sous_etablissement");
+        var form = $(".recherche_condition_succes");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
+        
 
         $(this).attr("class", trier_par + " tri tri-desc");
 
@@ -508,9 +451,10 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_sous_etablissement");
+        var form = $(".recherche_condition_succes");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
+        
 
         $(this).attr("class", trier_par + " tri tri-asc");
 

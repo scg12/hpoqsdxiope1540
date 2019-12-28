@@ -231,6 +231,46 @@ def creation_matiere(request):
 
         return redirect('mainapp:liste_matieres')
 
+def creation_appellation_apprenant_formateur(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-appellation-apprenant-formateur.html',{'form':AppellationApprenantFormateurForm})
+    elif request.method == 'POST':
+        form = AppellationApprenantFormateurForm(request.POST)
+        if form.is_valid():
+            formateur = form.cleaned_data['formateur']
+            apprenant = form.cleaned_data['apprenant']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            # print(nom_matiere," ",code," ",nom_sousetab)
+
+            app = AppellationApprenantFormateur()
+            app.appellation_apprenant = apprenant
+            app.appellation_formateur = formateur
+            app.nom_sousetab = nom_sousetab
+            app.save()
+
+        return redirect('mainapp:liste_appellation_apprenant_formateur')
+
+def creation_type_apprenant(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-apprenant.html',{'form':TypeApprenantForm})
+    elif request.method == 'POST':
+        form = TypeApprenantForm(request.POST)
+        if form.is_valid():
+            nom_type_apprenant = form.cleaned_data['nom_type_apprenant']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            type_apprenant = TypeApprenant()
+            type_apprenant.nom_type_apprenant = nom_type_apprenant
+            type_apprenant.nom_sousetab = nom_sousetab
+            type_apprenant.save()
+
+        return redirect('mainapp:liste_type_apprenants')
+
 def creation_sous_etablissement(request):
 
     if request.method == 'GET':
@@ -240,7 +280,7 @@ def creation_sous_etablissement(request):
         form = SousEtablissementForm(request.POST)
         if form.is_valid():
 
-            nom_etab = form.cleaned_data['nom_etab']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
             date_creation = form.cleaned_data['date_creation']
             nom_fondateur = form.cleaned_data['nom_fondateur']
             localisation = form.cleaned_data['localisation']
@@ -252,11 +292,11 @@ def creation_sous_etablissement(request):
             # annee_scolaire = form.cleaned_data['annee_scolaire']
             # site_web = form.cleaned_data['site_web']
 
-            etab = Etab()
-            etab.nom_etab = nom_etab
-            etab.date_creation = date_creation
-            etab.nom_fondateur = nom_fondateur
-            etab.localisation = localisation
+            sousEtab = SousEtab()
+            sousEtab.nom_sousetab = nom_sousetab
+            sousEtab.date_creation = date_creation
+            sousEtab.nom_fondateur = nom_fondateur
+            sousEtab.localisation = localisation
             # etab.bp = bp
             # etab.email = email
             # etab.tel = tel
@@ -265,9 +305,111 @@ def creation_sous_etablissement(request):
             # etab.annee_scolaire = annee_scolaire
             # etab.site_web = site_web
 
-            etab.save()
+            sousEtab.save()
 
         return redirect('mainapp:liste_sous_etablissements')
+
+def creation_discipline(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-discipline.html',{'form':DisciplineForm})
+    elif request.method == 'POST':
+        form = DisciplineForm(request.POST)
+        if form.is_valid():
+            fait = form.cleaned_data['fait']
+            description = form.cleaned_data['description']
+            nb_heures_min = form.cleaned_data['nb_heures_min']
+            nb_heures_max = form.cleaned_data['nb_heures_max']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            print(nb_heures_min," ",fait," ",nom_sousetab)
+
+            discipline = Discipline()
+            discipline.fait = fait
+            discipline.description = description
+            discipline.nb_heures_min = nb_heures_min
+            discipline.nb_heures_max = nb_heures_max
+            discipline.nom_sousetab = nom_sousetab
+            discipline.save()
+
+        return redirect('mainapp:liste_disciplines')
+
+def creation_condition_renvoi(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-condition-renvoi.html',{'form':ConditionRenvoiForm})
+    elif request.method == 'POST':
+        form = ConditionRenvoiForm(request.POST)
+        if form.is_valid():
+            nb_heures_max = form.cleaned_data['nb_heures_max']
+            age = form.cleaned_data['age']
+            moyenne = form.cleaned_data['moyenne']
+            nb_jours = form.cleaned_data['nb_jours']
+            nom_niveau = form.cleaned_data['nom_niveau']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            print(nb_heures_max," ",age," ",moyenne)
+
+            c_renvoi = ConditionRenvoi()
+            c_renvoi.nb_heures_max = nb_heures_max
+            c_renvoi.age = age
+            c_renvoi.moyenne = moyenne
+            c_renvoi.nb_jours = nb_jours
+            c_renvoi.nom_niveau = nom_niveau
+            c_renvoi.nom_sousetab = nom_sousetab
+            c_renvoi.save()
+
+        return redirect('mainapp:liste_condition_renvois')
+
+def creation_condition_succes(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-condition-succes.html',{'form':ConditionSuccesForm})
+    elif request.method == 'POST':
+        form = ConditionSuccesForm(request.POST)
+        if form.is_valid():
+            moyenne = form.cleaned_data['moyenne']
+            nom_niveau = form.cleaned_data['nom_niveau']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+
+            print(moyenne," ",nom_niveau," ",nom_sousetab)
+
+            c_succes = ConditionSucces()
+            c_succes.moyenne = moyenne
+            c_succes.nom_niveau = nom_niveau
+            c_succes.nom_sousetab = nom_sousetab
+            c_succes.save()
+
+        return redirect('mainapp:liste_condition_succes')
+
+def creation_type_paiement_eleve(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-eleve.html',{'form':TypePayementEleveForm})
+    elif request.method == 'POST':
+        form = TypePayementEleveForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            classe = form.cleaned_data['classe']
+
+            print(date_fin," ",libelle," ",classe)
+
+            type_paiement_eleve = TypePayementEleve()
+            type_paiement_eleve.libelle = libelle
+            type_paiement_eleve.date_deb = date_deb
+            type_paiement_eleve.date_fin = date_fin
+            type_paiement_eleve.entree_sortie_caisee = entree_sortie_caisee
+            type_paiement_eleve.classe = classe
+            type_paiement_eleve.save()
+
+        return redirect('mainapp:liste_types_paiements_eleve')
 
 def creation_profil(request):
 
@@ -487,11 +629,11 @@ def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_
 def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
-    sous_etablissement = SousEtab.objects.all().order_by('-id')
+    s_etablissements = SousEtab.objects.all().order_by('-id')
 
     
     #form = EtudiantForm  
-    paginator = Paginator(sous_etablissement, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+    paginator = Paginator(s_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
         # La définition de nos URL autorise comme argument « page » uniquement 
@@ -607,7 +749,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    classes = Classe.objects.filter(archived = "0").order_by('-id')
+    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
 
     form = ClasseForm  
@@ -684,6 +826,247 @@ def liste_matieres(request, page=1, nbre_element_par_page=pagination_nbre_elemen
 
   
     return render(request, 'mainapp/pages/liste-matieres.html', locals())
+
+def liste_appellation_apprenant_formateur(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    appellations = AppellationApprenantFormateur.objects.filter(archived = "0").order_by('-id')
+    print("Nbre appellation ",appellations.count())
+
+
+    form = AppellationApprenantFormateurForm  
+    paginator = Paginator(appellations, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/appellation-apprenant-formateur.html', locals())
+
+def liste_type_apprenants(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    type_apprenants = TypeApprenant.objects.filter(archived = "0").order_by('-id')
+
+
+    form = TypeApprenantForm  
+    paginator = Paginator(type_apprenants, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-type-apprenants.html', locals())
+
+def liste_disciplines(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    disciplines = Discipline.objects.filter(archived = "0").order_by('-id')
+
+
+    form = DisciplineForm  
+    paginator = Paginator(disciplines, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-disciplines.html', locals())
+
+def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+
+
+    form = TypePayementEleveForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-eleve.html', locals())
+
+def liste_condition_renvois(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    c_renvois = ConditionRenvoi.objects.filter(archived = "0").order_by('-id')
+
+
+    form = ConditionRenvoiForm  
+    paginator = Paginator(c_renvois, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-condition-renvois.html', locals())
+
+def liste_condition_succes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    c_success = ConditionSucces.objects.filter(archived = "0").order_by('-id')
+
+
+    form = ConditionSuccesForm  
+    paginator = Paginator(c_success, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-condition-succes.html', locals())
 
 def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -808,7 +1191,7 @@ def liste_reunions(request, page=1, nbre_element_par_page=pagination_nbre_elemen
   
     return render(request, 'mainapp/pages/liste-reunions.html', locals())
 
-def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
     cours = SousEtab.objects.all().order_by('-id')
@@ -1152,7 +1535,7 @@ def suppression_profil(request):
 
 def suppression_etudiant(request):
 
-    id = request.POST['id_supp']
+    id = int(request.POST['id_supp'])
 
     try:
         services.suppression_etudiant(id)
@@ -1171,7 +1554,7 @@ def suppression_etudiant(request):
 
 def suppression_etablissement(request):
 
-    id = request.POST['id_supp']
+    id = int(request.POST['id_supp'])
     # Etab.objects.get(pk=id).delete()
     
     Etab.objects.filter(pk=id).update(archived="1")
@@ -1180,7 +1563,7 @@ def suppression_etablissement(request):
 
 def suppression_sous_etablissement(request):
 
-    id = request.POST['id_supp']
+    id = int(request.POST['id_supp'])
     # SousEtab.objects.get(pk=id).delete()
     SousEtab.objects.filter(pk=id).update(archived="1")
 
@@ -1188,7 +1571,7 @@ def suppression_sous_etablissement(request):
 
 def suppression_cycle(request):
 
-    id = request.POST['id_supp']
+    id = int(request.POST['id_supp'])
     print("id= ", id)    
     Cycle.objects.filter(pk=id).update(archived="1")
 
@@ -1217,6 +1600,54 @@ def suppression_matiere(request):
     Matiere.objects.filter(pk=id).update(archived="1")
 
     return redirect('mainapp:liste_matieres')
+
+def suppression_appellation_apprenant_formateur(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    AppellationApprenantFormateur.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_appellation_apprenant_formateur')
+
+def suppression_type_apprenant(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypeApprenant.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_type_apprenants')
+
+def suppression_discipline(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    Discipline.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_disciplines')
+
+def suppression_type_paiement_eleve(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementEleve.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_eleve')
+
+def suppression_condition_renvoi(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    ConditionRenvoi.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_condition_renvois')
+
+def suppression_condition_succes(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    ConditionSucces.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_condition_succes')
 
 def modification_etudiant(request):
 
@@ -1348,6 +1779,8 @@ def modification_sous_etablissement(request):
                 Niveau.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Classe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Matiere.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                AppellationApprenantFormateur.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Discipline.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
 
 
             SousEtab.objects.filter(pk=id).update(nom_sousetab=nom_sousetab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
@@ -1400,6 +1833,7 @@ def modification_niveau(request):
 
             if(Niveau.objects.filter(pk=id)[0].nom_niveau.lower() != nom_niveau.lower()):
                 Classe.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
+                ConditionRenvoi.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
 
             Niveau.objects.filter(pk=id).update(nom_niveau = nom_niveau)
 
@@ -1428,7 +1862,7 @@ def modification_classe(request):
 
 def modification_matiere(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     # print("id =",id)
     form = MatiereForm(request.POST)
@@ -1444,6 +1878,117 @@ def modification_matiere(request):
         Matiere.objects.filter(pk=id).update(nom_matiere = nom_matiere, code= code, nom_sousetab=nom_sousetab)
 
         return redirect('mainapp:liste_matieres')
+
+def modification_appellation_apprenant_formateur(request):
+
+    id = int(request.POST['id_modif'])
+    form = AppellationApprenantFormateurForm(request.POST)
+
+    if form.is_valid():
+
+        apprenant = form.cleaned_data['apprenant']
+        formateur = form.cleaned_data['formateur']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        AppellationApprenantFormateur.objects.filter(pk=id).update(appellation_apprenant = apprenant, appellation_formateur= formateur, nom_sousetab=nom_sousetab)
+
+        return redirect('mainapp:liste_appellation_apprenant_formateur')
+
+def modification_type_apprenant(request):
+
+    id = int(request.POST['id_modif'])
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = TypeApprenantForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+
+        type_apprenant = form.cleaned_data['nom_type_apprenant']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        Matiere.objects.filter(pk=id).update(nom_type_apprenant = type_apprenant,nom_sousetab=nom_sousetab)
+
+        return redirect('mainapp:liste_type_apprenants')
+
+def modification_discipline(request):
+
+    id = int(request.POST['id_modif'])
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = DisciplineForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+        fait = form.cleaned_data['fait']
+        description = form.cleaned_data['description']
+        nb_heures_min = form.cleaned_data['nb_heures_min']
+        nb_heures_max = form.cleaned_data['nb_heures_max']
+        sanction = form.cleaned_data['sanction']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        Discipline.objects.filter(pk=id).update(fait = fait, description= description, nb_heures_min= nb_heures_min, nb_heures_max= nb_heures_max,sanction=sanction, nom_sousetab=nom_sousetab)
+
+    return redirect('mainapp:liste_disciplines')
+
+
+def modification_type_paiement_eleve(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementEleveForm(request.POST)
+
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        classe = form.cleaned_data['classe']
+
+        TypePayementEleve.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, daate_fin= daate_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant, classe=classe)
+
+    return redirect('mainapp:liste_types_paiements_eleve')
+
+def modification_condition_renvoi(request):
+
+    id = int(request.POST['id_modif'])
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = ConditionRenvoiForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+        nb_heures_max = form.cleaned_data['nb_heures_max']
+        age = form.cleaned_data['age']
+        moyenne = form.cleaned_data['moyenne']
+        nb_jours = form.cleaned_data['nb_jours']
+        nom_niveau = form.cleaned_data['nom_niveau']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        ConditionRenvoi.objects.filter(pk=id).update(nb_heures_max = nb_heures_max, age= age, moyenne= moyenne, nb_jours= nb_jours,nom_niveau=nom_niveau, nom_sousetab=nom_sousetab)
+
+    return redirect('mainapp:liste_condition_renvois')
+
+def modification_condition_succes(request):
+
+    id = int(request.POST['id_modif'])
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = ConditionSuccesForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+        moyenne = form.cleaned_data['moyenne']
+        nom_niveau = form.cleaned_data['nom_niveau']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        ConditionSucces.objects.filter(pk=id).update(moyenne= moyenne, nom_niveau=nom_niveau, nom_sousetab=nom_sousetab)
+
+    return redirect('mainapp:liste_condition_succes')
 
 def recherche_etudiant(request):
     
@@ -1722,14 +2267,14 @@ def recherche_sous_etablissement(request):
             trier_par = donnees[3]
 
             
-            sous_etablissements = find_sous_etablissement(donnees_recherche,trier_par)
+            s_etablissements = find_sous_etablissement(donnees_recherche,trier_par)
 
 
             if (nbre_element_par_page == -1):
-                nbre_element_par_page = len(sous_etablissements)
+                nbre_element_par_page = len(s_etablissements)
 
             #form = EtudiantForm
-            paginator = Paginator(sous_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+            paginator = Paginator(s_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
             try:
                 # La définition de nos URL autorise comme argument « page » uniquement 
@@ -1784,7 +2329,7 @@ def recherche_sous_etablissement(request):
 
 
             data = {
-                "sous_etablissements": sous_etablissements,
+                "s_etablissements": s_etablissements,
                 "message_resultat":"",
                 "numero_page_active" : int(numero_page_active),
                 "liste_page" : liste_page,
@@ -2189,7 +2734,7 @@ def find_classe(recherche, trier_par):
 
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            classes = Classe.objects.filter(archived = "0").order_by('-id')
+            classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
         else:
             classes = Classe.objects.filter(archived = "0").order_by(trier_par)
 
@@ -2351,6 +2896,796 @@ def find_matiere(recherche, trier_par):
     matieres_serializers = MatiereSerializer(matieres, many=True)
 
     return matieres_serializers.data
+
+def recherche_appellation_apprenant_formateur(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            appellations = find_appellation_apprenant_formateur(donnees_recherche,trier_par)
+            # print("appellations: ", appellations.count())
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(matieres)
+
+            #form = EtudiantForm
+            paginator = Paginator(appellations, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "appellations": appellations,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_appellation_apprenant_formateur(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            appellations = AppellationApprenantFormateur.objects.filter(archived = "0").order_by('-id')
+        else:
+            appellations = AppellationApprenantFormateur.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            appellations = AppellationApprenantFormateur.objects.filter(Q(archived ="0") &
+                (Q(appellation_apprenant__icontains=recherche) |
+                Q(appellation_formateur__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            appellations = AppellationApprenantFormateur.objects.filter(Q(archived ="0") &
+                (Q(appellation_apprenant__icontains=recherche) |
+                Q(appellation_formateur__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    appellations_serializers = AppellationApprenantFormateurSerializer(appellations, many=True)
+
+    return appellations_serializers.data
+
+def recherche_type_apprenant(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            type_apprenants = find_type_apprenant(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(type_apprenants)
+
+            #form = EtudiantForm
+            paginator = Paginator(type_apprenants, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "type_apprenants": type_apprenants,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_apprenant(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            type_apprenants = TypeApprenant.objects.filter(archived = "0").order_by('-id')
+        else:
+            type_apprenants = TypeApprenant.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            type_apprenants = TypeApprenant.objects.filter(Q(archived ="0") &
+                (Q(nom_type_apprenant__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            type_apprenants = TypeApprenant.objects.filter(Q(archived ="0") &
+                (Q(nom_type_apprenant__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    type_apprenants_serializers = TypeApprenantSerializer(type_apprenants, many=True)
+
+    return type_apprenants_serializers.data
+
+def recherche_discipline(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            disciplines = find_discipline(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(disciplines)
+
+            #form = EtudiantForm
+            paginator = Paginator(disciplines, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "disciplines": disciplines,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_discipline(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            disciplines = Discipline.objects.filter(archived = "0").order_by('-id')
+        else:
+            disciplines = Discipline.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            disciplines = Discipline.objects.filter(Q(archived ="0") &
+                (Q(fait__icontains=recherche) |
+                Q(description__icontains=recherche) |
+                Q(nb_heures_min__icontains=recherche) |
+                Q(nb_heures_max__icontains=recherche) |
+                Q(sanction__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            disciplines = Discipline.objects.filter(Q(archived ="0") &
+                (Q(fait__icontains=recherche) |
+                Q(description__icontains=recherche) |
+                Q(nb_heures_min__icontains=recherche) |
+                Q(nb_heures_max__icontains=recherche) |
+                Q(sanction__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    disciplines_serializers = DisciplineSerializer(disciplines, many=True)
+
+    return disciplines_serializers.data
+
+def recherche_type_paiement_eleve(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_eleve(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_eleve(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+        else:
+            paiements = TypePayementEleve.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) |
+                Q(classe__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) |
+                Q(classe__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    paiements_serializers = TypePayementEleveSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
+def recherche_condition_renvoi(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            c_renvois = find_condition_renvoi(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(c_renvois)
+
+            #form = EtudiantForm
+            paginator = Paginator(c_renvois, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "c_renvois": c_renvois,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_condition_renvoi(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            c_renvois = ConditionRenvoi.objects.filter(archived = "0").order_by('-id')
+        else:
+            c_renvois = ConditionRenvoi.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            c_renvois = ConditionRenvoi.objects.filter(Q(archived ="0") &
+                (Q(nb_heures_max__icontains=recherche) |
+                Q(age__icontains=recherche) |
+                Q(moyenne__icontains=recherche) |
+                Q(nb_jours__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            c_renvois = ConditionRenvoi.objects.filter(Q(archived ="0") &
+                (Q(nb_heures_max__icontains=recherche) |
+                Q(age__icontains=recherche) |
+                Q(moyenne__icontains=recherche) |
+                Q(nb_jours__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    c_renvois_serializers = ConditionRenvoiSerializer(c_renvois, many=True)
+
+    return c_renvois_serializers.data
+
+def recherche_condition_succes(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            c_success = find_condition_succes(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(c_success)
+
+            #form = EtudiantForm
+            paginator = Paginator(c_success, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "c_success": c_success,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_condition_succes(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            c_succes = ConditionSucces.objects.filter(archived = "0").order_by('-id')
+        else:
+            c_succes = ConditionSucces.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            c_succes = ConditionSucces.objects.filter(Q(archived ="0") &
+                (Q(moyenne__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            c_succes = ConditionSucces.objects.filter(Q(archived ="0") &
+                (Q(moyenne__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    c_succes_serializers = ConditionSuccesSerializer(c_succes, many=True)
+
+    return c_succes_serializers.data
 
 def recherche_profil(request):
     
@@ -3401,9 +4736,15 @@ def initialisation(request):
                                                     tpd.montant = df['Unnamed: 12'].values[index_operation]
                                                 tpd.save()
                                             else:
+                                                type_payement = ""
+                                                if df['Unnamed: 11'].values[index_operation] == appellation_formateur:
+                                                    type_payement = "Enseignant"
+                                                else:
+                                                    type_payement = "Pers Administratif"
                                                 tpas = TypePayementAdminStaff()
                                                 tpas.libelle = df['Unnamed: 9'].values[index_operation]
                                                 tpas.entree_sortie_caisee = "e" if ("Entrée de Caisse" == df['Unnamed: 10'].values[index_operation]) or ("Cash in" == df['Unnamed: 10'].values[index_operation]) else "s"
+                                                tpas.type_payement = type_payement
                                                 tpas.person = df['Unnamed: 11'].values[index_operation]
                                                 if pd.isnull(df['Unnamed: 12'].values[index_operation]) == False:
                                                     tpas.montant = df['Unnamed: 12'].values[index_operation]
