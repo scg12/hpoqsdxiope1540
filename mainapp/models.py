@@ -743,6 +743,8 @@ class Cycle(models.Model):
 class TypePayementAdminStaff(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
+    # type peut etre: Pers Administratif, Pers Appui, Enseignant
+    type_payement = models.CharField(max_length=100,default="Pers Administratif")
     person = models.CharField(max_length=100)
     entree_sortie_caisee = models.CharField(max_length=2)
     montant = models.FloatField()
@@ -751,7 +753,17 @@ class TypePayementAdminStaff(models.Model):
 
     def __str__(self):
             return self.libelle
+# class TypePayementEnseignant(models.Model):
+#     annee_scolaire =  models.CharField(max_length=20)
+#     libelle = models.CharField(max_length=100)
+#     person = models.TextField()
+#     entree_sortie_caisee = models.CharField(max_length=2)
+#     montant = models.FloatField()
+#     archived = models.CharField(max_length=2,default="0")
+#     objects = models.DjongoManager()
 
+#     def __str__(self):
+#             return self.libelle
 class TypePayementDivers(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)

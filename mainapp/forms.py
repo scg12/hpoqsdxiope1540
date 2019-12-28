@@ -313,9 +313,7 @@ class MatiereForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
         # disabled = True  
-    )
-
-   
+    )   
 
 class AppellationApprenantFormateurForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
@@ -334,9 +332,7 @@ class AppellationApprenantFormateurForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
         # disabled = True  
-    )
-
-   
+    )   
 
 class TypeApprenantForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
@@ -350,9 +346,7 @@ class TypeApprenantForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
         # disabled = True  
-    )
-
-   
+    )   
 
 class DisciplineForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
@@ -383,9 +377,7 @@ class DisciplineForm(forms.Form):
         label='Sous Etablissement',
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
-    )
-
-   
+    ) 
 
 class ConditionRenvoiForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
@@ -416,8 +408,6 @@ class ConditionRenvoiForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
     )
 
-   
-
 class ConditionSuccesForm(forms.Form):
 
     moyenne= forms.FloatField(
@@ -436,3 +426,35 @@ class ConditionSuccesForm(forms.Form):
     )
 
    
+
+class TypePayementEleveForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    libelle= forms.CharField(
+        label=_('Libelle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer Libelle', 'class': 'form-control form-group libelle' }),
+    )
+    date_deb= forms.CharField(
+        label=_('Date Début'),
+        max_length=250,
+        widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
+    )
+    date_fin= forms.FloatField(
+        label=_('Date Fin'),
+        widget=forms.TextInput(attrs={'placeholder': '27-09-2020', 'class': 'form-control form-group date_fin' }),
+    )
+    montant= forms.FloatField(
+        label=_('Montant'),
+        widget=forms.TextInput(attrs={'placeholder': '20', 'class': 'form-control form-group montant' }),
+    )
+    classe = forms.CharField(
+        label='Classe',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Classe', 'class': 'form-control form-group classe'}),
+    )
+    entree_sortie_caisee = forms.CharField(
+        label='E/S de Caisse',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group entree_sortie_caisee'}),
+    ) 
+

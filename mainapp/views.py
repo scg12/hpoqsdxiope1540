@@ -385,6 +385,32 @@ def creation_condition_succes(request):
 
         return redirect('mainapp:liste_condition_succes')
 
+def creation_type_paiement_eleve(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-eleve.html',{'form':TypePayementEleveForm})
+    elif request.method == 'POST':
+        form = TypePayementEleveForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            classe = form.cleaned_data['classe']
+
+            print(date_fin," ",libelle," ",classe)
+
+            type_paiement_eleve = TypePayementEleve()
+            type_paiement_eleve.libelle = libelle
+            type_paiement_eleve.date_deb = date_deb
+            type_paiement_eleve.date_fin = date_fin
+            type_paiement_eleve.entree_sortie_caisee = entree_sortie_caisee
+            type_paiement_eleve.classe = classe
+            type_paiement_eleve.save()
+
+        return redirect('mainapp:liste_types_paiements_eleve')
+
 def creation_profil(request):
 
 
@@ -723,7 +749,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    classes = Classe.objects.filter(archived = "0").order_by('-id')
+    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
 
     form = ClasseForm  
@@ -921,6 +947,46 @@ def liste_disciplines(request, page=1, nbre_element_par_page=pagination_nbre_ele
 
   
     return render(request, 'mainapp/pages/liste-disciplines.html', locals())
+
+def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+
+
+    form = TypePayementEleveForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-eleve.html', locals())
 
 def liste_condition_renvois(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1125,7 +1191,7 @@ def liste_reunions(request, page=1, nbre_element_par_page=pagination_nbre_elemen
   
     return render(request, 'mainapp/pages/liste-reunions.html', locals())
 
-def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
     cours = SousEtab.objects.all().order_by('-id')
@@ -1559,6 +1625,14 @@ def suppression_discipline(request):
 
     return redirect('mainapp:liste_disciplines')
 
+def suppression_type_paiement_eleve(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementEleve.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_eleve')
+
 def suppression_condition_renvoi(request):
 
     id = int(request.POST['id_supp'])
@@ -1858,6 +1932,24 @@ def modification_discipline(request):
         Discipline.objects.filter(pk=id).update(fait = fait, description= description, nb_heures_min= nb_heures_min, nb_heures_max= nb_heures_max,sanction=sanction, nom_sousetab=nom_sousetab)
 
     return redirect('mainapp:liste_disciplines')
+
+
+def modification_type_paiement_eleve(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementEleveForm(request.POST)
+
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        classe = form.cleaned_data['classe']
+
+        TypePayementEleve.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, daate_fin= daate_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant, classe=classe)
+
+    return redirect('mainapp:liste_types_paiements_eleve')
 
 def modification_condition_renvoi(request):
 
@@ -2642,7 +2734,7 @@ def find_classe(recherche, trier_par):
 
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            classes = Classe.objects.filter(archived = "0").order_by('-id')
+            classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
         else:
             classes = Classe.objects.filter(archived = "0").order_by(trier_par)
 
@@ -3195,6 +3287,141 @@ def find_discipline(recherche, trier_par):
     disciplines_serializers = DisciplineSerializer(disciplines, many=True)
 
     return disciplines_serializers.data
+
+def recherche_type_paiement_eleve(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_eleve(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_eleve(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+        else:
+            paiements = TypePayementEleve.objects.filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) |
+                Q(classe__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) |
+                Q(classe__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    paiements_serializers = TypePayementEleveSerializer(paiements, many=True)
+
+    return paiements_serializers.data
 
 def recherche_condition_renvoi(request):
     
@@ -4509,9 +4736,15 @@ def initialisation(request):
                                                     tpd.montant = df['Unnamed: 12'].values[index_operation]
                                                 tpd.save()
                                             else:
+                                                type_payement = ""
+                                                if df['Unnamed: 11'].values[index_operation] == appellation_formateur:
+                                                    type_payement = "Enseignant"
+                                                else:
+                                                    type_payement = "Pers Administratif"
                                                 tpas = TypePayementAdminStaff()
                                                 tpas.libelle = df['Unnamed: 9'].values[index_operation]
                                                 tpas.entree_sortie_caisee = "e" if ("Entrée de Caisse" == df['Unnamed: 10'].values[index_operation]) or ("Cash in" == df['Unnamed: 10'].values[index_operation]) else "s"
+                                                tpas.type_payement = type_payement
                                                 tpas.person = df['Unnamed: 11'].values[index_operation]
                                                 if pd.isnull(df['Unnamed: 12'].values[index_operation]) == False:
                                                     tpas.montant = df['Unnamed: 12'].values[index_operation]

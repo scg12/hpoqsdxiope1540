@@ -104,7 +104,7 @@
                               <tr>
                                 <th scope="col" class="fix-col" >#</th>
                                 
-                                <th scope="col" class="nom_classe fix-col1" >
+                                <th scope="col" class="nom_classe fix-col1 active" >
                                     <span class="tri tri-asc">Classe
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
@@ -142,7 +142,7 @@
                             </thead>
                             <tbody>
                                
-                                    {% for classe in classes  %}
+                                    {% for classe in page_active  %}
                                     <tr class="{{ classe.id }}²²{{ classe.nom_classe }}²²{{ classe.nom_niveau }}²²{{ classe.nom_cycle }}²²{{ classe.nom_sousetab }}²²{{ classe.nom_etab }}">
                                       <th scope="row" class="detail-classe-link-td fix-col">{{ forloop.counter }}</th>
                                      
@@ -322,25 +322,25 @@
 
                         <div class="form-group">
                           <label class="">Classe : </label>
-                          <label class="nom_classe text-primary"></label>
+                          <label class="nom_classe"></label>
                         </div>
                         <div class="form-group">
                           <label class="">Niveau : </label>
-                          <label class="nom_niveau text-primary"></label>
+                          <label class="nom_niveau"></label>
                         </div>
                         <div class="form-group">
                           <label class="">Cycle : </label>
-                          <label class="nom_cycle text-primary"></label>
+                          <label class="nom_cycle"></label>
                         </div>
 
                         <div class="form-group">
                           <label class="">Sous Etab : </label>
-                          <label class="nom_sousetab text-primary"></label>
+                          <label class="nom_sousetab"></label>
                         </div>
 
                         <div class="form-group">
                           <label class="">etablissement : </label>
-                          <label class="nom_etab text-primary"></label>
+                          <label class="nom_etab"></label>
                         </div>
                         
                         <div class="card-body">Voulez vous vraiment supprimer?</div>

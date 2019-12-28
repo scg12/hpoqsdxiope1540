@@ -9,7 +9,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_paiement");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -32,7 +32,7 @@ $(document).ready(function(){
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("classe") == -1){
+          if(data.permissions.indexOf("typepayementeleve") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -45,7 +45,7 @@ $(document).ready(function(){
             //$("table thead").remove();
               //alert("1");
 
-              liste_classes = data.classes;
+              liste_paiements = data.paiements;
               nbre_element_par_page = data.nbre_element_par_page;
               numero_page_active = data.numero_page_active;
               liste_page = data.liste_page;
@@ -64,31 +64,32 @@ $(document).ready(function(){
       /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
-                fin = data.classes.length;
+                fin = data.paiements.length;
               }
 
-              if (liste_classes.length != 0){
+              if (liste_paiements.length != 0){
 
                   for (var i = debut; i < fin; i++) {
 
-                      nom_etab = liste_classes[i].nom_etab;
-                      nom_sousetab = liste_classes[i].nom_sousetab                      
-                      nom_niveau = liste_classes[i].nom_niveau;
-                      nom_cycle = liste_classes[i].nom_cycle;
-                      nom_classe = liste_classes[i].nom_classe;
-                      id = liste_classes[i].id;
-                      // alert(nom_etab, nom_sousetab, nom_classe, id);
-                        nouvelle_ligne = "<tr class='"+ id +'²²'+ nom_classe +'²²'+ nom_niveau +'²²'+ nom_cycle + '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-classe-link-td fix-col1">'+ nom_classe + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_niveau + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-classe-link-td">' + nom_sousetab + '</td><td class="detail-classe-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
-                    view = '<button type="button" rel="tooltip" class="detail-classe-link-td btn" data-toggle="modal" data-target="#modal_detail_classe"><i class="material-icons">visibility</i></button>';
-                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
-                    del = '&nbsp;<button rel="tooltip" class="supprimer-classe-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                      libelle = liste_paiements[i].libelle;
+                      date_deb = liste_paiements[i].date_deb;
+                      date_fin = liste_paiements[i].date_fin;
+                      entree_sortie_caisee = liste_paiements[i].entree_sortie_caisee;
+                      date_fin = liste_paiements[i].date_fin                      
+                      classe = liste_paiements[i].classe                      
+                      id = liste_paiements[i].id;
+                      // alert(nom_etab, classe, libelle, id);
+                        nouvelle_ligne = "<tr class='"+ id +'²²'+ libelle +'²²'+ date_deb +'²²'+ date_fin +'²²'+ entree_sortie_caisee +'²²'+ date_fin +'²²'+ classe +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-paiement-link-td fix-col1">'+ libelle + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ classe +'</td><td class="td-actions text-right">';
+                    view = '<button type="button" rel="tooltip" class="detail-paiement-link-td btn" data-toggle="modal" data-target="#modal_detail_paiement"><i class="material-icons">visibility</i></button>';
+                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-paiement-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    del = '&nbsp;<button rel="tooltip" class="supprimer-paiement-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
                    
-                    //$("table tbody button:last").addClass("supprimer-classe-link");
-                    // alert(data.permissions.indexOf("classes"));
+                    //$("table tbody button:last").addClass("supprimer-paiement-link");
+                    // alert(data.permissions.indexOf("paiements"));
 
-                        index_model = data.permissions.indexOf("classe")
+                        index_model = data.permissions.indexOf("typepayementeleve")
                         /*if(data.permissions[index_model + 1] ==1 ){
                           nouvelle_ligne += view;
                         } */                     
@@ -97,7 +98,7 @@ $(document).ready(function(){
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
                         if(data.permissions[index_model + 3] ==0 ){
-                          $("button .ajouter-classe-link").remove();
+                          $("button .ajouter-paiement-link").remove();
                         }                      
                         if(data.permissions[index_model + 4] ==1 ){
                           nouvelle_ligne += del;
@@ -185,103 +186,112 @@ $(document).ready(function(){
       }
 
 
-    $("body").on("click", ".ajouter-classe-link", function() {
+    $("body").on("click", ".ajouter-paiement-link", function() {
         
-        $('#modal_ajouter_classe').modal('show');
+        $('#modal_ajouter_paiement').modal('show');
 
-        $(".nom_classe").val(nom_classe);
-        $(".nom_niveau").val(nom_niveau);
-        $(".nom_cycle").val(nom_cycle);
-        $(".nom_sousetab").val(nom_sousetab);
-        $(".nom_etab").val(nom_etab);
+        $("#modal_ajouter_paiement .libelle").val(libelle);
+        $("#modal_ajouter_paiement .date_deb").val(date_deb);
+        $("#modal_ajouter_paiement .date_fin").val(date_fin);
+        $("#modal_ajouter_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
+        $("#modal_ajouter_paiement .montant").val(montant);
+        $("#modal_ajouter_paiement .classe").val(classe);
         $("#id_modif").val(id);
 
-        $(".nom_classe").val("");
-        $(".nom_niveau").val("");
-        $(".nom_cycle").val("");
-        $(".nom_sousetab").val("");
-        $(".nom_etab").val("");
+        $("#modal_ajouter_paiement .libelle").val("");
+        $("#modal_ajouter_paiement .date_deb").val("");
+        $("#modal_ajouter_paiement .date_fin").val("");
+        $("#modal_ajouter_paiement .entree_sortie_caisee").val("");
+        $("#modal_ajouter_paiement .montant").val("");
+        $("#modal_ajouter_paiement .classe").val("");
 
     });
 
-    // $(".detail-classe-link-td").click(function() {
-     $("body").on("click", ".detail-classe-link-td", function() {
-//class="{{ cycl.id }}²²{{ cycl.nom_classe }}²²{{ cycl.sous_classe }}²²{{ cycl.classe }}"
-        $('#modal_detail_classe').modal('show');
+    // $(".detail-paiement-link-td").click(function() {
+     $("body").on("click", ".detail-paiement-link-td", function() {
+//class="{{ cycl.id }}²²{{ cycl.libelle }}²²{{ cycl.sous_paiement }}²²{{ cycl.paiement }}"
+        $('#modal_detail_paiement').modal('show');
 
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
+        var paiement = $(this).parents("tr").attr('class');
+        tab_element = paiement.split("²²");
         id = tab_element[0];
-        nom_classe = tab_element[1];
-        nom_niveau = tab_element[2];
-        nom_cycle = tab_element[3];
-        nom_sousetab = tab_element[4];
-        nom_etab = tab_element[5];
+        libelle = tab_element[1];
+        date_deb = tab_element[2];
+        date_fin = tab_element[3];
+        entree_sortie_caisee = tab_element[4];
+        montant = parseFloat(tab_element[5]);
+        classe = tab_element[6];
       
-        $(".nom_classe").val(nom_classe);
-        $(".nom_niveau").val(nom_niveau);
-        $(".nom_cycle").val(nom_cycle);
-        $(".nom_sousetab").val(nom_sousetab);
-        $(".nom_etab").val(nom_etab);
+        $("#modal_detail_paiement .libelle").val(libelle);
+        $("#modal_detail_paiement .date_deb").val(date_deb);
+        $("#modal_detail_paiement .date_fin").val(date_fin);
+        $("#modal_detail_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
+        $("#modal_detail_paiement .montant").val(montant);
+        $("#modal_detail_paiement .classe").val(classe);
         $("#id_modif").val(id);
 
-        $(".nom_classe").attr("disabled", "True");
-        $(".nom_niveau").attr("disabled", "True");
-        $(".nom_cycle").attr("disabled", "True");
-        $(".nom_sousetab").attr("disabled", "True");
-        $(".nom_etab").attr("disabled", "True");
+        $("#modal_detail_paiement .libelle").attr("disabled", "True");
+        $("#modal_detail_paiement .date_deb").attr("disabled", "True");
+        $("#modal_detail_paiement .date_fin").attr("disabled", "True");
+        $("#modal_detail_paiement .entree_sortie_caisee").attr("disabled", "True");
+        $("#modal_detail_paiement .montant").attr("disabled", "True");
+        $("#modal_detail_paiement .classe").attr("disabled", "True");
 
     });
 
 
-    $(".modifier-classe-link").click(function() {
-        $('#modal_modifier_classe').modal('show');
+    $(".modifier-paiement-link").click(function() {
+        $('#modal_modifier_paiement').modal('show');
 
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
+        var paiement = $(this).parents("tr").attr('class');
+        tab_element = paiement.split("²²");
         id = tab_element[0];
-        nom_classe = tab_element[1];
-        nom_niveau = tab_element[2];
-        nom_cycle = tab_element[3];
-        nom_sousetab = tab_element[4];
-        nom_etab = tab_element[5];
-
-        $("#modal_modifier_classe .nom_classe").val(nom_classe);
-        $("#modal_modifier_classe .nom_niveau").val(nom_niveau);
-        $("#modal_modifier_classe .nom_cycle").val(nom_cycle);
-        $("#modal_modifier_classe .nom_sousetab").val(nom_sousetab);
-        $("#modal_modifier_classe .nom_etab").val(nom_etab);
+        libelle = tab_element[1];
+        date_deb = tab_element[2];
+        date_fin = tab_element[3];
+        entree_sortie_caisee = tab_element[4];
+        montant = parseFloat(tab_element[5]);
+        classe = tab_element[6];
+        $("#modal_modifier_paiement .libelle").val(libelle);
+        $("#modal_modifier_paiement .date_deb").val(date_deb);
+        $("#modal_modifier_paiement .date_fin").val(date_fin);
+        $("#modal_modifier_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
+        $("#modal_modifier_paiement .montant").val(montant);
+        $("#modal_modifier_paiement .classe").val(classe);
         $("#id_modif").val(id);
 
-        $("#modal_modifier_classe .nom_classe").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_niveau").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_cycle").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_sousetab").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_etab").removeAttr("disabled");
+        $("#modal_modifier_paiement .libelle").removeAttr("disabled");
+        $("#modal_modifier_paiement .date_deb").removeAttr("disabled");
+        $("#modal_modifier_paiement .date_fin").removeAttr("disabled");
+        $("#modal_modifier_paiement .entree_sortie_caisee").removeAttr("disabled");
+        $("#modal_modifier_paiement .montant").removeAttr("disabled");
+        $("#modal_modifier_paiement .classe").removeAttr("disabled");
 
     });
 
 
 
-    $(".supprimer-classe-link").click(function() {
+    $(".supprimer-paiement-link").click(function() {
 
-      $('#modal_supprimer_classe').modal('show');
+      $('#modal_supprimer_paiement').modal('show');
 
-      var classe = $(this).parents("tr").attr('class');
-      tab_element = classe.split("²²");
+      var paiement = $(this).parents("tr").attr('class');
+      tab_element = paiement.split("²²");
       id = tab_element[0];
-      nom_classe = tab_element[1];
-      nom_niveau = tab_element[2];
-      nom_cycle = tab_element[3];
-      nom_sousetab = tab_element[4];
-      nom_etab = tab_element[5];
+      libelle = tab_element[1];
+      date_deb = tab_element[2];
+      date_fin = tab_element[3];
+      entree_sortie_caisee = tab_element[4];
+      montant = parseFloat(tab_element[5]);
+      classe = tab_element[6];
       
       $("#id_supp").val(id);
-      $("#modal_supprimer_classe .nom_classe").text(nom_classe);
-      $("#modal_supprimer_classe .nom_niveau").text(nom_niveau);
-      $("#modal_supprimer_classe .nom_cycle").text(nom_cycle);
-      $("#modal_supprimer_classe .nom_sousetab").text(nom_sousetab);
-      $("#modal_supprimer_classe .nom_etab").text(nom_etab);
+      $("#modal_supprimer_paiement .libelle").text(libelle);
+      $("#modal_supprimer_paiement .date_deb").text(date_deb);
+      $("#modal_supprimer_paiement .date_fin").text(date_fin);
+      $("#modal_supprimer_paiement .entree_sortie_caisee").text(entree_sortie_caisee);
+      $("#modal_supprimer_paiement .montant").text(montant);
+      $("#modal_supprimer_paiement .classe").text(classe);
     
     });
 
@@ -293,20 +303,20 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_paiement");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
 
         $("body table thead th span").each(function () {
 
-              var classe = String($(this).attr("class"));
+              var paiement = String($(this).attr("class"));
 
-              if(classe.search("text-primary") != -1){
+              if(paiement.search("text-primary") != -1){
 
                   trier_par = $(this).parents("th").attr("class");
 
-                  if (classe.search("tri-desc") != -1){
+                  if (paiement.search("tri-desc") != -1){
                       trier_par = "-" + trier_par; 
                   }
 
@@ -330,56 +340,59 @@ $(document).ready(function(){
 
     });
       
-    $("body").on("click", ".supprimer-classe-link-ajax", function() {
+    $("body").on("click", ".supprimer-paiement-link-ajax", function() {
         
-        $('#modal_supprimer_classe').modal('show');
+        $('#modal_supprimer_paiement').modal('show');
 
-         var classe = $(this).parents("tr").attr('class');
-          tab_element = classe.split("²²");
+         var paiement = $(this).parents("tr").attr('class');
+          tab_element = paiement.split("²²");
           id = tab_element[0];
-          nom_classe = tab_element[1];
-          nom_niveau = tab_element[2];
-          nom_cycle = tab_element[3];
-          nom_sousetab = tab_element[4];
-          nom_etab = tab_element[5];
+          libelle = tab_element[1];
+          date_deb = tab_element[2];
+          date_fin = tab_element[3];
+          entree_sortie_caisee = tab_element[4];
+          montant = parseFloat(tab_element[5]);
+          classe = tab_element[6];
 
-          
           $("#id_supp").val(id);
-          $("#modal_supprimer_classe .nom_classe").text(nom_classe);
-          $("#modal_supprimer_classe .nom_niveau").text(nom_niveau);
-          $("#modal_supprimer_classe .nom_cycle").text(nom_cycle);
-          $("#modal_supprimer_classe .nom_sousetab").text(nom_sousetab);
-          $("#modal_supprimer_classe .nom_etab").text(nom_etab);
+          $("#modal_supprimer_paiement .libelle").text(libelle);
+          $("#modal_supprimer_paiement .date_deb").text(date_deb);
+          $("#modal_supprimer_paiement .date_fin").text(date_fin);
+          $("#modal_supprimer_paiement .entree_sortie_caisee").text(entree_sortie_caisee);
+          $("#modal_supprimer_paiement .montant").text(montant);
+          $("#modal_supprimer_paiement .classe").text(classe);
 
     });
 
 
-    $("body").on("click", ".modifier-classe-link-ajax", function() {
+    $("body").on("click", ".modifier-paiement-link-ajax", function() {
         
-        $('#modal_modifier_classe').modal('show');
+        $('#modal_modifier_paiement').modal('show');
 
-        var classe = $(this).parents("tr").attr('class');
-        tab_element = classe.split("²²");
+        var paiement = $(this).parents("tr").attr('class');
+        tab_element = paiement.split("²²");
         id = tab_element[0];
-        nom_classe = tab_element[1];
-        nom_niveau = tab_element[2];
-        nom_cycle = tab_element[3];
-        nom_sousetab = tab_element[4];
-        nom_etab = tab_element[5];
+        libelle = tab_element[1];
+        date_deb = tab_element[2];
+        date_fin = tab_element[3];
+        entree_sortie_caisee = tab_element[4];
+        montant = parseFloat(tab_element[5]);
+        classe = tab_element[6];
 
-
-        $("#modal_modifier_classe .nom_etab").val(nom_etab);
-        $("#modal_modifier_classe .nom_sousetab").val(nom_sousetab);
-        $("#modal_modifier_classe .nom_cycle").val(nom_cycle);
-        $("#modal_modifier_classe .nom_niveau").val(nom_niveau);
-        $("#modal_modifier_classe .nom_classe").val(nom_classe);
+        $("#modal_modifier_paiement .montant").val(montant);
+        $("#modal_modifier_paiement .classe").val(classe);
+        $("#modal_modifier_paiement .date_deb").val(date_deb);
+        $("#modal_modifier_paiement .libelle").val(libelle);
+        $("#modal_modifier_paiement .date_fin").val(date_fin);
+        $("#modal_modifier_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
         $("#id_modif").val(id);
 
-        $("#modal_modifier_classe .nom_etab").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_sousetab").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_classe").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_niveau").removeAttr("disabled");
-        $("#modal_modifier_classe .nom_cycle").removeAttr("disabled");
+        $("#modal_modifier_paiement .montant").removeAttr("disabled");
+        $("#modal_modifier_paiement .classe").removeAttr("disabled");
+        $("#modal_modifier_paiement .libelle").removeAttr("disabled");
+        $("#modal_modifier_paiement .date_fin").removeAttr("disabled");
+        $("#modal_modifier_paiement .entree_sortie_caisee").removeAttr("disabled");
+        $("#modal_modifier_paiement .date_deb").removeAttr("disabled");
 
     });
 
@@ -394,20 +407,20 @@ $(document).ready(function(){
 
           var recherche = $("#recherche").val().trim();
 
-          var form = $(".recherche_classe");
+          var form = $(".recherche_paiement");
           var url_action = form.attr("action");
 
           var trier_par = "non defini";
 
-          $("body table thead th").each(function () {
+          $("body table thead th span").each(function () {
 
-                var classe = String($(this).attr("class"));
+                var paiement = String($(this).attr("class"));
 
-                if(classe.search("active") != -1){
+                if(paiement.search("text-primary") != -1){
 
-                    trier_par = $(this).find("span").attr("class").split(" ")[0];
+                    trier_par = $(this).parents("th").attr("class");
 
-                    if (classe.search("tri-desc") != -1){
+                    if (paiement.search("tri-desc") != -1){
                         trier_par = "-" + trier_par; 
                     }
 
@@ -447,7 +460,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " ";
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_paiement");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
@@ -485,7 +498,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_paiement");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
