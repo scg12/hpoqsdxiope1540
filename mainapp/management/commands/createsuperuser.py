@@ -9,8 +9,6 @@ from django.core.management.base import CommandError
 #     def handle(self, *args, **options):
 #         current_nb_superuser = User.objects.filter(is_superuser=True).count()
 
-
-
 MAX_SUPERUSER = 2
 
 class Command(createsuperuser.Command):
