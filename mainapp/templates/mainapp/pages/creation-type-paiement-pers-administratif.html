@@ -1,0 +1,13 @@
+{% extends 'mainapp/layouts/base-dashbord.html' %}
+
+
+
+{% block content %}
+
+  <form method="post"  class="" action="{% url 'mainapp:creation_type_paiement_pers_administratif' %}">
+    {% csrf_token %}
+    
+   <input type="submit" class="btn btn-primary" value="Submit">
+ </form>
+
+{% endblock %}

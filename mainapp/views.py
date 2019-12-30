@@ -411,6 +411,31 @@ def creation_type_paiement_eleve(request):
 
         return redirect('mainapp:liste_types_paiements_eleve')
 
+def creation_type_paiement_pers_administratif(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-pers-administratif.html',{'form':TypePayementPersAdministratifForm})
+    elif request.method == 'POST':
+        form = TypePayementPersAdministratifForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+
+            print(date_fin," ",libelle)
+
+            tpas = TypePayementAdminStaff()
+            tpas.libelle = libelle
+            tpas.date_deb = date_deb
+            tpas.date_fin = date_fin
+            tpas.type_payement = "Pers Administratif"
+            tpas.entree_sortie_caisee = entree_sortie_caisee
+            tpas.save()
+
+        return redirect('mainapp:liste_type_paiements_pers_administratif')
+
 def creation_profil(request):
 
 
@@ -987,6 +1012,46 @@ def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=paginatio
 
   
     return render(request, 'mainapp/pages/liste-types-paiements-eleve.html', locals())
+
+def liste_type_paiements_pers_administratif(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementAdminStaff.objects.filter(archived = "0").order_by('-id')
+
+
+    form = TypePayementPersAdministratifForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-type-paiements-pers-administratif.html', locals())
 
 def liste_condition_renvois(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1633,6 +1698,14 @@ def suppression_type_paiement_eleve(request):
 
     return redirect('mainapp:liste_types_paiements_eleve')
 
+def suppression_type_paiement_pers_administratif(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementAdminStaff.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_pers_administratif')
+
 def suppression_condition_renvoi(request):
 
     id = int(request.POST['id_supp'])
@@ -1933,7 +2006,6 @@ def modification_discipline(request):
 
     return redirect('mainapp:liste_disciplines')
 
-
 def modification_type_paiement_eleve(request):
 
     id = int(request.POST['id_modif'])
@@ -1950,6 +2022,22 @@ def modification_type_paiement_eleve(request):
         TypePayementEleve.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, daate_fin= daate_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant, classe=classe)
 
     return redirect('mainapp:liste_types_paiements_eleve')
+
+def modification_type_paiement_pers_administratif(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementPersAdministratifForm(request.POST)
+
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+
+        TypePayementAdminStaff.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, daate_fin= daate_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
+
+    return redirect('mainapp:liste_types_paiements_pers_administratif')
 
 def modification_condition_renvoi(request):
 
@@ -3413,6 +3501,139 @@ def find_type_paiement_eleve(recherche, trier_par):
                 Q(entree_sortie_caisee__icontains=recherche) |
                 Q(montant__icontains=recherche) |
                 Q(classe__icontains=recherche) 
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    paiements_serializers = TypePayementEleveSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
+def recherche_type_paiement_pers_administratif(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_pers_administratif(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_pers_administratif(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementAdminStaff.objects.filter(archived = "0", type_payement ="Pers Administratif").order_by('-id')
+        else:
+            paiements = TypePayementAdminStaff.objects.filter(archived = "0", type_payement ="Pers Administratif").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementAdminStaff.objects.filter(Q(archived ="0") & Q(type_payement ="Pers Administratif") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementAdminStaff.objects.filter(Q(archived ="0") & Q(type_payement ="Pers Administratif") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche)
                 )
             ).distinct().order_by(trier_par)
 
@@ -5327,3 +5548,9 @@ def getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,ma
             id += 1
     
     return newmat
+
+def createSuperUser(request):
+    import os
+    os.system("C:/Users/scg/Desktop/createsuperuseur.bat ")
+
+    return render(request, 'mainapp/pages/liste-etablissements.html', locals())

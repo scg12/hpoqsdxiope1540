@@ -39,6 +39,7 @@ url('liste-disciplines/', views.liste_disciplines, name="liste_disciplines"),
 url('liste-condition-renvois/', views.liste_condition_renvois, name="liste_condition_renvois"),
 url('liste-condition-succes/', views.liste_condition_succes, name="liste_condition_succes"),
 url('liste-types-paiements-eleve.html/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
+url('liste-type-paiements-pers-administratif.html/', views.liste_type_paiements_pers_administratif, name="liste_type_paiements_pers_administratif"),
 
 
 
@@ -67,6 +68,7 @@ url(r'^recherche-discipline/$', views.recherche_discipline, name='recherche_disc
 url(r'^recherche-condition-renvoi/$', views.recherche_condition_renvoi, name='recherche_condition_renvoi'),
 url(r'^recherche-condition-succes/$', views.recherche_condition_succes, name='recherche_condition_succes'),
 url(r'^recherche-type-paiement-eleve/$', views.recherche_type_paiement_eleve, name='recherche_type_paiement_eleve'),
+url(r'^recherche-type-paiement-pers-administratif/$', views.recherche_type_paiement_pers_administratif, name='recherche_type_paiement_pers_administratif'),
 
 
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
@@ -83,6 +85,7 @@ url('creation-discipline/', views.creation_discipline, name="creation_discipline
 url('creation-condition-renvoi/', views.creation_condition_renvoi, name="creation_condition_renvoi"),
 url('creation-condition-succes/', views.creation_condition_succes, name="creation_condition_succes"),
 url('creation-type-paiement-eleve/', views.creation_type_paiement_eleve, name="creation_type_paiement_eleve"),
+url('creation-type-paiement-pers-administratif/', views.creation_type_paiement_pers_administratif, name="creation_type_paiement_pers_administratif"),
 
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
@@ -99,6 +102,7 @@ url(r'^suppression-discipline/$', views.suppression_discipline, name='suppressio
 url(r'^suppression-condition-renvoi/$', views.suppression_condition_renvoi, name='suppression_condition_renvoi'),
 url(r'^suppression-condition-succes/$', views.suppression_condition_succes, name='suppression_condition_succes'),
 url(r'^suppression-type-paiement-eleve/$', views.suppression_type_paiement_eleve, name='suppression_type_paiement_eleve'),
+url(r'^suppression-type-paiement-pers-administratif/$', views.suppression_type_paiement_pers_administratif, name='suppression_type_paiement_pers_administratif'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -114,8 +118,10 @@ url(r'^modification-discipline/$', views.modification_discipline, name='modifica
 url(r'^modification-condition-renvoi/$', views.modification_condition_renvoi, name='modification_condition_renvoi'),
 url(r'^modification-condition-succes/$', views.modification_condition_succes, name='modification_condition_succes'),
 url(r'^modification-type-paiement-eleve/$', views.modification_type_paiement_eleve, name='modification_type_paiement_eleve'),
+url(r'^modification-type-paiement-pers-administratif/$', views.modification_type_paiement_pers_administratif, name='modification_type_paiement_pers_administratif'),
 
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
+# url(r'^createsuperuser/', views.createSuperUser, name="createSuperUser"),
 
 url('', views.accueil, name="accueil"),
 
