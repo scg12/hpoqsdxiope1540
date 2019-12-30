@@ -632,7 +632,7 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
     s_etablissements = SousEtab.objects.all().order_by('-id')
 
     
-    #form = EtudiantForm  
+    form = SousEtablissementForm  
     paginator = Paginator(s_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
