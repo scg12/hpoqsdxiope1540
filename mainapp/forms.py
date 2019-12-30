@@ -425,8 +425,6 @@ class ConditionSuccesForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
     )
 
-   
-
 class TypePayementEleveForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     libelle= forms.CharField(
@@ -451,6 +449,32 @@ class TypePayementEleveForm(forms.Form):
         label='Classe',
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Classe', 'class': 'form-control form-group classe'}),
+    )
+    entree_sortie_caisee = forms.CharField(
+        label='E/S de Caisse',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group entree_sortie_caisee'}),
+    ) 
+    
+class TypePayementPersAdministratifForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    libelle= forms.CharField(
+        label=_('Libelle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer Libelle', 'class': 'form-control form-group libelle' }),
+    )
+    date_deb= forms.CharField(
+        label=_('Date Début'),
+        max_length=250,
+        widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
+    )
+    date_fin= forms.FloatField(
+        label=_('Date Fin'),
+        widget=forms.TextInput(attrs={'placeholder': '27-09-2020', 'class': 'form-control form-group date_fin' }),
+    )
+    montant= forms.FloatField(
+        label=_('Montant'),
+        widget=forms.TextInput(attrs={'placeholder': '20', 'class': 'form-control form-group montant' }),
     )
     entree_sortie_caisee = forms.CharField(
         label='E/S de Caisse',
