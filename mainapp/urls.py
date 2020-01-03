@@ -39,13 +39,13 @@ url('liste-disciplines/', views.liste_disciplines, name="liste_disciplines"),
 url('liste-condition-renvois/', views.liste_condition_renvois, name="liste_condition_renvois"),
 url('liste-condition-succes/', views.liste_condition_succes, name="liste_condition_succes"),
 url('liste-types-paiements-eleve.html/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
-url('liste-type-paiements-pers-administratif.html/', views.liste_type_paiements_pers_administratif, name="liste_type_paiements_pers_administratif"),
+url('liste-types-paiements-pers-administratif.html/', views.liste_type_paiements_pers_administratif, name="liste_type_paiements_pers_administratif"),
 
 
 
 url('liste-types-paiements-eleve/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
 url('liste-types-paiements-pers-enseignant/', views.liste_types_paiements_pers_enseignant, name="liste_types_paiements_pers_enseignant"),
-url('liste-types-paiements-pers-administratif/', views.liste_types_paiements_pers_administratif, name="liste_types_paiements_pers_administratif"),
+# url('liste-types-paiements-pers-administratif/', views.liste_types_paiements_pers_administratif, name="liste_types_paiements_pers_administratif"),
 url('liste-types-paiements-pers-appui/', views.liste_types_paiements_pers_appui, name="liste_types_paiements_pers_appui"),
 
 

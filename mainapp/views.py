@@ -1015,8 +1015,9 @@ def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=paginatio
 
 def liste_type_paiements_pers_administratif(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    paiements = TypePayementAdminStaff.objects.filter(archived = "0").order_by('-id')
-
+    print("*** Bonjour ***")
+    paiements = TypePayementAdminStaff.objects.filter(archived = "0",type_payement="Pers Administratif").order_by('-id')
+    print("Count_paiements= ",p.count())
 
     form = TypePayementPersAdministratifForm  
     paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1051,7 +1052,7 @@ def liste_type_paiements_pers_administratif(request, page=1, nbre_element_par_pa
         theme_class = theme_class_default
 
   
-    return render(request, 'mainapp/pages/liste-type-paiements-pers-administratif.html', locals())
+    return render(request, 'mainapp/pages/liste-types-paiements-pers-administratif.html', locals())
 
 def liste_condition_renvois(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
