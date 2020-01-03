@@ -405,7 +405,7 @@ $(document).ready(function(){
 
                 if(classe.search("active") != -1){
 
-                    trier_par = $(this).find("span").attr("class").split(" ")[0];
+                    trier_par = $(this).attr("class").split(" ")[0];
 
                     if (classe.search("tri-desc") != -1){
                         trier_par = "-" + trier_par; 

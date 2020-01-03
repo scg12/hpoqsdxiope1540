@@ -1,5 +1,13 @@
 from django.contrib.auth.management.commands import createsuperuser
 from django.core.management.base import CommandError
+# from django.core.management.base import CommandError, BaseCommand
+# from django.contrib.auth.models import User
+
+# MAX_SUPERUSER = 2
+
+# class Command(BaseCommand):
+#     def handle(self, *args, **options):
+#         current_nb_superuser = User.objects.filter(is_superuser=True).count()
 
 MAX_SUPERUSER = 2
 
