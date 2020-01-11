@@ -500,6 +500,44 @@ class Matiere(models.Model):
     def __str__(self):
             return self.titre + " " + self.nom_sousetab
 
+class Transport(models.Model):
+    montant = models.FloatField()
+    cumul_montant = models.FloatField(default=0.0)
+    date_deb_valide = models.CharField(max_length=20,default="")
+    date_fin_valide = models.CharField(max_length=20,default="")
+    id_eleve = models.IntegerField()
+    is_more_recent = models.BooleanField(default=True)
+    archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
+
+    def __str__(self):
+            return self.date_deb_valide
+class Cantine(models.Model):
+    montant = models.FloatField()
+    cumul_montant = models.FloatField(default=0.0)
+    date_deb_valide = models.CharField(max_length=20,default="")
+    date_fin_valide = models.CharField(max_length=20,default="")
+    id_eleve = models.IntegerField()
+    is_more_recent = models.BooleanField(default=True)
+    archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
+
+    def __str__(self):
+            return self.date_deb_valide
+class PayementChambre(models.Model):
+    montant = models.FloatField()
+    cumul_montant = models.FloatField(default=0.0)
+    date_deb_valide = models.CharField(max_length=20,default="")
+    date_fin_valide = models.CharField(max_length=20,default="")
+    id_eleve = models.IntegerField()
+    id_chambre = models.IntegerField()
+    id_dortoir = models.IntegerField()
+    is_more_recent = models.BooleanField(default=True)
+    archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
+
+    def __str__(self):
+            return self.date_deb_valide
 class Eleve(models.Model):
     matricule = models.CharField(max_length=30)
     nom = models.CharField(max_length=100)
@@ -532,6 +570,9 @@ class Eleve(models.Model):
     chambres = models.ArrayReferenceField(
         to=Chambre,
         #on_delete=models.CASCADE,
+    )
+    transports = models.ArrayReferenceField(
+        to=Transport,
     )
     objects = models.DjongoManager()
     def __str__(self):
@@ -767,8 +808,12 @@ class TypePayementAdminStaff(models.Model):
 class TypePayementDivers(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
+    # type peut etre: Tansport, Dortoir, Cantine, Facture, Divers
+    type_payement = models.CharField(max_length=100,default="Divers")
     entree_sortie_caisee = models.CharField(max_length=2)
     montant = models.FloatField()
+    date_deb = models.CharField(max_length=20,default="")
+    date_fin = models.CharField(max_length=20,default="")
     archived = models.CharField(max_length=2,default="0")
     objects = models.DjongoManager()
 
@@ -795,7 +840,22 @@ class PayementAdminStaff(models.Model):
     def __str__(self):
             return self.libelle
 
+class PayementFacture(models.Model):
+    libelle = models.CharField(max_length=200)
+    montant = models.FloatField()
+    cumul_montant = models.FloatField(default=0.0)
+    date_payement = models.CharField(max_length=30)
+    date_deb_valide = models.CharField(max_length=20,default="")
+    date_fin_valide = models.CharField(max_length=20,default="")
+    id_type_facture = models.IntegerField() 
+    # Lié à la table TypePayementDivers avec type_payement="Facture"
+    is_more_recent = models.BooleanField(default=True)
+    archived = models.CharField(max_length=2,default="0")
 
+    objects = models.DjongoManager()
+
+    def __str__(self):
+            return self.libelle
 
 class TypePayementEleve(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
