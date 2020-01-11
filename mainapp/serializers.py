@@ -260,7 +260,7 @@ class TypePayementEleveSerializer(serializers.Serializer):
     date_fin = serializers.CharField(max_length=20)
     entree_sortie_caisee = serializers.CharField(max_length=20)
     montant = serializers.FloatField()
-    classe = serializers.CharField(max_length=150)
+    # classe = serializers.CharField(max_length=150)
 
     def create(self, validated_data):
         return TypePayementEleve.objects.create(**validated_data)
@@ -271,15 +271,15 @@ class TypePayementEleveSerializer(serializers.Serializer):
         instance.date_fin = validated_data.get('date_fin', instance.date_fin.lower())
         instance.entree_sortie_caisee = validated_data.get('entree_sortie_caisee', instance.entree_sortie_caisee.lower())
         instance.montant = validated_data.get('montant', instance.montant.lower())
-        instance.classe = validated_data.get('classe', instance.classe.lower())
+        # instance.classe = validated_data.get('classe', instance.classe.lower())
 
 class TypePayementPersAdministratifSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
     id = serializers.IntegerField(read_only=True)
     libelle = serializers.CharField(max_length=150)
-    date_deb = serializers.CharField(max_length=20)
-    date_fin = serializers.CharField(max_length=20)
-    entree_sortie_caisee = serializers.CharField(max_length=20)
+    type_payement = serializers.CharField(max_length=150)
+    person = serializers.CharField(max_length=150)
+    entree_sortie_caisee = serializers.CharField(max_length=5)
     montant = serializers.FloatField()
 
     def create(self, validated_data):
@@ -287,7 +287,7 @@ class TypePayementPersAdministratifSerializer(serializers.Serializer):
         
     def update(self, instance, validated_data):
         instance.libelle = validated_data.get('libelle', instance.libelle.lower())
-        instance.date_deb = validated_data.get('date_deb', instance.date_deb.lower())
-        instance.date_fin = validated_data.get('date_fin', instance.date_fin.lower())
+        instance.type_payement = validated_data.get('type_payement', instance.type_payement.lower())
+        instance.person = validated_data.get('person', instance.person.lower())
         instance.entree_sortie_caisee = validated_data.get('entree_sortie_caisee', instance.entree_sortie_caisee.lower())
         instance.montant = validated_data.get('montant', instance.montant.lower())

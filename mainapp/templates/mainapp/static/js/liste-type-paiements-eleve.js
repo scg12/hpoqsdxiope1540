@@ -75,11 +75,11 @@ $(document).ready(function(){
                       date_deb = liste_paiements[i].date_deb;
                       date_fin = liste_paiements[i].date_fin;
                       entree_sortie_caisee = liste_paiements[i].entree_sortie_caisee;                   
-                      classe = liste_paiements[i].classe                      
+                      montant = liste_paiements[i].montant                      
                       id = liste_paiements[i].id;
                       // alert(nom_etab, classe, libelle, id);
-                        nouvelle_ligne = "<tr class='"+ id +'²²'+ libelle +'²²'+ date_deb +'²²'+ date_fin +'²²'+ entree_sortie_caisee +'²²'+ classe +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-paiement-link-td fix-col1">'+ libelle + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ entree_sortie_caisee + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ classe +'</td><td class="td-actions text-right">';
+                        nouvelle_ligne = "<tr class='"+ id +'²²'+ libelle +'²²'+ date_deb +'²²'+ date_fin +'²²'+ entree_sortie_caisee +'²²'+ montant +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-paiement-link-td fix-col1">'+ libelle + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ entree_sortie_caisee + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ montant +'</td><td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="detail-paiement-link-td btn" data-toggle="modal" data-target="#modal_detail_paiement"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-paiement-link-ajax btn"><i class="material-icons">edit</i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-paiement-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
@@ -189,12 +189,12 @@ $(document).ready(function(){
         
         $('#modal_ajouter_paiement').modal('show');
 
-        $("#modal_ajouter_paiement .libelle").val(libelle);
+        /*$("#modal_ajouter_paiement .libelle").val(libelle);
         $("#modal_ajouter_paiement .date_deb").val(date_deb);
         $("#modal_ajouter_paiement .date_fin").val(date_fin);
         $("#modal_ajouter_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
         $("#modal_ajouter_paiement .montant").val(montant);
-        $("#modal_ajouter_paiement .classe").val(classe);
+        $("#modal_ajouter_paiement .classe").val(classe);*/
         $("#id_modif").val(id);
 
         $("#modal_ajouter_paiement .libelle").val("");

@@ -38,7 +38,6 @@ url('liste-type-apprenants/', views.liste_type_apprenants, name="liste_type_appr
 url('liste-disciplines/', views.liste_disciplines, name="liste_disciplines"),
 url('liste-condition-renvois/', views.liste_condition_renvois, name="liste_condition_renvois"),
 url('liste-condition-succes/', views.liste_condition_succes, name="liste_condition_succes"),
-url('liste-types-paiements-eleve.html/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
 
 
 url('liste-types-paiements-eleve/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
@@ -67,7 +66,8 @@ url(r'^recherche-condition-renvoi/$', views.recherche_condition_renvoi, name='re
 url(r'^recherche-condition-succes/$', views.recherche_condition_succes, name='recherche_condition_succes'),
 url(r'^recherche-type-paiement-eleve/$', views.recherche_type_paiement_eleve, name='recherche_type_paiement_eleve'),
 url(r'^recherche-type-paiement-pers-administratif/$', views.recherche_type_paiement_pers_administratif, name='recherche_type_paiement_pers_administratif'),
-
+url(r'^recherche-type-paiement-pers-enseignant/$', views.recherche_type_paiement_pers_enseignant, name='recherche_type_paiement_pers_enseignant'),
+url(r'^recherche-type-paiement-pers-appui/$', views.recherche_type_paiement_pers_appui, name='recherche_type_paiement_pers_appui'),
 
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
@@ -84,7 +84,8 @@ url('creation-condition-renvoi/', views.creation_condition_renvoi, name="creatio
 url('creation-condition-succes/', views.creation_condition_succes, name="creation_condition_succes"),
 url('creation-type-paiement-eleve/', views.creation_type_paiement_eleve, name="creation_type_paiement_eleve"),
 url('creation-type-paiement-pers-administratif/', views.creation_type_paiement_pers_administratif, name="creation_type_paiement_pers_administratif"),
-
+url('creation-type-paiement-pers-enseignant/', views.creation_type_paiement_pers_enseignant, name="creation_type_paiement_pers_enseignant"),
+url('creation-type-paiement-pers-appui/', views.creation_type_paiement_pers_appui, name="creation_type_paiement_pers_appui"),
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
@@ -101,6 +102,8 @@ url(r'^suppression-condition-renvoi/$', views.suppression_condition_renvoi, name
 url(r'^suppression-condition-succes/$', views.suppression_condition_succes, name='suppression_condition_succes'),
 url(r'^suppression-type-paiement-eleve/$', views.suppression_type_paiement_eleve, name='suppression_type_paiement_eleve'),
 url(r'^suppression-type-paiement-pers-administratif/$', views.suppression_type_paiement_pers_administratif, name='suppression_type_paiement_pers_administratif'),
+url(r'^suppression-type-paiement-pers-enseignant/$', views.suppression_type_paiement_pers_enseignant, name='suppression_type_paiement_pers_enseignant'),
+url(r'^suppression-type-paiement-pers-appui/$', views.suppression_type_paiement_pers_appui, name='suppression_type_paiement_pers_appui'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -117,6 +120,8 @@ url(r'^modification-condition-renvoi/$', views.modification_condition_renvoi, na
 url(r'^modification-condition-succes/$', views.modification_condition_succes, name='modification_condition_succes'),
 url(r'^modification-type-paiement-eleve/$', views.modification_type_paiement_eleve, name='modification_type_paiement_eleve'),
 url(r'^modification-type-paiement-pers-administratif/$', views.modification_type_paiement_pers_administratif, name='modification_type_paiement_pers_administratif'),
+url(r'^modification-type-paiement-pers-enseignant/$', views.modification_type_paiement_pers_enseignant, name='modification_type_paiement_pers_enseignant'),
+url(r'^modification-type-paiement-pers-appui/$', views.modification_type_paiement_pers_appui, name='modification_type_paiement_pers_appui'),
 
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
 # url(r'^createsuperuser/', views.createSuperUser, name="createSuperUser"),

@@ -32,7 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_type_paiements_pers_administratif' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_pers_administratif' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
@@ -109,13 +109,13 @@
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="date_deb" >
-                                    <span class="tri tri-asc">Date Début
+                                <th scope="col" class="type_payement" >
+                                    <span class="tri tri-asc">Type Payement
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="date_fin">
-                                    <span class="tri tri-asc">Date Fin
+                                <th scope="col" class="person">
+                                    <span class="tri tri-asc">Concerne
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
@@ -142,12 +142,12 @@
                             <tbody>
                                
                                     {% for paiement in paiements  %}
-                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.date_deb }}²²{{ paiement.date_fin }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}">
+                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.type_payement }}²²{{ paiement.person }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}">
                                       <th scope="row" class="detail-paiement-link-td fix-col">{{ forloop.counter }}</th>
                                      
                                       <td class="detail-paiement-link-td fix-col1" style="text-transform: uppercase;">{{ paiement.libelle }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_deb }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_fin }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.type_payement }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.person }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.entree_sortie_caisee }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.montant }}</td>
                                       <td class="td-actions text-right"> 
@@ -170,7 +170,7 @@
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucun type de payement d'apprenant </td>
+                                        <td colspan="7" class="text-center h4">Aucun type de payement de personnel administratif </td>
                                       </tr>
                                 {% endfor %}
 
@@ -179,8 +179,8 @@
                               <tr>
                                 <th scope="col" class="fix-col">#</th>
                                 <th scope="col" class="fix-col1">Libelle</th>
-                                <th scope="col" >Date Début</th>
-                                <th scope="col" >Date Fin</th>
+                                <th scope="col" >Type Payement</th>
+                                <th scope="col" >Concerne</th>
                                 <th scope="col" >E/S de Caisse</th>
                                 <th scope="col">Montant</th>                          
                                 <th scope="col">Actions</th>                              
@@ -321,12 +321,12 @@
                           <label class="libelle text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Date Début : </label>
-                          <label class="date_deb text-primary"></label>
+                          <label class="">Type Payement : </label>
+                          <label class="type_payement text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Date Fin : </label>
-                          <label class="date_fin text-primary"></label>
+                          <label class="">Concerne : </label>
+                          <label class="person text-primary"></label>
                         </div>
                         <div class="form-group">
                           <label class="">E/S de Caisse : </label>
@@ -373,3 +373,4 @@
     
     
   {% endblock %}
+

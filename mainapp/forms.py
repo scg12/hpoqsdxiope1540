@@ -434,11 +434,12 @@ class TypePayementEleveForm(forms.Form):
     )
     date_deb= forms.CharField(
         label=_('Date Début'),
-        max_length=250,
+        max_length=30,
         widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
     )
-    date_fin= forms.FloatField(
+    date_fin= forms.CharField(
         label=_('Date Fin'),
+        max_length=30,
         widget=forms.TextInput(attrs={'placeholder': '27-09-2020', 'class': 'form-control form-group date_fin' }),
     )
     montant= forms.FloatField(
@@ -453,7 +454,7 @@ class TypePayementEleveForm(forms.Form):
     entree_sortie_caisee = forms.CharField(
         label='E/S de Caisse',
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group entree_sortie_caisee'}),
+        widget=forms.TextInput(attrs={'placeholder': 'E/S de Caisse', 'class': 'form-control form-group entree_sortie_caisee'}),
     ) 
     
 class TypePayementPersAdministratifForm(forms.Form):
@@ -463,14 +464,14 @@ class TypePayementPersAdministratifForm(forms.Form):
         max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Entrer Libelle', 'class': 'form-control form-group libelle' }),
     )
-    date_deb= forms.CharField(
-        label=_('Date Début'),
+    type_payement= forms.CharField(
+        label=_('Type Payement'),
         max_length=250,
-        widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
+        widget=forms.TextInput(attrs={'placeholder': 'Type Payement', 'class': 'form-control form-group type_payement' }),
     )
-    date_fin= forms.FloatField(
-        label=_('Date Fin'),
-        widget=forms.TextInput(attrs={'placeholder': '27-09-2020', 'class': 'form-control form-group date_fin' }),
+    person= forms.CharField(
+        label=_('Concerne'),
+        widget=forms.TextInput(attrs={'placeholder': 'Concerne', 'class': 'form-control form-group person' }),
     )
     montant= forms.FloatField(
         label=_('Montant'),
@@ -478,7 +479,6 @@ class TypePayementPersAdministratifForm(forms.Form):
     )
     entree_sortie_caisee = forms.CharField(
         label='E/S de Caisse',
-        max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group entree_sortie_caisee'}),
+        max_length=5,
+        widget=forms.TextInput(attrs={'placeholder': 'E/S Caisse', 'class': 'form-control form-group entree_sortie_caisee'}),
     ) 
-
