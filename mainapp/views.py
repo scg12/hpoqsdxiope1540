@@ -1013,10 +1013,9 @@ def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=paginatio
   
     return render(request, 'mainapp/pages/liste-types-paiements-eleve.html', locals())
 
-def liste_type_paiements_pers_administratif(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+def liste_types_paiements_pers_administratif(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     paiements = TypePayementAdminStaff.objects.filter(archived = "0").order_by('-id')
-
 
     form = TypePayementPersAdministratifForm  
     paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1051,7 +1050,7 @@ def liste_type_paiements_pers_administratif(request, page=1, nbre_element_par_pa
         theme_class = theme_class_default
 
   
-    return render(request, 'mainapp/pages/liste-type-paiements-pers-administratif.html', locals())
+    return render(request, 'mainapp/pages/liste-types-paiements-pers-administratif.html', locals())
 
 def liste_condition_renvois(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1337,47 +1336,6 @@ def liste_types_paiements_pers_enseignant(request, page=1, nbre_element_par_page
 
   
     return render(request, 'mainapp/pages/liste-types-paiements-pers-enseignants.html', locals())
-
-def liste_types_paiements_pers_administratif(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
-
-    
-    cours = SousEtab.objects.all().order_by('-id')
-
-    
-    #form = EtudiantForm  
-    paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
-
-    try:
-        # La définition de nos URL autorise comme argument « page » uniquement 
-        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
-        page_active = paginator.page(page)
-    except PageNotAnInteger:
-        page_active = paginator.page(1)
-    except EmptyPage:
-        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
-        # Par convention, nous renvoyons la dernière page dans ce cas
-        page_active = paginator.page(paginator.num_pages)
-
-
-    #gerer les preferences utilisateur en terme de theme et couleur
-    if (request.user.id != None):
-        if(request.user.is_superuser == True):
-            data_color = data_color_default
-            sidebar_class = sidebar_class_default
-            theme_class = theme_class_default
-        else:          
-            #print(request.user.is_superuser)
-            prof = Profil.objects.get(user=request.user)
-            data_color = prof.data_color
-            sidebar_class = prof.sidebar_class
-            theme_class = prof.theme_class
-    else:
-        data_color = data_color_default
-        sidebar_class = sidebar_class_default
-        theme_class = theme_class_default
-
-  
-    return render(request, 'mainapp/pages/liste-types-paiements-pers-administratif.html', locals())
 
 def liste_types_paiements_pers_appui(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 

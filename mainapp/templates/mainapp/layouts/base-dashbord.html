@@ -698,103 +698,104 @@ Handle on hover
 	
 
 </div>
-  {% block script_page %}
-  {% endblock %}
+
+
 
   <script type="text/javascript">
 
+		/* myown */
 
-/* myown */
+		var i = 0;
+		$(".configuration").click(function(){
 
-var i = 0;
-$(".configuration").click(function(){
+			if (i%2 ==0){
 
-	if (i%2 ==0){
-
-		$(".myDashboard-configuration").removeAttr("hidden");
-		$(".myDashboard-personnel").attr("hidden",true);
-		$(".myDashboard-apprenant").attr("hidden",true);
-
-
-	}else{
-
-		$(".myDashboard-configuration").attr("hidden",true);
-		
-	}
-
-	i++;
-	
-});
-
-var j = 0;
-$(".personnel").click(function(){
-
-	if (j%2 ==0){
-
-		$(".myDashboard-personnel").removeAttr("hidden");
-		$(".myDashboard-configuration").attr("hidden",true);
-		$(".myDashboard-apprenant").attr("hidden",true);
+				$(".myDashboard-configuration").removeAttr("hidden");
+				$(".myDashboard-personnel").attr("hidden",true);
+				$(".myDashboard-apprenant").attr("hidden",true);
 
 
-	}else{
+			}else{
 
-		$(".myDashboard-personnel").attr("hidden",true);
-		
-	}
+				$(".myDashboard-configuration").attr("hidden",true);
+				
+			}
 
-	j++;
-	
-});
+			i++;
+			
+		});
 
-var k = 0;
-$(".apprenant").click(function(){
+		var j = 0;
+		$(".personnel").click(function(){
 
-	if (k%2 ==0){
+			if (j%2 ==0){
 
-		$(".myDashboard-apprenant").removeAttr("hidden");
-		$(".myDashboard-configuration").attr("hidden",true);
-		$(".myDashboard-personnel").attr("hidden",true);
-
-	}else{
-
-		$(".myDashboard-aprenant").attr("hidden",true);
-		
-	}
-
-	j++;
-	
-});
+				$(".myDashboard-personnel").removeAttr("hidden");
+				$(".myDashboard-configuration").attr("hidden",true);
+				$(".myDashboard-apprenant").attr("hidden",true);
 
 
-/* choix par defaut */  	
+			}else{
 
-$(".sidebar").attr("data-color", "{{ data_color }}");
-$(".sidebar").addClass("{{ sidebar_class }}");
-$(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
-$(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
-$(".moving-tab").addClass("{{ theme_class }}");
-//$(".btn-danger").removeClass("btn-danger btn").addClass("rouge btn ");
-$(".loader").removeClass("loader_bleu loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
-$("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+				$(".myDashboard-personnel").attr("hidden",true);
+				
+			}
 
+			j++;
+			
+		});
+
+		var k = 0;
+		$(".apprenant").click(function(){
+
+			if (k%2 ==0){
+
+				$(".myDashboard-apprenant").removeAttr("hidden");
+				$(".myDashboard-configuration").attr("hidden",true);
+				$(".myDashboard-personnel").attr("hidden",true);
+
+			}else{
+
+				$(".myDashboard-aprenant").attr("hidden",true);
+				
+			}
+
+			j++;
+			
+		});
+
+
+		/* choix par defaut */  	
+
+		$(".sidebar").attr("data-color", "{{ data_color }}");
+		$(".sidebar").addClass("{{ sidebar_class }}");
+		$(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+		$(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+		$(".moving-tab").addClass("{{ theme_class }}");
+		//$(".btn-danger").removeClass("btn-danger btn").addClass("rouge btn ");
+		$(".loader").removeClass("loader_bleu loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
+		$("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
 
 
-$("#themes").click(function(){
-	
-    $("#couleurs").toggleClass("show");
- 
-});
 
-$("body").on("click", ".navbar, .row, .card", function(){
+		$("#themes").click(function(){
+			
+		    $("#couleurs").toggleClass("show");
+		 
+		});
 
-	$("#couleurs").removeClass("show"); 
+		$("body").on("click", ".navbar, .row, .card", function(){
 
-});
+			$("#couleurs").removeClass("show"); 
+
+		});
 
 
   </script>
-</div>
 
+</div>
+  {% block script_page %}
+  {% endblock %}
 </body>
 </html>
