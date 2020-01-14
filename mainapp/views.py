@@ -461,6 +461,102 @@ def creation_type_paiement_divers(request):
 
         return redirect('mainapp:liste_types_paiements_divers')
 
+def creation_type_paiement_cantine(request):
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-cantine.html',{'form':TypePayementDiversForm})
+    elif request.method == 'POST':
+        form = TypePayementDiversForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            montant = float(form.cleaned_data['montant'])
+
+            tpd = TypePayementDivers()
+            tpd.libelle = libelle
+            tpd.date_deb = date_deb
+            tpd.date_fin = date_fin
+            tpd.type_payement = "Cantine"
+            tpd.entree_sortie_caisee = entree_sortie_caisee
+            tpd.montant = montant
+            tpd.save()
+
+        return redirect('mainapp:liste_types_paiements_cantine')
+
+def creation_type_paiement_transport(request):
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-transport.html',{'form':TypePayementDiversForm})
+    elif request.method == 'POST':
+        form = TypePayementDiversForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            montant = float(form.cleaned_data['montant'])
+
+            tpd = TypePayementDivers()
+            tpd.libelle = libelle
+            tpd.date_deb = date_deb
+            tpd.date_fin = date_fin
+            tpd.type_payement = "Transport"
+            tpd.entree_sortie_caisee = entree_sortie_caisee
+            tpd.montant = montant
+            tpd.save()
+
+        return redirect('mainapp:liste_types_paiements_transport')
+
+def creation_type_paiement_dortoir(request):
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-dortoir.html',{'form':TypePayementDiversForm})
+    elif request.method == 'POST':
+        form = TypePayementDiversForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            montant = float(form.cleaned_data['montant'])
+
+            tpd = TypePayementDivers()
+            tpd.libelle = libelle
+            tpd.date_deb = date_deb
+            tpd.date_fin = date_fin
+            tpd.type_payement = "Dortoir"
+            tpd.entree_sortie_caisee = entree_sortie_caisee
+            tpd.montant = montant
+            tpd.save()
+
+        return redirect('mainapp:liste_types_paiements_dortoir')
+
+def creation_type_paiement_facture(request):
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-type-paiement-facture.html',{'form':TypePayementDiversForm})
+    elif request.method == 'POST':
+        form = TypePayementDiversForm(request.POST)
+        if form.is_valid():
+            libelle = form.cleaned_data['libelle']
+            date_deb = form.cleaned_data['date_deb']
+            date_fin = form.cleaned_data['date_fin']
+            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+            montant = float(form.cleaned_data['montant'])
+
+            tpd = TypePayementDivers()
+            tpd.libelle = libelle
+            tpd.date_deb = date_deb
+            tpd.date_fin = date_fin
+            tpd.type_payement = "Facture"
+            tpd.entree_sortie_caisee = entree_sortie_caisee
+            tpd.montant = montant
+            tpd.save()
+
+        return redirect('mainapp:liste_types_paiements_facture')
+
 def creation_type_paiement_eleve(request):
 
     if request.method == 'GET':
@@ -1376,6 +1472,7 @@ def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_p
 
 def liste_types_paiements_pers_enseignant(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
+
     paiements = TypePayementAdminStaff.objects.filter(archived = "0",type_payement="Enseignant").order_by('-id')
 
     form = TypePayementPersAdministratifForm  
@@ -1410,7 +1507,6 @@ def liste_types_paiements_pers_enseignant(request, page=1, nbre_element_par_page
         sidebar_class = sidebar_class_default
         theme_class = theme_class_default
 
-  
     return render(request, 'mainapp/pages/liste-types-paiements-pers-enseignant.html', locals())
 
 def liste_types_paiements_pers_appui(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
@@ -1490,6 +1586,162 @@ def liste_types_paiements_divers(request, page=1, nbre_element_par_page=paginati
 
   
     return render(request, 'mainapp/pages/liste-types-paiements-divers.html', locals())
+
+def liste_types_paiements_cantine(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementDivers.objects.filter(archived = "0",type_payement="Cantine").order_by('-id')
+
+    form = TypePayementDiversForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-cantine.html', locals())
+
+def liste_types_paiements_transport(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementDivers.objects.filter(archived = "0",type_payement="Transport").order_by('-id')
+
+    form = TypePayementDiversForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-transport.html', locals())
+
+def liste_types_paiements_dortoir(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementDivers.objects.filter(archived = "0",type_payement="Dortoir").order_by('-id')
+
+    form = TypePayementDiversForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-dortoir.html', locals())
+
+def liste_types_paiements_facture(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    paiements = TypePayementDivers.objects.filter(archived = "0",type_payement="Facture").order_by('-id')
+
+    form = TypePayementDiversForm  
+    paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-types-paiements-facture.html', locals())
 
 def parametres_progression(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1800,6 +2052,38 @@ def suppression_type_paiement_divers(request):
     TypePayementDivers.objects.filter(pk=id).update(archived="1")
 
     return redirect('mainapp:liste_types_paiements_divers')
+
+def suppression_type_paiement_cantine(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementDivers.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_cantine')
+
+def suppression_type_paiement_transport(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementDivers.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_transport')
+
+def suppression_type_paiement_dortoir(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementDivers.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_dortoir')
+
+def suppression_type_paiement_facture(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    TypePayementDivers.objects.filter(pk=id).update(archived="1")
+
+    return redirect('mainapp:liste_types_paiements_facture')
 
 def suppression_condition_renvoi(request):
 
@@ -2185,6 +2469,74 @@ def modification_type_paiement_divers(request):
         TypePayementDivers.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, date_fin= date_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
 
     return redirect('mainapp:liste_types_paiements_divers')
+
+def modification_type_paiement_cantine(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementDiversForm(request.POST)
+    print(form.is_valid())
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        print("*******")
+        print(libelle,date_deb,entree_sortie_caisee)
+        TypePayementDivers.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, date_fin= date_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
+
+    return redirect('mainapp:liste_types_paiements_cantine')
+
+def modification_type_paiement_transport(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementDiversForm(request.POST)
+    print(form.is_valid())
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        print("*******")
+        print(libelle,date_deb,entree_sortie_caisee)
+        TypePayementDivers.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, date_fin= date_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
+
+    return redirect('mainapp:liste_types_paiements_transport')
+
+def modification_type_paiement_dortoir(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementDiversForm(request.POST)
+    print(form.is_valid())
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        print("*******")
+        print(libelle,date_deb,entree_sortie_caisee)
+        TypePayementDivers.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, date_fin= date_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
+
+    return redirect('mainapp:liste_types_paiements_dortoir')
+
+def modification_type_paiement_facture(request):
+
+    id = int(request.POST['id_modif'])
+    form = TypePayementDiversForm(request.POST)
+    print(form.is_valid())
+    if form.is_valid():
+        libelle = form.cleaned_data['libelle']
+        date_deb = form.cleaned_data['date_deb']
+        date_fin = form.cleaned_data['date_fin']
+        entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
+        montant = form.cleaned_data['montant']
+        print("*******")
+        print(libelle,date_deb,entree_sortie_caisee)
+        TypePayementDivers.objects.filter(pk=id).update(libelle = libelle, date_deb= date_deb, date_fin= date_fin, entree_sortie_caisee= entree_sortie_caisee,montant=montant)
+
+    return redirect('mainapp:liste_types_paiements_facture')
 
 def modification_condition_renvoi(request):
 
@@ -4185,6 +4537,526 @@ def find_type_paiement_divers(recherche, trier_par):
 
     return paiements_serializers.data
 
+def recherche_type_paiement_cantine(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_cantine(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_cantine(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Cantine").order_by('-id')
+        else:
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Cantine").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Cantine") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Cantine") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+    paiements_serializers = TypePayementDiversSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
+def recherche_type_paiement_transport(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_transport(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_transport(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Transport").order_by('-id')
+        else:
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Transport").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Transport") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Transport") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+    paiements_serializers = TypePayementDiversSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
+def recherche_type_paiement_dortoir(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_dortoir(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_dortoir(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Dortoir").order_by('-id')
+        else:
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Dortoir").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Dortoir") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Dortoir") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+    paiements_serializers = TypePayementDiversSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
+def recherche_type_paiement_facture(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            paiements = find_type_paiement_facture(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(paiements)
+
+            #form = EtudiantForm
+            paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "paiements": paiements,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_type_paiement_facture(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Facture").order_by('-id')
+        else:
+            paiements = TypePayementDivers.objects.filter(archived = "0", type_payement ="Facture").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Facture") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche) 
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            paiements = TypePayementDivers.objects.filter(Q(archived ="0") & Q(type_payement ="Facture") &
+                (Q(libelle__icontains=recherche) |
+                Q(date_deb__icontains=recherche) |
+                Q(date_fin__icontains=recherche) |
+                Q(entree_sortie_caisee__icontains=recherche) |
+                Q(montant__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+    paiements_serializers = TypePayementDiversSerializer(paiements, many=True)
+
+    return paiements_serializers.data
+
 def recherche_condition_renvoi(request):
     
     if (request.method == 'POST'):
@@ -4985,7 +5857,7 @@ def permissions_of_a_user(user):
 
     return permissions
 
-def emploi_de_temps(request):    
+def emploi_de_temps(request):
     
     #gerer les preferences utilisateur en terme de theme et couleur
     if (request.user.id != None):

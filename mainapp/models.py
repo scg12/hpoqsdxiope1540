@@ -506,6 +506,7 @@ class Transport(models.Model):
     date_deb_valide = models.CharField(max_length=20,default="")
     date_fin_valide = models.CharField(max_length=20,default="")
     id_eleve = models.IntegerField()
+    id_type_payement_transport = models.IntegerField()
     is_more_recent = models.BooleanField(default=True)
     archived = models.CharField(max_length=2,default="0")
     objects = models.DjongoManager()
@@ -518,6 +519,7 @@ class Cantine(models.Model):
     date_deb_valide = models.CharField(max_length=20,default="")
     date_fin_valide = models.CharField(max_length=20,default="")
     id_eleve = models.IntegerField()
+    id_type_payement_cantine = models.IntegerField()
     is_more_recent = models.BooleanField(default=True)
     archived = models.CharField(max_length=2,default="0")
     objects = models.DjongoManager()
@@ -532,6 +534,7 @@ class PayementChambre(models.Model):
     id_eleve = models.IntegerField()
     id_chambre = models.IntegerField()
     id_dortoir = models.IntegerField()
+    id_type_payement_dortoir = models.IntegerField()
     is_more_recent = models.BooleanField(default=True)
     archived = models.CharField(max_length=2,default="0")
     objects = models.DjongoManager()
@@ -571,8 +574,14 @@ class Eleve(models.Model):
         to=Chambre,
         #on_delete=models.CASCADE,
     )
-    transports = models.ArrayReferenceField(
+    payements_transport = models.ArrayReferenceField(
         to=Transport,
+    )
+    payements_cantine = models.ArrayReferenceField(
+        to=Cantine,
+    )
+    payements_dortoir = models.ArrayReferenceField(
+        to=PayementChambre,
     )
     objects = models.DjongoManager()
     def __str__(self):

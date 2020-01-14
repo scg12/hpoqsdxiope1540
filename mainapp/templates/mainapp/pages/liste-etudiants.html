@@ -7,6 +7,7 @@
   {% block header %}
       
       <script src="{% static 'js/main-liste-etudiants.js' %}"></script>
+      <script src="{% static 'js/modal-dialog.js' %}"></script>
 
       <style type="text/css">
         
@@ -24,7 +25,29 @@
                   user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
       }
 
+.moving-tab{
+  z-index: 1000;
+  padding: 10px;
+  text-transform: uppercase;
+  position: absolute;
+  top: -5px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 12px;
+text-align: center;
+}
+.wizard-navigation ul{
+  background: #f4f4f4;
+  text-transform: uppercase;
+  text-decoration: none!important;
+  list-style: none!important;
 
+}
+.wizard-navigation ul a {
+  color:black!important;
+  font-size: 12px;
+  text-align: center;
+}
 
       </style>
       
@@ -385,49 +408,49 @@
          </div>
          <div class="modal-body">
            <div class="card-body card-primary">
-             <div class="card card-wizard active" data-color="rose" id="wizardProfile">
+             
+            <div class="wizard-container">
+                  <h3 class=" text-center">
+                    Creation d'un nouvel etudiant
+                  </h3>
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+                    
+                    <!-- <h5 class="card-description">This information will let us</h5> -->
+                </div>
+
                 <form action="" method="" novalidate="novalidate">
                   <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
-                  <div class="card-header text-center">
-                    <h3 class="card-title">
-                      Build Your Profile
-                    </h3>
-                    <h5 class="card-description">This information will let us know more about you.</h5>
+                  
+                  <div class="wizard-navigation" id="wizard-navigation">
+                      <ul class="nav nav-pills" >
+                        <li class="nav-item" style="width: 33.3333%;">
+                          <a class="nav-link active show" href="#about" data-toggle="tab" role="tab" aria-selected="true">
+                            About
+                          </a>
+                        </li>
+                        <li class="nav-item" style="width: 33.3333%;">
+                          <a class="nav-link" href="#account" data-toggle="tab" role="tab" aria-selected="false">
+                            Account
+                          </a>
+                        </li>
+                        <li class="nav-item" style="width: 33.3333%;">
+                          <a class="nav-link" href="#address" data-toggle="tab" role="tab" aria-selected="false">
+                            Address
+                          </a>
+                        </li>
+                      </ul>
+                      <div class="moving-tab" style="width: 107px; transform: translate3d(-8px, 0px, 0px); transition: transform 0s ease 0s;">
+                            About
+                      </div>
                   </div>
-                  <div class="wizard-navigation">
-                    <ul class="nav nav-pills">
-                      <li class="nav-item" style="width: 33.3333%;">
-                        <a class="nav-link active" href="#about" data-toggle="tab" role="tab">
-                          About
-                        </a>
-                      </li>
-                      <li class="nav-item" style="width: 33.3333%;">
-                        <a class="nav-link" href="#account" data-toggle="tab" role="tab">
-                          Account
-                        </a>
-                      </li>
-                      <li class="nav-item" style="width: 33.3333%;">
-                        <a class="nav-link" href="#address" data-toggle="tab" role="tab">
-                          Address
-                        </a>
-                      </li>
-                    </ul>
-                  <div class="moving-tab" style="width: 107px; transform: translate3d(-8px, 0px, 0px); transition: transform 0s ease 0s;">
-                          About
-                        </div></div>
                   <div class="card-body">
                     <div class="tab-content">
-                      <div class="tab-pane active" id="about">
-                        <h5 class="info-text"> Let's start with the basic information (with validation)</h5>
+                      <div class="tab-pane active show" id="about">
+                        <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
                         <div class="row justify-content-center">
                           <div class="col-sm-4">
-                            <div class="picture-container">
-                              <div class="picture">
-                                <img src="../../assets/img/default-avatar.png" class="picture-src" id="wizardPicturePreview" title="">
-                                <input type="file" id="wizard-picture">
-                              </div>
-                              <h6 class="description">Choose Picture</h6>
-                            </div>
                           </div>
                           <div class="col-sm-6">
                             <div class="input-group form-control-lg">
@@ -438,7 +461,7 @@
                               </div>
                               <div class="form-group bmd-form-group has-danger">
                                 <label for="exampleInput1" class="bmd-label-floating">First Name (required)</label>
-                                <input type="text" class="form-control" id="exampleInput1" name="firstname" required="" aria-required="true" aria-invalid="true">
+                                <input type="text" class="form-control valid" id="exampleInput1" name="firstname" required="" aria-required="true" aria-invalid="true">
                               </div>
                             </div>
                             <div class="input-group form-control-lg">
@@ -449,7 +472,7 @@
                               </div>
                               <div class="form-group bmd-form-group has-danger">
                                 <label for="exampleInput11" class="bmd-label-floating">Second Name</label>
-                                <input type="text" class="form-control" id="exampleInput11" name="lastname" required="" aria-required="true">
+                                <input type="text" class="form-control valid" id="exampleInput11" name="lastname" required="" aria-required="true" aria-invalid="true">
                               </div>
                             </div>
                           </div>
@@ -462,7 +485,7 @@
                               </div>
                               <div class="form-group bmd-form-group has-danger">
                                 <label for="exampleInput1" class="bmd-label-floating">Email (required)</label>
-                                <input type="email" class="form-control" id="exampleemalil" name="email" required="" aria-required="true">
+                                <input type="email" class="form-control valid" id="exampleemalil" name="email" required="" aria-required="true" aria-invalid="true">
                               </div>
                             </div>
                           </div>
@@ -553,16 +576,17 @@
                   </div>
                   <div class="card-footer">
                     <div class="mr-auto">
-                      <input type="button" class="btn btn-previous btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
+                      <input type="button" id="previous-navigation" class="btn navigation btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
                     </div>
                     <div class="ml-auto">
-                      <input type="button" class="btn btn-next btn-fill btn-rose btn-wd" name="next" value="Next">
-                      <input type="button" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Finish" style="display: none;">
+                      <input type="button" id="next-navigation" class="btn navigation level btn-rose btn-wd" name="next" value="Next" style="">
+                      <input type="button"  class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Finish" style="display: none;">
                     </div>
-                    <div class="clearfix"></div>
+                    
                   </div>
                 </form>
               </div>
+            </div>
 
            </div>
          </div>
@@ -591,9 +615,154 @@
   {% block script_page %}
     
     <script type="text/javascript">
-      $(".new-modal").click(function(){
-        $("#test_new_model").modal("show");
-      });
+
+       $(document).ready(function() {
+
+            //width = $(window).width();
+            var width = "";
+
+            $(".new-modal").click(function(){
+
+                $("#test_new_model").modal("show");
+                // width = $(".card-body").width();
+                width = $(window).width();
+
+
+                var nbreLevel = $(".wizard-navigation ul li").length; 
+                
+                // alert("width *= " + $(".card-wizard").width() + "/*/ level= "+nbreLevel);
+
+                if(width > 700){
+
+                  $(".moving-tab").css("width", (width/(nbreLevel+1)-100) );
+                }else{
+                  $(".moving-tab").css("width", (width/(nbreLevel+1)) );
+
+                }
+                    
+            });
+        
+            
+            //taille du debordement a l'extreme gauche et a l'extreme droite
+            Xcoordinate_translation = 12;
+
+            var jj = 1;
+
+            //index de l'onglet actif
+            var my_index = 0;
+
+            /* gestion du boutton suivant*/
+            $("#next-navigation").on("click",function () {
+              
+                width =  $(".wizard-navigation ul li:first").width()*jj;
+                taille = $(".wizard-navigation ul li").length;
+
+                if(jj <= taille-1){
+
+                    if (jj == taille-1){
+                        $(".moving-tab").css({"transform": "translate3d("+ (width+Xcoordinate_translation) +"px, 0px, 0px)",
+                        "position":"absolute", "top": "-5px",
+                        "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                      
+                    }else{
+                        $(".moving-tab").css({"transform": "translate3d("+ width+"px, 0px, 0px)",
+                          "position":"absolute", "top": "-5px",
+                          "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                    }
+
+                    $(".moving-tab").text($(".wizard-navigation ul li a")[jj].text);
+
+                    jj++;
+
+                    /* chargement du contenu de l'onglet actif*/
+                    my_index = my_index+1;
+                    $(".tab-pane").removeClass("active");
+                    $(".tab-content").children(".tab-pane").eq(my_index).addClass("active");
+                }           
+              
+            });
+
+            /* gestin du boutton precedent*/
+            $("#previous-navigation").on("click",function () {
+
+                width =  $(".wizard-navigation ul li:first").width()*(jj-2);
+                taille = $(".wizard-navigation ul li").length;
+
+                if(jj >= 2){
+
+                    if (jj == 2){
+                        $(".moving-tab").css({"transform": "translate3d("+ (width-Xcoordinate_translation) +"px, 0px, 0px)",
+                        "position":"absolute", "top": "-5px",
+                        "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                    }else{
+                        $(".moving-tab").css({"transform": "translate3d("+ width+"px, 0px, 0px)",
+                          "position":"absolute", "top": "-5px",
+                          "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                    }
+
+                    $(".moving-tab").text($(".wizard-navigation ul li a")[jj-2].text);
+
+                    jj--;
+
+                    /* chargement du contenu de l'onglet actif*/
+                    my_index = my_index-1;
+                    $(".tab-pane").removeClass("active");
+                    $(".tab-content").children(".tab-pane").eq(my_index).addClass("active");
+
+                }
+               
+            });
+           
+           /* gestion de l'onglet actif(ajout de la classe "active") */
+            $(".wizard-navigation ul li a").on("click",function () {
+              
+                $(".wizard-navigation ul li a").removeClass("active");
+                $(this).addClass("active");
+                  
+                $(".moving-tab").text(this.textContent);
+               
+            });
+
+
+            /* gestion du click sur un onglet donné */
+            $(".wizard-navigation ul li").click(function(){
+              
+                taille = $(".wizard-navigation ul li").length;
+                jj = $(this).index()+1;
+
+                width =  $(".wizard-navigation ul li:first").width()*(jj-1);
+
+                /* chargement du contenu de l'onglet actif*/
+                my_index = $(this).index();
+                $(".tab-pane").removeClass("active");
+                $(".tab-content").children(".tab-pane").eq(my_index).addClass("active")
+                
+
+                if (jj ==1){
+                //alert("debut");
+
+                  $(".moving-tab").css({"transform": "translate3d("+ (width-Xcoordinate_translation) +"px, 0px, 0px)",
+                          "position":"absolute", "top": "-5px",
+                          "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                }else if(jj == taille){
+                //alert("fin");
+
+                    $(".moving-tab").css({"transform": "translate3d("+ (width+Xcoordinate_translation) +"px, 0px, 0px)",
+                          "position":"absolute", "top": "-5px",
+                          "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                }else{
+                //alert("milieu");
+
+                  $(".moving-tab").css({"transform": "translate3d("+ (width) +"px, 0px, 0px)",
+                          "position":"absolute", "top": "-5px",
+                          "transition": "all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1) 0s"});
+                }       
+              
+            });
+
+        });
+          
+         
     </script>
     
   {% endblock %}
