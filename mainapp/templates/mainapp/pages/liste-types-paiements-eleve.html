@@ -32,7 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_eleves' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_eleve' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
