@@ -53,24 +53,27 @@ text-align: center;
       
   {% endblock %}
 
+    {% block sidebar %}
+      {% include 'mainapp/layouts/_nav_sidebar_dashboard.html' %}
+    {% endblock %}
 
-      {% block language %}
-          <form action="/i18n/setlang/" method="post">
-                  {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
-                  
-                  <select name="language" onchange="this.form.submit()">
-                    {% for lang in LANGUAGES %}
-                      {% if LANGUAGE_CODE == lang.0 %}
-                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
-                      {% elif LANGUAGE_CODE != lang.0 %}
-                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
-                      }
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-          </form>
-      {% endblock %}
+    {% block language %}
+        <form action="/i18n/setlang/" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
+                
+                <select name="language" onchange="this.form.submit()">
+                  {% for lang in LANGUAGES %}
+                    {% if LANGUAGE_CODE == lang.0 %}
+                      <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                    {% elif LANGUAGE_CODE != lang.0 %}
+                      <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                    }
+                    {% endif %}
+                  {% endfor %}
+                </select>
+        </form>
+    {% endblock %}
 
 
   {% block content %}
@@ -171,22 +174,22 @@ text-align: center;
                                       <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ etudiant.prenom }}</td>
                                       <td class="detail-eleve-link-td">{{ etudiant.age}}</td>
                                       <td class="td-actions text-right"> 
-<!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
-                                        <button rel="tooltip" class="btn detail-eleve-link">
-                                            <i class="material-icons">visibility</i>
-                                        </button>
-                                      {% endif %} -->
-                                      {% if perms.mainapp.can_change_etudiant or perms.mainapp.change_etudiant %}
-                                        <button rel="tooltip" class="btn modifier-eleve-link">
-                                            <i class="material-icons">edit</i>
-                                        </button>
-                                        {% endif %}
+                                          <!--  {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
+                                          <button rel="tooltip" class="btn detail-eleve-link">
+                                              <i class="material-icons">visibility</i>
+                                          </button>
+                                        {% endif %} -->
+                                        {% if perms.mainapp.can_change_etudiant or perms.mainapp.change_etudiant %}
+                                          <button rel="tooltip" class="btn modifier-eleve-link">
+                                              <i class="material-icons">edit</i>
+                                          </button>
+                                          {% endif %}
 
-                                        {% if perms.mainapp.can_delete_etudiant or perms.mainapp.delete_etudiant %}
-                                        <button class="btn btn-danger supprimer-eleve-link">
-                                            <i class="material-icons">close</i>
-                                        </button>
-                                        {% endif %}
+                                          {% if perms.mainapp.can_delete_etudiant or perms.mainapp.delete_etudiant %}
+                                          <button class="btn btn-danger supprimer-eleve-link">
+                                              <i class="material-icons">close</i>
+                                          </button>
+                                          {% endif %}
 
                                       </td>
 
@@ -210,10 +213,8 @@ text-align: center;
                                 <th scope="col">Operations</th>                              
 
                               </tr>
-                            </tfoot>
-                      
+                            </tfoot>                
                         </table>
-
                   </div>      
 
 <!--                  <div id="menu-fixed"  class="fixed-plugin">
@@ -594,19 +595,14 @@ text-align: center;
      </div>
    </div>
 
-<button class="btn btn-fill new-modal">Test new modal</button>
+    <button class="btn btn-fill new-modal">Test new modal</button>
 
-  <br><br>
-  <!-- markup -->
-  <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
-      <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+      <br><br>
+      <!-- markup -->
+      <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+          <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
 
-<button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
-
-
-
-
-
+    <button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
 
 
   {% endblock %}
@@ -642,7 +638,7 @@ text-align: center;
                     
             });
         
-            
+      /*      
             //taille du debordement a l'extreme gauche et a l'extreme droite
             Xcoordinate_translation = 12;
 
@@ -651,7 +647,7 @@ text-align: center;
             //index de l'onglet actif
             var my_index = 0;
 
-            /* gestion du boutton suivant*/
+            // gestion du boutton suivant
             $("#next-navigation").on("click",function () {
               
                 width =  $(".wizard-navigation ul li:first").width()*jj;
@@ -674,7 +670,7 @@ text-align: center;
 
                     jj++;
 
-                    /* chargement du contenu de l'onglet actif*/
+                    // chargement du contenu de l'onglet actif
                     my_index = my_index+1;
                     $(".tab-pane").removeClass("active");
                     $(".tab-content").children(".tab-pane").eq(my_index).addClass("active");
@@ -682,7 +678,7 @@ text-align: center;
               
             });
 
-            /* gestin du boutton precedent*/
+            // gestin du boutton precedent
             $("#previous-navigation").on("click",function () {
 
                 width =  $(".wizard-navigation ul li:first").width()*(jj-2);
@@ -704,7 +700,7 @@ text-align: center;
 
                     jj--;
 
-                    /* chargement du contenu de l'onglet actif*/
+                    // chargement du contenu de l'onglet actif
                     my_index = my_index-1;
                     $(".tab-pane").removeClass("active");
                     $(".tab-content").children(".tab-pane").eq(my_index).addClass("active");
@@ -713,7 +709,7 @@ text-align: center;
                
             });
            
-           /* gestion de l'onglet actif(ajout de la classe "active") */
+           // gestion de l'onglet actif(ajout de la classe "active")
             $(".wizard-navigation ul li a").on("click",function () {
               
                 $(".wizard-navigation ul li a").removeClass("active");
@@ -723,8 +719,7 @@ text-align: center;
                
             });
 
-
-            /* gestion du click sur un onglet donné */
+            // gestion du click sur un onglet donné
             $(".wizard-navigation ul li").click(function(){
               
                 taille = $(".wizard-navigation ul li").length;
@@ -732,7 +727,7 @@ text-align: center;
 
                 width =  $(".wizard-navigation ul li:first").width()*(jj-1);
 
-                /* chargement du contenu de l'onglet actif*/
+                // chargement du contenu de l'onglet actif
                 my_index = $(this).index();
                 $(".tab-pane").removeClass("active");
                 $(".tab-content").children(".tab-pane").eq(my_index).addClass("active")
@@ -759,7 +754,8 @@ text-align: center;
                 }       
               
             });
-
+      */
+      
         });
           
          
