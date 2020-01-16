@@ -291,3 +291,22 @@ class TypePayementPersAdministratifSerializer(serializers.Serializer):
         instance.person = validated_data.get('person', instance.person.lower())
         instance.entree_sortie_caisee = validated_data.get('entree_sortie_caisee', instance.entree_sortie_caisee.lower())
         instance.montant = validated_data.get('montant', instance.montant.lower())
+
+class TypePayementDiversSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    libelle = serializers.CharField(max_length=150)
+    date_deb = serializers.CharField(max_length=20)
+    date_fin = serializers.CharField(max_length=150)
+    entree_sortie_caisee = serializers.CharField(max_length=5)
+    montant = serializers.FloatField()
+
+    def create(self, validated_data):
+        return TypePayementDivers.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.libelle = validated_data.get('libelle', instance.libelle.lower())
+        instance.date_deb = validated_data.get('date_deb', instance.date_deb.lower())
+        instance.date_fin = validated_data.get('date_fin', instance.date_fin.lower())
+        instance.entree_sortie_caisee = validated_data.get('entree_sortie_caisee', instance.entree_sortie_caisee.lower())
+        instance.montant = validated_data.get('montant', instance.montant.lower())

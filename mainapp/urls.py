@@ -39,13 +39,15 @@ url('liste-disciplines/', views.liste_disciplines, name="liste_disciplines"),
 url('liste-condition-renvois/', views.liste_condition_renvois, name="liste_condition_renvois"),
 url('liste-condition-succes/', views.liste_condition_succes, name="liste_condition_succes"),
 
-
 url('liste-types-paiements-eleve/', views.liste_types_paiements_eleve, name="liste_types_paiements_eleve"),
 url('liste-types-paiements-pers-enseignant/', views.liste_types_paiements_pers_enseignant, name="liste_types_paiements_pers_enseignant"),
 url('liste-types-paiements-pers-administratif/', views.liste_types_paiements_pers_administratif, name="liste_types_paiements_pers_administratif"),
 url('liste-types-paiements-pers-appui/', views.liste_types_paiements_pers_appui, name="liste_types_paiements_pers_appui"),
-
-
+url('liste-types-paiements-divers.html/', views.liste_types_paiements_divers, name="liste_types_paiements_divers"),
+url('liste-types-paiements-cantine.html/', views.liste_types_paiements_cantine, name="liste_types_paiements_cantine"),
+url('liste-types-paiements-transport.html/', views.liste_types_paiements_transport, name="liste_types_paiements_transport"),
+url('liste-types-paiements-dortoir.html/', views.liste_types_paiements_dortoir, name="liste_types_paiements_dortoir"),
+url('liste-types-paiements-facture.html/', views.liste_types_paiements_facture, name="liste_types_paiements_facture"),
 
 url('parametres-progression/', views.parametres_progression, name="parametres_progression"),
 url('parametres-cours/', views.parametres_cours, name="parametres_cours"),
@@ -68,6 +70,11 @@ url(r'^recherche-type-paiement-eleve/$', views.recherche_type_paiement_eleve, na
 url(r'^recherche-type-paiement-pers-administratif/$', views.recherche_type_paiement_pers_administratif, name='recherche_type_paiement_pers_administratif'),
 url(r'^recherche-type-paiement-pers-enseignant/$', views.recherche_type_paiement_pers_enseignant, name='recherche_type_paiement_pers_enseignant'),
 url(r'^recherche-type-paiement-pers-appui/$', views.recherche_type_paiement_pers_appui, name='recherche_type_paiement_pers_appui'),
+url(r'^recherche-type-paiement-divers/$', views.recherche_type_paiement_divers, name='recherche_type_paiement_divers'),
+url(r'^recherche-type-paiement-cantine/$', views.recherche_type_paiement_cantine, name='recherche_type_paiement_cantine'),
+url(r'^recherche-type-paiement-transport/$', views.recherche_type_paiement_transport, name='recherche_type_paiement_transport'),
+url(r'^recherche-type-paiement-dortoir/$', views.recherche_type_paiement_dortoir, name='recherche_type_paiement_dortoir'),
+url(r'^recherche-type-paiement-facture/$', views.recherche_type_paiement_facture, name='recherche_type_paiement_facture'),
 
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
@@ -86,6 +93,11 @@ url('creation-type-paiement-eleve/', views.creation_type_paiement_eleve, name="c
 url('creation-type-paiement-pers-administratif/', views.creation_type_paiement_pers_administratif, name="creation_type_paiement_pers_administratif"),
 url('creation-type-paiement-pers-enseignant/', views.creation_type_paiement_pers_enseignant, name="creation_type_paiement_pers_enseignant"),
 url('creation-type-paiement-pers-appui/', views.creation_type_paiement_pers_appui, name="creation_type_paiement_pers_appui"),
+url('creation-type-paiement-divers/', views.creation_type_paiement_divers, name="creation_type_paiement_divers"),
+url('creation-type-paiement-cantine/', views.creation_type_paiement_cantine, name="creation_type_paiement_cantine"),
+url('creation-type-paiement-transport/', views.creation_type_paiement_transport, name="creation_type_paiement_transport"),
+url('creation-type-paiement-dortoir/', views.creation_type_paiement_dortoir, name="creation_type_paiement_dortoir"),
+url('creation-type-paiement-facture/', views.creation_type_paiement_facture, name="creation_type_paiement_facture"),
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
@@ -104,6 +116,11 @@ url(r'^suppression-type-paiement-eleve/$', views.suppression_type_paiement_eleve
 url(r'^suppression-type-paiement-pers-administratif/$', views.suppression_type_paiement_pers_administratif, name='suppression_type_paiement_pers_administratif'),
 url(r'^suppression-type-paiement-pers-enseignant/$', views.suppression_type_paiement_pers_enseignant, name='suppression_type_paiement_pers_enseignant'),
 url(r'^suppression-type-paiement-pers-appui/$', views.suppression_type_paiement_pers_appui, name='suppression_type_paiement_pers_appui'),
+url(r'^suppression-type-paiement-divers/$', views.suppression_type_paiement_divers, name='suppression_type_paiement_divers'),
+url(r'^suppression-type-paiement-cantine/$', views.suppression_type_paiement_cantine, name='suppression_type_paiement_cantine'),
+url(r'^suppression-type-paiement-transport/$', views.suppression_type_paiement_transport, name='suppression_type_paiement_transport'),
+url(r'^suppression-type-paiement-dortoir/$', views.suppression_type_paiement_dortoir, name='suppression_type_paiement_dortoir'),
+url(r'^suppression-type-paiement-facture/$', views.suppression_type_paiement_facture, name='suppression_type_paiement_facture'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -122,6 +139,11 @@ url(r'^modification-type-paiement-eleve/$', views.modification_type_paiement_ele
 url(r'^modification-type-paiement-pers-administratif/$', views.modification_type_paiement_pers_administratif, name='modification_type_paiement_pers_administratif'),
 url(r'^modification-type-paiement-pers-enseignant/$', views.modification_type_paiement_pers_enseignant, name='modification_type_paiement_pers_enseignant'),
 url(r'^modification-type-paiement-pers-appui/$', views.modification_type_paiement_pers_appui, name='modification_type_paiement_pers_appui'),
+url(r'^modification-type-paiement-divers/$', views.modification_type_paiement_divers, name='modification_type_paiement_divers'),
+url(r'^modification-type-paiement-cantine/$', views.modification_type_paiement_cantine, name='modification_type_paiement_cantine'),
+url(r'^modification-type-paiement-transport/$', views.modification_type_paiement_transport, name='modification_type_paiement_transport'),
+url(r'^modification-type-paiement-dortoir/$', views.modification_type_paiement_dortoir, name='modification_type_paiement_dortoir'),
+url(r'^modification-type-paiement-facture/$', views.modification_type_paiement_facture, name='modification_type_paiement_facture'),
 
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
 # url(r'^createsuperuser/', views.createSuperUser, name="createSuperUser"),

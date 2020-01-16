@@ -466,12 +466,40 @@ class TypePayementPersAdministratifForm(forms.Form):
     )
     type_payement= forms.CharField(
         label=_('Type Payement'),
-        max_length=250,
+        max_length=1000,
         widget=forms.TextInput(attrs={'placeholder': 'Type Payement', 'class': 'form-control form-group type_payement' }),
     )
     person= forms.CharField(
         label=_('Concerne'),
+        max_length=100,
         widget=forms.TextInput(attrs={'placeholder': 'Concerne', 'class': 'form-control form-group person' }),
+    )
+    montant= forms.FloatField(
+        label=_('Montant'),
+        widget=forms.TextInput(attrs={'placeholder': '20', 'class': 'form-control form-group montant' }),
+    )
+    entree_sortie_caisee = forms.CharField(
+        label='E/S de Caisse',
+        max_length=5,
+        widget=forms.TextInput(attrs={'placeholder': 'E/S Caisse', 'class': 'form-control form-group entree_sortie_caisee'}),
+    ) 
+
+class TypePayementDiversForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    libelle= forms.CharField(
+        label=_('Libelle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer Libelle', 'class': 'form-control form-group libelle' }),
+    )
+    date_deb= forms.CharField(
+        label=_('Date Deb'),
+        max_length=20,
+        widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
+    )
+    date_fin= forms.CharField(
+        label=_('Date Fin'),
+        max_length=20,
+        widget=forms.TextInput(attrs={'placeholder': '27-12-2020', 'class': 'form-control form-group date_fin' }),
     )
     montant= forms.FloatField(
         label=_('Montant'),

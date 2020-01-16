@@ -4,7 +4,7 @@
 
   {% block header %}
       
-      <script src="{% static 'js/liste-type-paiements-pers-administratif.js' %}"></script>
+      <script src="{% static 'js/liste-type-paiements-divers.js' %}"></script>
 
       <style type="text/css">
         
@@ -32,7 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_pers_administratif' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_divers' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
@@ -63,7 +63,7 @@
                       <div class="row">
 
                         <div class="col-sm-12 col-md-12">
-                          <p class="h3 text-center">Liste Types payements Pers Administratif</p>
+                          <p class="h3 text-center">Liste Types Payements Divers</p>
                         </div>
 
                       </div>
@@ -87,7 +87,7 @@
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                              <form action="{% url 'mainapp:recherche_type_paiement_pers_administratif' %}" class="recherche_paiement" method="GET">
+                              <form action="{% url 'mainapp:recherche_type_paiement_divers' %}" class="recherche_paiement" method="GET">
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
@@ -109,13 +109,13 @@
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="type_payement" >
-                                    <span class="tri tri-asc">Type Payement
+                                <th scope="col" class="date_deb" >
+                                    <span class="tri tri-asc">Date Deb
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="person">
-                                    <span class="tri tri-asc">Concerne
+                                <th scope="col" class="date_fin">
+                                    <span class="tri tri-asc">Date Fin
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
@@ -130,7 +130,7 @@
                                     </span>                                  
                                 </th>
                                 <th scope="col" class="text-right">
-                                  {% if perms.mainapp.can_add_typepayementadminstaff or perms.mainapp.add_typepayementadminstaff %}
+                                  {% if perms.mainapp.can_add_typepayementdivers or perms.mainapp.add_typepayementdivers %}
                                   <button type="button" rel="tooltip" class="btn btn-sm ajouter-paiement-link" data-toggle="modal" data-target="#modal_ajouter_paiement">
                                       <i class="material-icons">person_add</i>
                                   </button>
@@ -142,23 +142,23 @@
                             <tbody>
                                
                                     {% for paiement in paiements  %}
-                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.type_payement }}²²{{ paiement.person }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}">
+                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.date_deb }}²²{{ paiement.date_fin }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}">
                                       <th scope="row" class="detail-paiement-link-td fix-col">{{ forloop.counter }}</th>
                                      
                                       <td class="detail-paiement-link-td fix-col1" style="text-transform: uppercase;">{{ paiement.libelle }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.type_payement }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.person }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_deb }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_fin }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.entree_sortie_caisee }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.montant }}</td>
                                       <td class="td-actions text-right"> 
 
-                                      {% if perms.mainapp.can_change_typepayementadminstaff or perms.mainapp.change_typepayementadminstaff %}
+                                      {% if perms.mainapp.can_change_typepayementdivers or perms.mainapp.change_typepayementdivers %}
                                         <button rel="tooltip" class="btn modifier-paiement-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
-                                        {% if perms.mainapp.can_delete_typepayementadminstaff or perms.mainapp.delete_typepayementadminstaff %}
+                                        {% if perms.mainapp.can_delete_typepayementdivers or perms.mainapp.delete_typepayementdivers %}
                                         <button class="btn btn-danger supprimer-paiement-link">
                                             <i class="material-icons">close</i>
                                         </button>
@@ -170,7 +170,7 @@
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucun type de payement de personnel administratif </td>
+                                        <td colspan="7" class="text-center h4">Aucun type de payement divers </td>
                                       </tr>
                                 {% endfor %}
 
@@ -179,8 +179,8 @@
                               <tr>
                                 <th scope="col" class="fix-col">#</th>
                                 <th scope="col" class="fix-col1">Libelle</th>
-                                <th scope="col" >Type Payement</th>
-                                <th scope="col" >Concerne</th>
+                                <th scope="col" >Date Deb</th>
+                                <th scope="col" >Date Fin</th>
                                 <th scope="col" >E/S de Caisse</th>
                                 <th scope="col">Montant</th>                          
                                 <th scope="col">Actions</th>                              
@@ -219,7 +219,7 @@
 
             <div class="modal-body ">
                 <div class="card-body card-primary">
-                  <p class="h4 text-center">DETAIL TYPE PAYEMENT PERS ADMINISTRATIF</p>
+                  <p class="h4 text-center">DETAIL TYPE PAYEMENT DIVERS</p>
                   <form method="post"  class="detail_paiement" action=" ">
                       {% csrf_token %}
                       {{ form.as_p }}
@@ -248,11 +248,12 @@
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER TYPE PAYEMENT PERS ADMINISTRATIF</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_type_paiement_pers_administratif' %}">
+                    <p class="h4 text-center">AJOUTER TYPE PAYEMENT DIVERS</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_type_paiement_divers' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
 
+                         <label id="message"></label><br>
                         <div class="text-center">
                             <button type="submit" class="btn">Créer</button>
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
@@ -279,8 +280,8 @@
 
             <div class="modal-body ">
               <div class="card-body">
-                <p class="h4 text-center">MODIFIER TYPE PAYEMENT PERS ADMINISTRATIF</p>
-                   <form method="post" class="modifier_paiement" action="{% url 'mainapp:modification_type_paiement_pers_administratif' %}">
+                <p class="h4 text-center">MODIFIER TYPE PAYEMENT DIVERS</p>
+                   <form method="post" class="modifier_paiement" action="{% url 'mainapp:modification_type_paiement_divers' %}">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -299,8 +300,6 @@
     </div>
 </div>
 
-
-
   <!-- Suppression-Dialog box -->
 <div class="modal fade" id="modal_supprimer_paiement" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
@@ -311,8 +310,8 @@
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_paiement" action="{% url 'mainapp:suppression_type_paiement_pers_administratif' %} ">
-                    <p class="h4 text-center">SUPPRIMER TYPE PAYEMENT PERS ADMINISTRATIF</p>
+                  <form method="post"  class="suppression_paiement" action="{% url 'mainapp:suppression_type_paiement_divers' %} ">
+                    <p class="h4 text-center">SUPPRIMER TYPE PAYEMENT DIVERS</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
@@ -321,12 +320,12 @@
                           <label class="libelle text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Type Payement : </label>
-                          <label class="type_payement text-primary"></label>
+                          <label class="">Date Deb : </label>
+                          <label class="date_deb text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Concerne : </label>
-                          <label class="person text-primary"></label>
+                          <label class="">Date Fin : </label>
+                          <label class="date_fin text-primary"></label>
                         </div>
                         <div class="form-group">
                           <label class="">E/S de Caisse : </label>
