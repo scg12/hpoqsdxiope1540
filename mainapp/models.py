@@ -629,11 +629,26 @@ class Classe(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.nom_classe
+    def nom_de_ma_classe(self):
+        return self.classe.nom_classe
 
 class Cours(models.Model):
-    nom_cours = models.CharField(max_length=100)
+    nom_matiere = models.CharField(max_length=100)
+    id_matiere = models.IntegerField(default=1)
+    code_matiere = models.CharField(max_length=100)
     coef = models.FloatField()
+    volume_horaire_hebdo = models.IntegerField(default=1)
+    volume_horaire_annuel = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
+    nom_cycle = models.CharField(max_length=100)
+    nom_sousetab = models.CharField(max_length=100)
+    nom_etab = models.CharField(max_length=100)
+    nom_classe = models.CharField(max_length=100)
+    id_cycle = models.IntegerField(default=1)
+    id_classe = models.IntegerField(default=1)
+    id_sousetab = models.IntegerField(default=1)
+    id_etab = models.IntegerField(default=1)
+
 
     eleves = models.ArrayReferenceField(
         to=Eleve,
@@ -666,7 +681,9 @@ class Cours(models.Model):
 
     objects = models.DjongoManager()
     def __str__(self):
-            return self.nom_cours
+        return self.nom_cours
+
+
 
 class Groupe(models.Model):
     libelle = models.CharField(max_length=200)

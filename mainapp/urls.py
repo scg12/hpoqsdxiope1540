@@ -98,6 +98,8 @@ url('creation-type-paiement-cantine/', views.creation_type_paiement_cantine, nam
 url('creation-type-paiement-transport/', views.creation_type_paiement_transport, name="creation_type_paiement_transport"),
 url('creation-type-paiement-dortoir/', views.creation_type_paiement_dortoir, name="creation_type_paiement_dortoir"),
 url('creation-type-paiement-facture/', views.creation_type_paiement_facture, name="creation_type_paiement_facture"),
+url('creation-cours/', views.creation_cours, name="creation_cours"),
+
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),

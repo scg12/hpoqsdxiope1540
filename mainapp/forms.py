@@ -295,7 +295,54 @@ class ClasseForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
         # required=False
     )
-   
+ 
+class CoursForm(forms.Form):
+    nom_etab = forms.CharField(
+        label=_('Etablissement'),
+        max_length=100,
+        # widget=forms.TextInput(attrs={'placeholder': 'Entrer nom classe', 'class': 'form-control form-group nom_classe' }),
+        widget=forms.Select(attrs={'class': 'form-control form-group nom_etab' })
+        
+    )
+    nom_sousetab = forms.CharField(
+        label=_('Sous Etablissement'),
+        max_length=100,
+        widget=forms.Select(attrs={'placeholder': 'Entrer nom Niveau', 'class': 'form-control form-group nom_sousetab' }),
+    )
+    nom_cycle = forms.CharField(
+        label=_('Cycle'),
+        max_length=100,
+        widget=forms.Select(attrs={'placeholder': 'Entrer nom Cycle', 'class': 'form-control form-group nom_cycle' }),
+    )
+    nom_classe = forms.CharField(
+        label='Classe',
+        max_length=100,
+        widget=forms.Select(attrs={'placeholder': 'Classe', 'class': 'form-control form-group nom_classe'}),
+        # disabled = True  
+    )
+    nom_matiere = forms.CharField(
+        label=_('Cours'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_matiere'}),
+    )
+    code_matiere = forms.CharField(
+        label=_('Code'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group code_matiere', 'name': 'code_matiere'}),
+    )
+    coef = forms.FloatField(
+        label=_('Coef'),
+        widget=forms.TextInput(attrs={ 'class': 'form-control form-group coef', 'name': 'coef'}),
+    )
+    volume_horaire_hebdo = forms.FloatField(
+        label=_('Volume Hebdo'),
+        widget=forms.TextInput(attrs={'class': 'form-control form-group volume_horaire_hebdo', 'name': 'volume_horaire_hebdo'}),
+    )
+    volume_horaire_annuel = forms.FloatField(
+        label=_('Volume Annuel'),
+        widget=forms.TextInput(attrs={ 'class': 'form-control form-group volume_horaire_annuel', 'name': 'volume_horaire_annuel'}),
+    )
+
 class MatiereForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     nom_matiere= forms.CharField(
