@@ -1,0 +1,23 @@
+.moving-tab{
+  z-index: 1000;
+  padding: 10px;
+  text-transform: uppercase;
+  position: absolute;
+  top: -5px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 12px;
+text-align: center;
+}
+.wizard-navigation ul{
+  background: #f4f4f4;
+  text-transform: uppercase;
+  text-decoration: none!important;
+  list-style: none!important;
+
+}
+.wizard-navigation ul a {
+  color:black!important;
+  font-size: 12px;
+  text-align: center;
+}

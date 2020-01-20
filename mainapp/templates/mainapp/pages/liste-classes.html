@@ -95,7 +95,14 @@
                               
                             </div>
 
-                        </div><br>
+                        </div>
+                        <div class="fixed-btn-add">
+                            {% if perms.mainapp.can_add_classe or perms.mainapp.add_classe %}
+                                <button type="button" rel="tooltip" class="btn btn-round btn-sm ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
+                                    <i class="material-icons">add</i>
+                                </button>
+                            {% endif %}
+                        </div>
 
                   <div class="table-responsive">
                         <div class="table-scroll">
@@ -131,11 +138,7 @@
                                    
                                 </th>
                                 <th scope="col" class="text-right">
-                                  {% if perms.mainapp.can_add_classe or perms.mainapp.add_classe %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
-                                      <i class="material-icons">person_add</i>
-                                  </button>
-                                  {% endif %}
+                                 Opérations
                                 </th>
 
                               </tr>

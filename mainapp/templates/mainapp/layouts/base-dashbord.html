@@ -76,9 +76,14 @@ Handle on hover
 }
  */
   	.main-content{
-  		margin-top: 40px;
+  		margin-top: 50px;
 	}
 
+.fixed-btn-add {
+    position: fixed;
+    top: 40%;
+    right: 40%; 
+}
 /*	td:first-child{
 		position: fixed;
 		left: 50px;
@@ -661,15 +666,7 @@ Handle on hover
           <div class="collapse navbar-collapse justify-content-end">
 	            <form class="navbar-form">
 	              
-	              <!-- <select>
-	              	<option>2019-2020</option>
-	              	<option>2018-2019</option>
-	              	<option>2017-2018</option>
-	              	<option>2016-2017</option>
-	              	<option>2015-2016</option>
-	              </select> -->
-
-	              <div class="dropdown">
+	                <div class="dropdown">
                       <button class="btn btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> <!-- .dropdown-menu -->
                       <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
                         <div class="dropdown-arrow"></div><!-- .custom-control -->
@@ -711,27 +708,28 @@ Handle on hover
 	              
 	              <li class="nav-item">
 	               
-	                {% block language %}
-				        <form action="/i18n/setlang/" method="post">
-			                {% csrf_token %}
-			                <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
-			                
-			                <select name="language" onchange="this.form.submit()">
-			                  {% for lang in LANGUAGES %}
-			                    {% if LANGUAGE_CODE == lang.0 %}
-			                      <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
-			                    {% elif LANGUAGE_CODE != lang.0 %}
-			                      <option value="{{ lang.0 }}">{{ lang.1 }}</option>
-			                    
-			                    {% endif %}
-			                  {% endfor %}
-			                </select>
-				        </form>
-				    {% endblock %}
+		                {% block language %}
+					        <form action="/i18n/setlang/" method="post">
+				                {% csrf_token %}
+				                <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
+				                
+				                <select name="language" onchange="this.form.submit()">
+				                  {% for lang in LANGUAGES %}
+				                    {% if LANGUAGE_CODE == lang.0 %}
+				                      <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+				                    {% elif LANGUAGE_CODE != lang.0 %}
+				                      <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+				                    
+				                    {% endif %}
+				                  {% endfor %}
+				                </select>
+					        </form>
+					    {% endblock %}
+
 	              </li>
 	             <li class="nav-item">
 	             	 <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
- 	                  <img src="/../../media/photos/22_signe.jpeg" height="30px" width="30px" style="border-radius: 30px">
+ 	                  <img src="/../../media/photos/22_signe.jpeg" height="40px" width="40px" style="border-radius: 30px">
  	                  <span style="display: inline">
 	 	                  <span style="padding: 5px">SIGNE Gerard</span>
 	 	                  <!-- <span> Proviseur</span> -->

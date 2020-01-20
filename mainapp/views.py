@@ -209,6 +209,58 @@ def creation_classe(request):
 
         return redirect('mainapp:liste_classes')
 
+def creation_cours(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-cours.html',{'form':CoursForm})
+    elif request.method == 'POST':
+        form = CoursForm(request.POST)
+        print("++++++",form.is_valid())
+        if form.is_valid():
+            #nom_etab = request.POST.get("nom_etab")
+            
+            nom_matiere = form.cleaned_data['nom_matiere'].split('²²~~')[1]
+            id_matiere = int(form.cleaned_data['nom_matiere'].split('²²~~')[0])
+            
+            id_classe = int(form.cleaned_data['nom_classe'].split('²²~~')[0])
+            nom_classe = form.cleaned_data['nom_classe'].split('²²~~')[1]
+
+            nom_cycle = form.cleaned_data['nom_cycle'].split('²²~~')[1]
+            id_cycle = int(form.cleaned_data['nom_cycle'].split('²²~~')[0])
+
+            id_sousetab = int(form.cleaned_data['nom_sousetab'].split('²²~~')[0])
+            nom_sousetab = form.cleaned_data['nom_sousetab'].split('²²~~')[1]
+
+            id_etab = int(form.cleaned_data['nom_etab'].split('²²~~')[0])
+            nom_etab = form.cleaned_data['nom_etab'].split('²²~~')[1]
+            
+            code_matiere = form.cleaned_data['code_matiere']
+            coef = float(form.cleaned_data['coef'])
+            volume_horaire_hebdo = form.cleaned_data['volume_horaire_hebdo']
+            volume_horaire_annuel = form.cleaned_data['volume_horaire_annuel']
+
+            # print(nom_etab," ",nom_sousetab," ",nom_cycle, " ", nom_niveau, " ", nom_classe)
+
+            cours = Cours()
+            cours.nom_classe = nom_classe
+            cours.id_classe = id_classe
+            cours.nom_matiere = nom_matiere
+            cours.id_matiere = id_matiere
+            cours.code_matiere = code_matiere
+            cours.nom_cycle = nom_cycle
+            cours.id_cycle = id_cycle
+            cours.volume_horaire_hebdo = volume_horaire_hebdo
+            cours.volume_horaire_annuel = volume_horaire_annuel
+            cours.nom_etab = nom_etab
+            cours.id_etab = id_etab
+            cours.nom_sousetab = nom_sousetab
+            cours.id_sousetab = id_sousetab
+            cours.coef = coef
+            cours.save()
+
+        return redirect('mainapp:liste_cours')
+
 def creation_matiere(request):
 
     if request.method == 'GET':
@@ -1309,10 +1361,15 @@ def liste_condition_succes(request, page=1, nbre_element_par_page=pagination_nbr
 def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
-    cours = SousEtab.objects.all().order_by('-id')
+    cours = Cours.objects.all().order_by('-id')
+    etabs = Etab.objects.all().order_by('-id')
+    sousetabs = SousEtab.objects.all().order_by('-id')
+    cycles = Cycle.objects.all().order_by('-id')
+    classes = Classe.objects.all().order_by('-id')
+    matieres = Matiere.objects.all().order_by('-id')
 
     
-    #form = EtudiantForm  
+    form = CoursForm  
     paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
@@ -2138,6 +2195,7 @@ def modification_etablissement(request):
                 Cycle.objects.filter(id_etab = id).update(nom_etab = nom_etab)
                 Niveau.objects.filter(id_etab = id).update(nom_etab = nom_etab)
                 Classe.objects.filter(id_etab = id).update(nom_etab = nom_etab)
+                Cours.objects.filter(id_etab = id).update(nom_etab = nom_etab)
 
             Etab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
                 localisation=localisation,bp=bp,email=email,tel=tel,devise=devise,langue=langue,\
@@ -2189,6 +2247,7 @@ def modification_sous_etablissement(request):
                 Cycle.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Niveau.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Classe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Cours.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Matiere.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 AppellationApprenantFormateur.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Discipline.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
@@ -2219,6 +2278,7 @@ def modification_cycle(request):
             if(Cycle.objects.filter(pk=id)[0].nom_cycle.lower() != nom_cycle.lower()):
                 Niveau.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
                 Classe.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
+                Cours.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
 
             Cycle.objects.filter(pk=id).update(nom_cycle=nom_cycle)
 
@@ -2267,7 +2327,14 @@ def modification_classe(request):
         nom_etab = form.cleaned_data['nom_etab']
         nom_sousetab = form.cleaned_data['nom_sousetab']
 
-        Classe.objects.filter(pk=id).update(nom_classe = nom_classe)
+        with transaction.atomic():
+
+            if(Classe.objects.filter(pk=id)[0].nom_classe.lower() != nom_classe.lower()):
+                Cours.objects.filter(id_classe = id).update(nom_classe = nom_classe)
+
+            Classe.objects.filter(pk=id).update(nom_classe = nom_classe)
+
+        
 
         return redirect('mainapp:liste_classes')
 
@@ -2286,7 +2353,12 @@ def modification_matiere(request):
         code = form.cleaned_data['code']
         nom_sousetab = form.cleaned_data['nom_sousetab']
 
-        Matiere.objects.filter(pk=id).update(nom_matiere = nom_matiere, code= code, nom_sousetab=nom_sousetab)
+        with transaction.atomic():
+
+            if(Matiere.objects.filter(pk=id)[0].nom_matiere.lower() != nom_matiere.lower()):
+                Cours.objects.filter(id_matiere = id).update(nom_matiere = nom_matiere)       
+
+            Matiere.objects.filter(pk=id).update(nom_matiere = nom_matiere, code= code, nom_sousetab=nom_sousetab)
 
         return redirect('mainapp:liste_matieres')
 
@@ -6148,7 +6220,7 @@ def initialisation(request):
                                 classe = Classe()
                                 classe.nom_classe = df['Unnamed: 4'].values[i]
                                 classe.annee_scolaire = ANNEE_SCOLAIRE
-                                classe.annees.add(annee_scolaire)
+                                # classe.annees.add(annee_scolaire)
                                 list_cycle_classe.append(cycle.nom_cycle)
 
                                 classe.nom_etab = etab.nom_etab
@@ -6159,7 +6231,7 @@ def initialisation(request):
                                 classe.nom_cycle = cycle.nom_cycle
                                 classe.id_niveau = niv.id
                                 classe.nom_niveau = niv.nom_niveau
-
+                                classe.annees.add(annee_scolaire)
                                 classe.save()
                                 list_classe.append(df['Unnamed: 4'].values[i])
                                 niv.classes.add(classe)
@@ -6437,7 +6509,9 @@ def initialisation(request):
                                 if eff_coef != "_":
                                     matiere = Matiere.objects.filter(nom_matiere=nom_matiere)[0]
                                     cours = Cours()
-                                    cours.nom_cours = nom_matiere
+                                    cours.nom_matiere = nom_matiere
+                                    cours.id_matiere = matiere.id
+                                    cours.code_matiere = matiere.code
                                     cours.matiere.add(matiere)
                                     cours.coef = eff_coef
                                     cours.save()

@@ -5,7 +5,9 @@
   {% block header %}
       
       <script src="{% static 'js/liste-cours.js' %}"></script>
-
+      <link rel="stylesheet" type="text/css" href="{% static 'css/modal-dialog.css' %}">
+      <script src="{% static 'js/modal-dialog.js' %}"></script>
+      
       <style type="text/css">
         
         table span:hover, tr:hover{
@@ -99,7 +101,14 @@
                               
                             </div>
 
-                        </div><br>
+                        </div>
+                        <div class="fixed-btn-add">
+                            {% if perms.mainapp.can_add_cours or perms.mainapp.add_cours %}
+                              <button type="button" rel="tooltip" class="btn btn-round btn-sm ajouter-cours-link" data-toggle="modal" data-target="#modal_ajouter_cours">
+                                  <i class="material-icons">add</i>
+                              </button>
+                            {% endif %}
+                        </div>
 
                   <div class="table-responsive">
 
@@ -109,59 +118,84 @@
                                 <th scope="col">#</th>
                                 
                                 <th scope="col" class="nom_etab">
-                                    <span class="tri tri-asc">Etablissement
+                                    <span class="tri tri-asc">Cours
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
                                 <th scope="col" class="date_creation">
-                                    <span class="tri tri-asc">Date de Creation
+                                    <span class="tri tri-asc">Code
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
                                 <th scope="col" class="nom_fondateur">
-                                    <span class="tri tri-asc">Nom Fondateur
+                                    <span class="tri tri-asc">Classe
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span> 
                                    
                                 </th>
                                 <th scope="col" class="localisation">
-                                    <span class="tri tri-asc">localisation
+                                    <span class="tri tri-asc">Coefficient
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">Vol. Hebdo.
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">Vol. Annuel
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                 <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">Cycle
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">Sous Etab.
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="localisation">
+                                    <span class="tri tri-asc">Etablissement
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                   
                                 </th>
                                 <th scope="col" class="text-right">
-                                  {% if perms.mainapp.can_add_etablissement or perms.mainapp.add_etablissement %}
-                                  <button type="button" rel="tooltip" class="btn btn-sm ajouter-eleve-link" data-toggle="modal" data-target="#modal_ajouter_eleve">
-                                      <i class="material-icons">person_add</i>
-                                  </button>
-                                  {% endif %}
+                                  Opérations
                                 </th>
 
                               </tr>
                             </thead>
                             <tbody>
-                                {% for etablissement in page_active  %}
-                                    <tr class="{{ etablissement.id }}²²{{ etablissement.nom_etab }}²²{{ etablissement.date_creation }}²²{{ etablissement.nom_fondateur }}²²{{ etablissement.localisation }}">
+                              
+                                {% for cours in page_active  %}
+                                    <tr class="{{ cours.id }}²²{{ cours.nom_matiere }}²²{{ cours.code_matiere }}²²{{ cours.volume_horaire_hebdo }}²²{{ cours.volume_horaire_annuel }}">
                                       <th scope="row" class="detail-eleve-link-td">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ etablissement.nom_etab }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ etablissement.date_creation }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ etablissement.nom_fondateur }}</td>
-                                      <td class="detail-eleve-link-td">{{ etablissement.localisation}}</td>
+                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cours.nom_matiere }}</td>
+                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cours.code_matiere }}</td>
+                                      <td class="detail-eleve-link-td" style="text-transform: capitalize;">
+                                            {{ cours.nom_classe }}
+                                      
+                                      </td>
+                                      <td class="detail-eleve-link-td">{{ cours.coef }}</td>
+                                      <td class="detail-eleve-link-td">{{ cours.volume_horaire_hebdo }}</td>
+                                      <td class="detail-eleve-link-td">{{ cours.volume_horaire_annuel }}</td>
+                                      <td class="detail-eleve-link-td">{{ cours.nom_cycle }}</td>
+                                      <td class="detail-eleve-link-td">{{ cours.nom_sousetab }}</td>
+                                      <td class="detail-eleve-link-td">{{ cours.nom_etab }}</td>
                                       <td class="td-actions text-right"> 
-<!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     
-                                        <button rel="tooltip" class="btn detail-eleve-link">
-                                            <i class="material-icons">visibility</i>
-                                        </button>
-                                      {% endif %} -->
-                                      {% if perms.mainapp.can_change_etablissement or perms.mainapp.change_etablissement %}
-                                        <button rel="tooltip" class="btn modifier-eleve-link">
+                                      {% if perms.mainapp.can_change_cours or perms.mainapp.change_cours %}
+                                        <button rel="tooltip" class="btn modifier-cours-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
 
-                                        {% if perms.mainapp.can_delete_etablissement or perms.mainapp.delete_etablissement %}
-                                        <button class="btn btn-danger supprimer-eleve-link">
+                                        {% if perms.mainapp.can_delete_cours or perms.mainapp.delete_cours %}
+                                        <button class="btn btn-danger supprimer-cours-link">
                                             <i class="material-icons">close</i>
                                         </button>
                                         {% endif %}
@@ -172,7 +206,7 @@
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucun(s) Cour(s) créé(s) </td>
+                                        <td colspan="11" class="text-center h4">Aucun(s) Cour(s) créé(s) </td>
                                       </tr>
                                 {% endfor %}
 
@@ -180,11 +214,16 @@
                             <tfoot>
                               <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Etablissement</th>
-                                <th scope="col">Date de creation</th>
-                                <th scope="col">Nom Fondateur</th>
-                                <th scope="col">Localisation</th>                              
-                                <th scope="col">Actions</th>                              
+                                <th scope="col">Cours</th>
+                                <th scope="col">Code</th>
+                                <th scope="col">Classe</th>
+                                <th scope="col">Coefficient</th>
+                                <th scope="col">Vol. Hebdo.(h)</th>                              
+                                <th scope="col">Vol. Annuel(h)</th>                              
+                                <th scope="col">Cycle</th>                              
+                                <th scope="col">Sous Etab.</th>                              
+                                <th scope="col">Etablissement</th>                              
+                                <th scope="col">Opérations</th>                              
 
                               </tr>
                             </tfoot>
@@ -254,7 +293,7 @@
 
 
   <!-- dialog box ajouter eleve  -->
-<!--     <div class="modal fade" id="modal_ajouter_eleve" tabindex="-1" role="">
+<!-- <div class="modal fade" id="modal_ajouter_cours" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -262,10 +301,38 @@
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER ELEVE</p>
+                    <p class="h4 text-center">AJOUTER COURS</p>
                     <form method="post"  class="" action="{% url 'mainapp:creation_etudiant' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
+
+                        <div class="row">
+
+                            <div class="col-md-6 col-sm-12">
+                              <div class="form-group bmd-form-group label-group">
+                
+                                <select id="ajout_groupe_liste_profil" class="ajout_groupe_liste_profil form-control" name="ajout_groupe_liste_profil">
+
+                                  {% for classe in classes %}
+                                      <option value="{{ classe.id }}">{{ classe.nom_classe }}</option>
+                                    {% endfor %}
+                                </select>
+                              </div>
+                              
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                              <div class="form-group bmd-form-group">
+                                  <select id="ajout_groupe_liste_profil" class="ajout_groupe_liste_profil form-control" name="ajout_groupe_liste_profil">
+
+                                      {% for etab in etabs %}
+                                        <option value="{{ etab.id }}">{{ etab.nom_etab }}</option>
+                                      {% endfor %}
+                                  </select>
+                              </div>
+
+                            </div>
+
+                  </div>
 
                          <label id="message"></label><br>
                         <div class="text-center">
@@ -283,6 +350,181 @@
 </div> -->
 
 
+   <div class="modal fade" id="modal_ajouter_cours">
+     <div class="modal-dialog modal-lg1">
+       <div class="modal-content card card-nav-tabs">
+         <div class="card-nav-tabs card-header-primary card-header-icon">
+           
+         </div>
+         <div class="modal-body">
+           <div class="card-body card-primary">
+             
+            <div class="wizard-container">
+                  <h3 class=" text-center">
+                    Creation d'un cours
+                  </h3>
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+                    
+                    <!-- <h5 class="card-description">This information will let us</h5> -->
+                </div>
+
+                <form method="post"  class="" action="{% url 'mainapp:creation_cours' %}" novalidate="novalidate">
+                  <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
+                   {% csrf_token %}
+                  <div class="wizard-navigation" id="wizard-navigation">
+                      <ul class="nav nav-pills" >
+                        <li class="nav-item" style="width: 50%;">
+                          <a class="nav-link active show" href="#about" data-toggle="tab" role="tab" aria-selected="true">
+                             classe
+                          </a>
+                        </li>
+                        <li class="nav-item" style="width: 50%;">
+                          <a class="nav-link" href="#account" data-toggle="tab" role="tab" aria-selected="false">
+                            cours
+                          </a>
+                        </li>
+                        
+                      </ul>
+                      <div class="moving-tab" style="width: 207px; transform: translate3d(-8px, 0px, 0px); transition: transform 0s ease 0s;">
+                             classe
+                            
+                      </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="tab-content">
+                      <div class="tab-pane active show" id="about">
+                        <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
+                        <div class="row justify-content-center">
+                            <div class="col-sm-6 col-md-6">
+                              <div class="form-group bmd-form-group">
+                                
+                                <select id="" class="nom_etab form-control" name="nom_etab">
+                              
+                                        {% for etab in etabs %}
+                                          <option value="{{ etab.id }}²²~~{{ etab.nom_etab }}">{{ etab.nom_etab }}</option>
+                                        {% endfor %}
+                                  </select>
+                              </div>
+                            </div>
+                            <div class="col-sm-6 col-md-6">        
+                                <div class="form-group bmd-form-group">
+                                  
+                                  <select id="" class="nom_sousetab form-control" name="nom_sousetab">
+
+                                        {% for sousetab in sousetabs %}
+                                          <option value="{{ sousetab.id }}²²~~{{ sousetab.nom_sousetab }}">{{ sousetab.nom_sousetab }}</option>
+                                        {% endfor %}
+                                  </select>
+                                </div>          
+                            </div>
+                        </div>                        
+                        <div class="row justify-content-center">
+                            <div class="col-sm-6 col-md-6">
+                              <div class="form-group bmd-form-group">
+                                
+                                <select id="" class="nom_cycle form-control" name="nom_cycle">
+                              
+                                        {% for cycl in cycles %}
+                                          <option value="{{ cycl.id }}²²~~{{ cycl.nom_cycle }}">{{ cycl.nom_cycle }}</option>
+                                        {% endfor %}
+                                  </select>
+                              </div>
+                            </div>
+                            <div class="col-sm-6 col-md-6">        
+                                <div class="form-group bmd-form-group">
+                                  
+                                  <select id="" class="nom_classe form-control" name="nom_classe">
+
+                                        {% for classe in classes %}
+                                          <option value="{{ classe.id }}²²~~{{ classe.nom_classe }}">{{ classe.nom_classe }}</option>
+                                        {% endfor %}
+                                  </select>
+                                </div>          
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="tab-pane" id="address">
+                        <div class="row justify-content-center">
+                          <div class="col-sm-6">
+                            <div class="nom_matiere form-group bmd-form-group">
+                               <select id="" class="nom_matiere form-control" name="nom_matiere">
+
+                                        {% for matiere in matieres %}
+                                          <option value="{{ matiere.id }}²²~~{{ matiere.nom_matiere }}">{{ matiere.nom_matiere }}</option>
+                                        {% endfor %}
+                                  </select>
+                            </div>
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="code_matiere form-group bmd-form-group">
+                               <label for="code" class="bmd-label-floating" name="code_matiere">Code</label>
+                              {{form.code_matiere}}
+                            </div>
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="coef form-group bmd-form-group">
+                               <label for="coef" class="bmd-label-floating">Coef</label>
+                              {{form.coef}}
+                            </div>
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="volume_horaire_hebdo form-group bmd-form-group">
+                               <label for="hebdo" class="bmd-label-floating">Volume Hebdo</label>
+                              {{form.volume_horaire_hebdo}}
+                            </div>
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="volume_horaire_annuel form-group bmd-form-group">
+                               <label for="annuel" class="bmd-label-floating">Volume Annuel</label>
+                              {{form.volume_horaire_annuel}}
+                            </div>
+                          </div>
+                          <!-- <div class="col-sm-5">
+                            <div class="form-group select-wizard">
+                              <label>Country</label>
+                              <div class="dropdown bootstrap-select"><select class="selectpicker" data-size="7" data-style="select-with-transition" title="Single Select" tabindex="-98"><option class="bs-title-option" value=""></option>
+                                <option value="Afghanistan"> Afghanistan </option>
+                                <option value="Albania"> Albania </option>
+                                <option value="Algeria"> Algeria </option>
+                                <option value="American Samoa"> American Samoa </option>
+                                <option value="Andorra"> Andorra </option>
+                                <option value="Angola"> Angola </option>
+                                <option value="Anguilla"> Anguilla </option>
+                                <option value="Antarctica"> Antarctica </option>
+                              </select><button type="button" class="btn dropdown-toggle bs-placeholder select-with-transition" data-toggle="dropdown" role="button" title="Single Select"><div class="filter-option"><div class="filter-option-inner"><div class="filter-option-inner-inner">Single Select</div></div> </div></button><div class="dropdown-menu " role="combobox"><div class="inner show" role="listbox" aria-expanded="false" tabindex="-1"><ul class="dropdown-menu inner show"></ul></div></div></div>
+                            </div>
+                          </div> -->
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Créer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-footer">
+                    <div class="mr-auto">
+                      <input type="button" id="previous-navigation" class="btn navigation btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
+                    </div>
+                    <div class="ml-auto">
+                      <input type="button" id="next-navigation" class="btn navigation level btn-rose btn-wd" name="next" value="Next" style="">
+                      <input type="button"  class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Finish" style="display: none;">
+                    </div>
+                    
+                  </div>
+                </form>
+              </div>
+            </div>
+
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
 
   <!-- dialog box modifier eleve  -->
 <!--     <div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
@@ -378,8 +620,6 @@
    -->
 
 
-
-  <br><br>
   <!-- markup -->
   <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
       <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
