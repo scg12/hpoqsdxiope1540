@@ -6538,6 +6538,10 @@ def initialisation(request):
                                     cours.nom_matiere = nom_matiere
                                     cours.id_matiere = matiere.id
                                     cours.code_matiere = matiere.code
+                                    cours.nom_classe = current_classe
+                                    id_clss = Classe.objects.filter(nom_classe=current_classe).values_list('id', flat=True)
+                                    # print(id_clss)
+                                    cours.id_classe = id_clss[0]
                                     cours.matiere.add(matiere)
                                     cours.coef = eff_coef
                                     cours.save()
