@@ -603,35 +603,6 @@ class CahierDeTexte(models.Model):
     def __str__(self):
             return self.module+" "+self.chapitre+" "+self.lecon
 
-class Classe(models.Model):
-    nom_classe = models.CharField(max_length=100)
-    code = models.CharField(max_length=100)
-    annee_scolaire = models.CharField(max_length=100)
-    archived = models.CharField(max_length=2,default="0")
-    id_etab = models.IntegerField(default=1)
-    id_sousetab = models.IntegerField(default=1)
-    id_cycle = models.IntegerField(default=1)
-    id_niveau = models.IntegerField(default=1)
-    nom_etab = models.CharField(max_length=100,default="")
-    nom_sousetab = models.CharField(max_length=100,default="")
-    nom_cycle = models.CharField(max_length=100,default="")
-    nom_niveau = models.CharField(max_length=100,default="")
-
-    # annees = models.ArrayReferenceField(
-    #     to=AnneeScolaire,
-    #     #on_delete=models.CASCADE,
-    # )
-    titulaire = models.ArrayReferenceField(
-        to=Enseignant,
-        #on_delete=models.CASCADE,
-    )
-    
-    objects = models.DjongoManager()
-    def __str__(self):
-            return self.nom_classe
-    def nom_de_ma_classe(self):
-        return self.classe.nom_classe
-
 class Cours(models.Model):
     nom_matiere = models.CharField(max_length=100)
     id_matiere = models.IntegerField(default=1)
@@ -662,10 +633,10 @@ class Cours(models.Model):
         to=Matiere,
         #on_delete=models.CASCADE,
     )
-    classe = models.ArrayReferenceField(
-        to=Classe,
-        #on_delete=models.CASCADE,
-    )
+    # classe = models.ArrayReferenceField(
+    #     to=Classe,
+    #     #on_delete=models.CASCADE,
+    # )
     periodes = models.ArrayReferenceField(
         to=Periode,
         #on_delete=models.CASCADE,
@@ -724,6 +695,34 @@ class AnneeScolaire(models.Model):
     def __str__(self):
             return self.annee
 
+class Classe(models.Model):
+    nom_classe = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+    annee_scolaire = models.CharField(max_length=100)
+    archived = models.CharField(max_length=2,default="0")
+    id_etab = models.IntegerField(default=1)
+    id_sousetab = models.IntegerField(default=1)
+    id_cycle = models.IntegerField(default=1)
+    id_niveau = models.IntegerField(default=1)
+    nom_etab = models.CharField(max_length=100,default="")
+    nom_sousetab = models.CharField(max_length=100,default="")
+    nom_cycle = models.CharField(max_length=100,default="")
+    nom_niveau = models.CharField(max_length=100,default="")
+
+    annees = models.ArrayReferenceField(
+        to=AnneeScolaire,
+        #on_delete=models.CASCADE,
+    )
+    titulaire = models.ArrayReferenceField(
+        to=Enseignant,
+        #on_delete=models.CASCADE,
+    )
+    
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.nom_classe
+    def nom_de_ma_classe(self):
+        return self.classe.nom_classe
 
 class AdminStaff(models.Model):
     annee_scolaire = models.CharField(max_length=20)

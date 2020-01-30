@@ -6257,7 +6257,7 @@ def initialisation(request):
                                 classe.nom_cycle = cycle.nom_cycle
                                 classe.id_niveau = niv.id
                                 classe.nom_niveau = niv.nom_niveau
-
+                                classe.annees.add(annee_scolaire)
                                 classe.save()
                                 list_classe.append(df['Unnamed: 4'].values[i])
                                 niv.classes.add(classe)
@@ -6535,7 +6535,9 @@ def initialisation(request):
                                 if eff_coef != "_":
                                     matiere = Matiere.objects.filter(nom_matiere=nom_matiere)[0]
                                     cours = Cours()
-                                    cours.nom_cours = nom_matiere
+                                    cours.nom_matiere = nom_matiere
+                                    cours.id_matiere = matiere.id
+                                    cours.code_matiere = matiere.code
                                     cours.matiere.add(matiere)
                                     cours.coef = eff_coef
                                     cours.save()
@@ -6548,6 +6550,7 @@ def initialisation(request):
                                                 .cycles.filter(nom_cycle=current_cycle)[0]\
                                                 .niveaux.filter(nom_niveau=current_niveau)[0]\
                                                 .classes.filter(nom_classe=current_classe)[0]\
+                                                .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
                                                 .groupes.filter(libelle=current_groupe, classe=current_classe)[0]\
                                                 .cours.add(cours)
                                     else:
@@ -6556,6 +6559,7 @@ def initialisation(request):
                                                 .cycles.filter(nom_cycle=current_cycle)[0]\
                                                 .niveaux.filter(nom_niveau=current_niveau)[0]\
                                                 .classes.filter(nom_classe=current_classe)[0]\
+                                                .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
                                                 .cours.add(cours)
                                 cpte += 1
                                 col +=1
