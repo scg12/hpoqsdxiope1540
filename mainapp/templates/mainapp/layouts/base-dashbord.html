@@ -1,5 +1,6 @@
 {% load i18n static %}
 <!doctype html>
+
 <html lang="en">
 <head>
 <!-- 
@@ -10,6 +11,7 @@
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png' %}">
   <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/base-dashboard.css' %}">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
     CURSUS
@@ -18,39 +20,12 @@
 
 <style type="text/css">
 
+
 /* masquer l'affiche des potentielles publicités */
 #ofBar{
 	display: none!important;
 }	
 
-.table-scroll {
-    margin-left: 160px;
-    overflow-x: scroll;
-    overflow-y: visible;
-    /* border-left: solid 1px rgb(75, 90, 102); */
-   
-}
-
-.fix-col {
-    /*border-left: solid 1px rgb(75, 90, 102);
-    border-right: solid 1px rgb(75, 90, 102);*/
-    left: 20px;
-    position: absolute;
-    width: 40px;
-}
-.fix-col1 {
-    /*border-left: solid 1px rgb(75, 90, 102);
-    border-right: solid 1px rgb(75, 90, 102);*/
-    left: 60px;
-    position: absolute;
-    width: 120px;
-}
-
-table tbody td {
-/* 	padding: 10px!important;
-padding-top: 10px!important;
-padding-bottom: : 10px!important; */
-}
 
 </style>
   <style type="text/css">
@@ -75,15 +50,12 @@ Handle on hover
   background: #555; 
 }
  */
+
   	.main-content{
-  		margin-top: 50px;
+  		margin-top: 60px;
 	}
 
-.fixed-btn-add {
-    position: fixed;
-    top: 40%;
-    right: 40%; 
-}
+
 /*	td:first-child{
 		position: fixed;
 		left: 50px;
@@ -96,6 +68,7 @@ Handle on hover
 		position: fixed;
 		left: 50px;
 	}*/
+
 	.badge{
 		height: 50px;
 		width: 50px;
@@ -180,6 +153,11 @@ Handle on hover
   <link href="{% static 'assets/css/normalize.min.css' %}" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="{% static 'assets/demo/demo.css' %}" rel="stylesheet" /> 
+
+
+  <link href="{% static 'css/jquery.scrollbar.css' %}" rel="stylesheet" /> 
+  <link href="{% static 'css/my-scrollbar.css' %}" rel="stylesheet" /> 
+  <!-- <link href="{% static 'css/jquery.dataTables.min.css' %}" rel="stylesheet" /> --> 
 
    <style type="text/css">
    
@@ -353,6 +331,7 @@ Handle on hover
   </style>
 
   {% block script %}
+
 		  	  <!--   Core JS Files   -->
 	  <script src="{% static 'assets/js/core/jquery.min.js' %}"></script>
 	  <script src="{% static 'assets/js/core/popper.min.js' %}"></script>
@@ -396,6 +375,11 @@ Handle on hover
 	  <script src="{% static 'assets/js/material-dashboard.js ' %}" type="text/javascript"></script>
 	  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
 	  <script src="{% static 'assets/demo/demo.js' %}"></script>
+
+
+	  <script src="{% static 'js/jquery.scrollbar.min.js' %}"></script>
+
+	  <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
 	  <script>
 	    $(document).ready(function() {
 	      $().ready(function() {
@@ -628,192 +612,156 @@ Handle on hover
 
 </head>
 <body class="">
-	<div class="wrapper">
 
-  {% block sidebar %}
-		
-		{# {% include 'mainapp/layouts/_nav_base_sidebar.html' %} #}
-
-  {% endblock %}
+	<div class="wrapper scrollbar-macosx">
 	
-  {% block langue %}
-   {#  {% include 'mainapp/layouts/_langue_menu_header.html' %} #}
-  {% endblock %}
+		<div class="scrollbar-macosx">	
+		  {% block sidebar %}
+				
+				{# {% include 'mainapp/layouts/_nav_base_sidebar.html' %} #}
+
+		  {% endblock %}
+		</div>		
+		  {% block langue %}
+		   {#  {% include 'mainapp/layouts/_langue_menu_header.html' %} #}
+		  {% endblock %}
 
 
-    <div class="main-panel">
-      <!-- Navbar -->
+	    <div class="main-panel ">
+	      <!-- Navbar -->
 
-      <!-- "navbar-top" class="navbar navbar-expand-lg navbar-absolute navbar-transparent fixed-top"  -->   
-      <nav id = "navbar-top" class="navbar navbar-expand-lg navbar-absolute fixed-top" style = "height : 50px!important;padding-bottom: 5px!important; padding-top: 0px!important;">
-        <div class="container-fluid" >
-          <div class="navbar-wrapper" >
-				<div class="navbar-minimize">
-	              <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
-	                <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
-	                <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
-	              <div class="ripple-container"></div></button>
-	            </div>
-				<a class="navbar-brand" href="{% url 'mainapp:accueil' %}">Cursus</a>
-          </div>
-          <button id="minimizeSidebar" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-                <span class="navbar-toggler-icon icon-bar"></span>
-          </button>
-		  
-          <div class="collapse navbar-collapse justify-content-end">
-	            <form class="navbar-form">
-	              
-	                <div class="dropdown">
-                      <button class="btn btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> <!-- .dropdown-menu -->
-                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
-                        <div class="dropdown-arrow"></div><!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
-                        </div><!-- /.custom-control -->
-                        <!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
-                        </div><!-- /.custom-control -->
-                        <!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
-                        </div><!-- /.custom-control -->
-                        <!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
-                        </div><!-- /.custom-control -->
-                        <!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
-                        </div><!-- /.custom-control -->
-                        <!-- .custom-control -->
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
-                        </div><!-- /.custom-control -->
-                      </div><!-- /.dropdown-menu -->
-                    </div>
+	      <!-- "navbar-top" class="navbar navbar-expand-lg navbar-absolute navbar-transparent fixed-top"  -->   
+	      <nav id = "navbar-top" class="navbar navbar-expand-lg navbar-absolute navbar-transparent fixed-top" style = "height : 50px!important;padding-bottom: 5px!important; padding-top: 20px!important; color: #000!important">
+	        <div class="container-fluid" >
+	          <div class="navbar-wrapper" >
+					<div class="navbar-minimize">
+		              <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
+		                <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
+		                <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
+		             	
+		          	  </button>
+		            </div>
+					<a class="navbar-brand" href="{% url 'mainapp:accueil' %}">Cursus</a>
+	          </div>
+	          <button id="minimizeSidebar" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+	                <span class="sr-only">Toggle navigation</span>
+	                <span class="navbar-toggler-icon icon-bar"></span>
+	                <span class="navbar-toggler-icon icon-bar"></span>
+	                <span class="navbar-toggler-icon icon-bar"></span>
+	          </button>
+			  
+	          <div class="collapse navbar-collapse justify-content-end" style="position: relative;left: -30px!important;">
+		            
+		            <ul class="navbar-nav">
 
-	            </form>
-	            <ul class="navbar-nav">
-	              <li class="nav-item">
-	                <a class="nav-link" href="{% url 'mainapp:accueil' %}">
-	                  <i class="material-icons">home</i>
-	                  <p class="d-lg-none d-md-block">
-	                    Stats
-	                  </p>
-	                </a>
-	              
-	              <li class="nav-item">
-	               
-		                {% block language %}
-					        <form action="/i18n/setlang/" method="post">
-				                {% csrf_token %}
-				                <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
-				                
-				                <select name="language" onchange="this.form.submit()">
-				                  {% for lang in LANGUAGES %}
-				                    {% if LANGUAGE_CODE == lang.0 %}
-				                      <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
-				                    {% elif LANGUAGE_CODE != lang.0 %}
-				                      <option value="{{ lang.0 }}">{{ lang.1 }}</option>
-				                    
-				                    {% endif %}
-				                  {% endfor %}
-				                </select>
-					        </form>
-					    {% endblock %}
+		              	<li class="nav-item">
+		                	<a class="nav-link" href="{% url 'mainapp:accueil' %}">
+		                  		<i class="material-icons">home</i>  
+		                	</a>
+		              
+		              	<li class="nav-item">
+		               
+			                {% block language %}
+						        <form action="/i18n/setlang/" method="post">
+					                {% csrf_token %}
+					                <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
+					                
+					                <select name="language" onchange="this.form.submit()">
+					                  {% for lang in LANGUAGES %}
+					                    {% if LANGUAGE_CODE == lang.0 %}
+					                      <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+					                    {% elif LANGUAGE_CODE != lang.0 %}
+					                      <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+					                    
+					                    {% endif %}
+					                  {% endfor %}
+					                </select>
+						        </form>
+						    {% endblock %}
 
-	              </li>
-	             <li class="nav-item">
-	             	 <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
- 	                  <img src="/../../media/photos/22_signe.jpeg" height="40px" width="40px" style="border-radius: 30px">
- 	                  <span style="display: inline">
-	 	                  <span style="padding: 5px">SIGNE Gerard</span>
-	 	                  <!-- <span> Proviseur</span> -->
- 	                  </span>
- 	                    
- 	                </a>
- 	                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
- 	                  <a class="dropdown-item" href="#">My Profile</a>
- 	                  <a class="dropdown-item" href="#">Edit Profile </a>
- 	                  <a class="dropdown-item" href="#">Settings</a>
- 	                  <a class="dropdown-item" href="#">Log out</a>
- 	                  <a class="dropdown-item" href="#">Log</a>
- 	                </div>
-	             </li>
-	            </ul>
-          </div>
-        
-      </nav>
+		              	</li>
 
-      <!-- End Navbar -->
+		              	<li class="nav-item">
 
-	<div class="main-content">
+		              		<form class="navbar-form1" style="position: relative;padding-left: 15px!important">
+				              
+				                <div class="dropdown">
+			                      <button class="btn btn-secondary1 btn-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> <!-- .dropdown-menu -->
+			                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
+			                        <div class="dropdown-arrow"></div><!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
+			                        </div><!-- /.custom-control -->
+			                        <!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
+			                        </div><!-- /.custom-control -->
+			                        <!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
+			                        </div><!-- /.custom-control -->
+			                        <!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
+			                        </div><!-- /.custom-control -->
+			                        <!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
+			                        </div><!-- /.custom-control -->
+			                        <!-- .custom-control -->
+			                        <div class="custom-control custom-radio">
+			                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
+			                        </div><!-- /.custom-control -->
+			                      </div><!-- /.dropdown-menu -->
+			                    </div>
 
-    	{% block content %}
-    	{% endblock %}
+		            		</form>
+
+		              	</li>
+
+		            </ul>
+
+	          </div>
+	        
+	      </nav>
+
+	      <!-- End Navbar -->
+
+			<div class="main-content">
 		
 
-		{% block menu_fixed %}		
-		{% endblock %}
-<!-- my new select button
-<div class="dropdown">
-                      <button class="btn btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>This Week</span> <i class="fa fa-fw fa-caret-down"></i></button> .dropdown-menu
-                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
-                        <div class="dropdown-arrow"></div>.custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span>Today</span> <span class="text-muted">Mar 27</span></label>
-                        </div>/.custom-control
-                        .custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span>Yesterday</span> <span class="text-muted">Mar 26</span></label>
-                        </div>/.custom-control
-                        .custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span>This Week</span> <span class="text-muted">Mar 21-27</span></label>
-                        </div>/.custom-control
-                        .custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span>This Month</span> <span class="text-muted">Mar 1-31</span></label>
-                        </div>/.custom-control
-                        .custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span>This Year</span> <span class="text-muted">2019</span></label>
-                        </div>/.custom-control
-                        .custom-control
-                        <div class="custom-control custom-radio">
-                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom">Custom</label>
-                          <div class="custom-control-hint my-1">
-                            datepicker:range
-                            <input type="text" class="form-control flatpickr-input" id="dpCustomInput" data-toggle="flatpickr" data-mode="range" data-disable-mobile="true" data-date-format="Y-m-d" readonly="readonly"> /datepicker:range
-                          </div>
-                        </div>/.custom-control
-                      </div>/.dropdown-menu
-                    </div> -->
+		    	{% block content %}
+		    	{% endblock %}
+				
 
-		{% block menu_dashboard %}	
+				{% block menu_fixed %}		
+				{% endblock %}
 
-				{% include 'mainapp/layouts/_dashboard_configuration.html' %}
-				{% include 'mainapp/layouts/_dashboard_personnel.html' %}
-				{% include 'mainapp/layouts/_dashboard_apprenant.html' %}
+				{% block menu_dashboard %}	
 
-		{% endblock %}
+						{% include 'mainapp/layouts/_dashboard_configuration.html' %}
+						{% include 'mainapp/layouts/_dashboard_personnel.html' %}
+						{% include 'mainapp/layouts/_dashboard_apprenant.html' %}
 
-  	</div>
+				{% endblock %}
 
-  
-</div>
+		  	</div>
+
+		</div>
 
 	
 
-</div>
+	</div>
 
 
 
   <script type="text/javascript">
+/*  jQuery(document).ready(function(){
+    jQuery('.textarea-scrollbar').scrollbar();
+});*/
+jQuery(document).ready(function(){
+     jQuery('.scrollbar-macosx').scrollbar();
+});
 
   	$(document).ready(function(){
 
@@ -827,11 +775,14 @@ Handle on hover
 				$(".myDashboard-configuration").removeAttr("hidden");
 				$(".myDashboard-personnel").attr("hidden",true);
 				$(".myDashboard-apprenant").attr("hidden",true);
+				$(".fixed-plugin").attr("hidden",true);
 
 
 			}else{
 
 				$(".myDashboard-configuration").attr("hidden",true);
+				$(".fixed-plugin").removeAttr("hidden");
+
 				
 			}
 
@@ -847,11 +798,14 @@ Handle on hover
 				$(".myDashboard-personnel").removeAttr("hidden");
 				$(".myDashboard-configuration").attr("hidden",true);
 				$(".myDashboard-apprenant").attr("hidden",true);
+				$(".fixed-plugin").attr("hidden",true);
+
 
 
 			}else{
 
 				$(".myDashboard-personnel").attr("hidden",true);
+				$(".fixed-plugin").removeAttr("hidden");
 				
 			}
 
@@ -867,14 +821,17 @@ Handle on hover
 				$(".myDashboard-apprenant").removeAttr("hidden");
 				$(".myDashboard-configuration").attr("hidden",true);
 				$(".myDashboard-personnel").attr("hidden",true);
+				$(".fixed-plugin").attr("hidden",true);
+
 
 			}else{
 
 				$(".myDashboard-aprenant").attr("hidden",true);
+				$(".fixed-plugin").removeAttr("hidden");
 				
 			}
 
-			j++;
+			k++;
 			
 		});
 
@@ -883,14 +840,19 @@ Handle on hover
 
 		$(".sidebar").attr("data-color", "{{ data_color }}");
 		$(".sidebar").addClass("{{ sidebar_class }}");
-		$(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+		// $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
+		$(".btn-cursus").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
 		$(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
 		$(".moving-tab").addClass("{{ theme_class }}");
 		//$(".btn-danger").removeClass("btn-danger btn").addClass("rouge btn ");
 		$(".loader").removeClass("loader_bleu loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
 		$("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+		
+		$(".round-pagination-inactive").removeClass("orange vert violet turquoise bleu rose jaune");
+	    
+	    $(".scroll-bar").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
-
+		$(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
 
 		$("#themes").click(function(){
@@ -910,10 +872,84 @@ Handle on hover
 		}*/
 
 	});
-  </script>
 
+/*	jQuery(document).ready(function(){
+    	jQuery('.scrollbar-chrome').scrollbar();
+	});*/
+  </script>
+	<script type="text/javascript">
+
+	     $(".theme").click(function(e) {
+	      //alert("message?: DOMString");
+	        e.stopImmediatePropagation(); 
+
+	        var url_action = $("#changer_theme").attr("class");
+
+	        classe = $(this).children("div").attr("class");
+	        tab_element = classe.split("²²");
+
+	        data_color = tab_element[0];
+	        sidebar_class = tab_element[1];
+	        theme_class = tab_element[2];
+
+	        var donnees = data_color + "²²~~" + sidebar_class + "²²~~" + theme_class;
+
+	         $.ajax({
+	             method: 'POST',
+	             url: url_action,
+	             data: {
+	               form_data : donnees,
+	               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+	             },
+	             success: themeSucces,
+	             error: themeError,
+	         });
+
+
+	    });
+
+
+	     function themeSucces(data){
+	        console.log(data);
+
+            $(".sidebar").attr("data-color", data.data_color);
+            $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
+
+            $(".btn").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+            $(".moving-tab").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+            $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(data.theme_class);
+
+            $(".loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + data.theme_class);
+
+            $("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+        	
+        	$(".scroll-bar").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+        	
+        	$(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+	     }
+
+	     function themeError(error){
+	        console.log(error);
+	     }
+
+
+
+	</script>
+
+    <script>
+
+		jQuery(document).ready(function(){
+		    jQuery('.scrollbar-macosx').scrollbar();
+		});
+
+    </script>
 </div>
   {% block script_page %}
   {% endblock %}
+
 </body>
 </html>

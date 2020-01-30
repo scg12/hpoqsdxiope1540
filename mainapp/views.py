@@ -1002,6 +1002,8 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
 
     classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
+    nbreItem = len(classes)
+
 
     form = ClasseForm  
     paginator = Paginator(classes, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1016,6 +1018,16 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
         # Nous vérifions toutefois que nous ne dépassons pas la limite de page
         # Par convention, nous renvoyons la dernière page dans ce cas
         page_active = paginator.page(paginator.num_pages)
+
+    #gestion de la description textuelle de la pagination
+    nbre_item = len(classes)
+
+    first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+    if(int(page_active.number)-1 != 0):
+        last_item_page = first_item_page + len(list(paginator.page_range)) -1
+    else:
+        last_item_page = int(page_active.number) * nbre_element_par_page
 
 
     #gerer les preferences utilisateur en terme de theme et couleur
@@ -3288,6 +3300,17 @@ def recherche_classe(request):
                 # Par convention, nous renvoyons la dernière page dans ce cas
                 page_active = paginator.page(paginator.num_pages)
 
+            #gestion de la description textuelle de la pagination
+            nbre_item = len(classes)
+
+            first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+ 
+            if(int(page_active.number)-1 != 0):
+                last_item_page = first_item_page + len(list(paginator.page_range)) -1
+            else:
+                last_item_page = int(page_active.number) * nbre_element_par_page
+
+
             liste_page = list(paginator.page_range)
             numero_page_active =  page_active.number
 
@@ -3343,6 +3366,9 @@ def recherche_classe(request):
                 "data_color" : data_color,
                 "sidebar_class" : sidebar_class,
                 "theme_class" : theme_class,
+                "nbre_item" : nbre_item,
+                "first_item_page" : first_item_page,
+                "last_item_page" : last_item_page,
             }
 
            

@@ -1,0 +1,154 @@
+
+/* Table scrollbar */
+
+.table-scroll {
+    margin-left: 150px;
+    overflow-x: scroll;
+
+    /* overflow-y: visible; */
+    /* border-left: solid 1px rgb(75, 90, 102); */
+   
+}
+
+.fix-col {
+    /*border-left: solid 1px rgb(75, 90, 102);
+    border-right: solid 1px rgb(75, 90, 102);*/
+    left: 20px;
+    position: absolute;
+    width: 50px;
+    height: auto;
+
+}
+.fix-col1 {
+    /*border-left: solid 1px rgb(75, 90, 102);
+    border-right: solid 1px rgb(75, 90, 102);*/
+    left: 70px;
+    position: absolute;
+    width: 100px;
+    height: auto;
+
+}
+.table thead th{
+	border-bottom: none!important;
+}
+
+
+
+/* fixed button add*/
+.fixed-btn-add {
+    position: fixed;
+    top: 40%;
+    right: 40%; 
+}
+/* boutton rond */
+.round{
+  /*padding-bottom:12px!important;*/
+  border-radius: 50%!important;
+  padding-left:9px!important;
+  padding-right:8px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+
+
+}
+
+
+.btn-cursus{
+	position: relative;
+	padding-top: 0.3rem;
+	padding-bottom: 0.3rem;
+	padding-right: 0.4rem;
+	padding-left: 0.4rem;
+	vertical-align: middle!important;
+	text-align: center;
+
+	height: 1.7rem;
+	cursor: pointer;
+	background-color: #506CE9;
+	color: #fff;
+	border-radius: 50px;
+	font-size: 0.75rem;
+	box-shadow: none;
+	border: none;
+}
+.btn-cursus i, .btn-round-cursus i{
+	font-size: 16px;
+}
+/*.btn-cursus:hover{
+	padding: 0.3rem;
+	text-align: center;
+	background-color: #506CE9;
+	color: #fff;
+	border-radius: 3px;
+	box-shadow: rgb(25,25,40);
+}*/
+.cursus-btn-pagination{
+	border-radius: 30px!important;
+	text-align: center;
+	vertical-align: middle!important;
+	text-align: center;
+	height: 30px;
+	cursor: pointer;
+	/* background-color: #506CE9; */
+	color: #fff;
+	min-width: 30px;
+	font-size: 12px;
+	line-height: 30px;
+	font-weight: 400;
+	border: 0;
+	
+}
+
+.cursus-btn-pagination-off{
+	border-radius: 30px!important;
+	text-align: center;
+	vertical-align: middle!important;
+	text-align: center;
+	height: 30px;
+	cursor: pointer;
+	background-color: #fff;
+	color: #999;
+	min-width: 30px;
+	font-size: 12px;
+	line-height: 30px;
+	font-weight: 400;
+	border: 0;
+
+	
+}
+
+
+.pagination-element, .pagination-element-inactive{
+	margin: 1px!important;
+	padding: 0 5px!important;
+	cursor: pointer!important;
+	color: #999;
+	text-transform: uppercase;
+}
+
+.pagination-element-on{
+	color: #fff!important;
+}
+/* .pagination-element-off{
+	
+
+} 
+ */
+
+ .dropdown-menu{
+
+ }
+
+  /*body{
+ scrollbar-base-color: #fff;
+ scrollbar-track-width: 100px;
+ scrollbar-face-color: #506CE9;
+ scrollbar-3dlight-color: #fff;
+ scrollbar-highlight-color: #fff;
+ scrollbar-track-color: #fff;
+ scrollbar-arrow-color: white;
+ scrollbar-shadow-color: #fff;
+ scrollbar-dark-shadow-color: #fff;
+ 
+} 
+*/

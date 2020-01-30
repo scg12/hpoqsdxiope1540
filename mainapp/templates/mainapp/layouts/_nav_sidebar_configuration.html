@@ -1,129 +1,206 @@
 	{% load static %}
-  <div class="sidebar"  data-background-color="black" >
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
-        data-color="azure"
-        data-image="{% static 'assets/img/sidebar-bleu.png' %}"
-        Tip 2: you can also add an image using data-image tag
+  <div class="sidebar "  data-background-color="black" >
+      <!-- <div class="textarea-scrollbar scrollbar-outer "> -->
+      
+          <!--
+            Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+            data-color="azure"
+            data-image="{% static 'assets/img/sidebar-bleu.png' %}"
+            Tip 2: you can also add an image using data-image tag
 
-    -->
-       <!--  <img src="../assets/img/logo-small.png"> -->
-       <div class="logo" style = "padding-left:30px;padding-top:0px;padding-bottom: 5px;">
-          <a href="{% url 'mainapp:accueil' %}">
-			       <img src="/static/images/logo.png" height="50px" width="140px">
-		      </a>
-       </div>     
-       <div class="logo-mini" style = "padding-left:30px;padding-top:0px; display: none">
-          <a href="{% url 'mainapp:accueil' %}">
-             <img src="/static/images/logo-mini.png" height="40px" width="40px">
-          </a>
-       </div>
+        -->
+           <!--  <img src="../assets/img/logo-small.png"> -->
+           <div class="logo" style = "padding-left:30px;padding-top:5px;padding-bottom: 10px;">
+              <a href="{% url 'mainapp:accueil' %}">
+    			       <img src="/static/images/logo.png" height="50px" width="140px">
+    		      </a>
+           </div>     
+           <div class="logo-mini text-center" style = "padding-left:30px;padding-top:0px; display: none">
+              <a href="{% url 'mainapp:accueil' %}">
+                 <img src="/static/images/logo-mini.png" height="40px" width="40px">
+              </a>
+           </div>
 
-      <div class="sidebar-wrapper" style="top: -10px">
+          <div class="sidebar-wrapper textarea-scrollbar scrollbar-macosx" style="top: 0px">
 
-       <!--   <div class="user" style="position: relative; margin: 20px auto 0; padding-left: 30px;padding-top: 0; ">
-          <div class="photo" style="display: inline; padding-right: 5px">
-            <img src="/../../media/photos/22_signe.jpeg" height="34px" width="34px" style="border-radius: 50px">
-          </div>
-          <div class="user-info" style="display: inline">
-            <a data-toggle="collapse" href="#collapseExample" class="username collapsed" aria-expanded="false">
-              <span>
-                SIGNE CLAUDE
-                <b class="caret"></b>
-              </span>
-            </a>
-            <div class="collapse" id="collapseExample" style="">
-              <ul class="nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <span class="sidebar-mini"> MP </span>
-                    <span class="sidebar-normal"> My Profile </span>
+            <div class="user logo" style="position: relative; margin: 20px auto 0; padding-left: 30px;padding-top: 0;margin-bottom: 10px ">
+              <div class="photo" style="display: inline; padding-right: 5px">
+                <img src="/../../media/photos/22_signe.jpeg" height="34px" width="34px" style="border-radius: 50px">
+              </div>
+              <div class="user-info" style="display: inline">
+                <a data-toggle="collapse" href="#collapseExample" class="username collapsed" aria-expanded="false">
+                  <span>
+                    Signe Claude
+                    <b class="caret"></b>
+                  </span>
+                </a>
+                <div class="collapse" id="collapseExample" style="">
+                  <ul class="nav">
+                    <li class="nav-item">
+                      <a class="nav-link" href="#">
+                        <span class="sidebar-mini"> MP </span>
+                        <span class="sidebar-normal"> My Profile </span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#">
+                        <span class="sidebar-mini"> EP </span>
+                        <span class="sidebar-normal"> Edit Profile </span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#">
+                        <span class="sidebar-mini"> S </span>
+                        <span class="sidebar-normal"> Settings </span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+           </div>
+              <ul class="nav navbar-nav nav-mobile-menu">
+                  <li class="nav-item">
+                      <a class="nav-link" href="{% url 'mainapp:accueil' %}">
+                          <i class="material-icons">home</i>
+                          <p>Accueil</p>
+                      </a>
+                  </li>
+                    <li class="nav-item">
+                      <a class="nav-link">
+                          <i class="material-icons">language</i>
+                        <p>
+                            {% block language %}
+                                <form action="/i18n/setlang/" method="post">
+                                      {% csrf_token %}
+                                      <input name="next" type="hidden" value="{% url 'mainapp:liste_etudiants' %}" />
+                                      
+                                      <select name="language" onchange="this.form.submit()">
+                                        {% for lang in LANGUAGES %}
+                                          {% if LANGUAGE_CODE == lang.0 %}
+                                            <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                                          {% elif LANGUAGE_CODE != lang.0 %}
+                                            <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                                          
+                                          {% endif %}
+                                        {% endfor %}
+                                      </select>
+                                </form>
+                            {% endblock %}
+                        </p>
+                      </a>
+                      
+                      
+
+                    </li>
+
+                    <li class="nav-item">
+                        
+                      <form class="navbar-form1" style="position: relative;padding-left: 15px!important">
+                      
+                        <div class="dropdown">
+                            <button class="btn btn-secondary1 btn-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> <!-- .dropdown-menu -->
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
+                              <div class="dropdown-arrow"></div><!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
+                              </div><!-- /.custom-control -->
+                              <!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
+                              </div><!-- /.custom-control -->
+                              <!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
+                              </div><!-- /.custom-control -->
+                              <!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
+                              </div><!-- /.custom-control -->
+                              <!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
+                              </div><!-- /.custom-control -->
+                              <!-- .custom-control -->
+                              <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
+                              </div><!-- /.custom-control -->
+                            </div><!-- /.dropdown-menu -->
+                          </div>
+
+                      </form>
+
+                    </li>
+              </ul>
+
+              <ul class="nav navbar-nav " style="">
+                <li class="nav-item ">
+                  <a class="nav-link" href="{% url 'mainapp:dashboard' %}">
+                    <i class="material-icons">dashboard</i>
+                    <p>Dashboard</p>
                   </a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <span class="sidebar-mini"> EP </span>
-                    <span class="sidebar-normal"> Edit Profile </span>
+
+                <li class="nav-item active">
+                  
+                  <a class="nav-link configuration" >
+                    <i class="material-icons">settings</i>
+                    <p>Configuration</p>
                   </a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <span class="sidebar-mini"> S </span>
-                    <span class="sidebar-normal"> Settings </span>
+
+        		     <li class="nav-item ">
+                    <a class="nav-link personnel">
+                      <i class="material-icons">person</i>
+                      <p>Personnel</p>
+                    </a>
+                  </li>
+
+                <li class="nav-item ">
+                  <a class="nav-link apprenant" >
+                    <i class="material-icons">image</i>
+                    <p>Apprenants</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link cours">
+                    <i class="material-icons">image</i>
+                    <p>Classe</p>
+                  </a>
+                </li>
+
+                <li class="nav-item ">
+                  <a class="nav-link emploi-du-temps" >
+                    <i class="material-icons">content_paste</i>
+                    <p>Emploi du Temps</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link documents" >
+                    <i class="material-icons">bubble_chart</i>
+                    <p>Finances</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link notes">
+                    <i class="material-icons">bubble_chart</i>
+                    <p>Santé</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link finances" >
+                    <i class="material-icons">bubble_chart</i>
+                    <p>Securité</p>
+                  </a>
+                </li>
+                <li class="nav-item ">
+                  <a class="nav-link discipline" >
+                    <i class="material-icons">bubble_chart</i>
+                    <p>Options</p>
                   </a>
                 </li>
               </ul>
-            </div>
           </div>
-       </div> -->
 
-        <ul class="nav" style="">
-          <li class="nav-item ">
-            <a class="nav-link" href="{% url 'mainapp:dashboard' %}">
-              <i class="material-icons">dashboard</i>
-              <p>Dashboard</p>
-            </a>
-          </li>
+   <!--    </div> -->
 
-          <li class="nav-item active">
-            
-            <a class="nav-link configuration" >
-              <i class="material-icons">settings</i>
-              <p>Configuration</p>
-            </a>
-          </li>
-
-			     <li class="nav-item ">
-              <a class="nav-link personnel">
-                <i class="material-icons">person</i>
-                <p>Personnel</p>
-              </a>
-            </li>
-
-          <li class="nav-item ">
-            <a class="nav-link apprenant" >
-              <i class="material-icons">image</i>
-              <p>Apprenants</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link cours">
-              <i class="material-icons">image</i>
-              <p>Classe</p>
-            </a>
-          </li>
-
-          <li class="nav-item ">
-            <a class="nav-link emploi-du-temps" >
-              <i class="material-icons">content_paste</i>
-              <p>Emploi du Temps</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link documents" >
-              <i class="material-icons">bubble_chart</i>
-              <p>Finances</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link notes">
-              <i class="material-icons">bubble_chart</i>
-              <p>Santé</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link finances" >
-              <i class="material-icons">bubble_chart</i>
-              <p>Securité</p>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link discipline" >
-              <i class="material-icons">bubble_chart</i>
-              <p>Options</p>
-            </a>
-          </li>
-
-        </ul>
-      </div>
-    </div>
+  </div>

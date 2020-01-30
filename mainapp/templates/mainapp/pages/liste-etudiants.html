@@ -11,6 +11,10 @@
   <link rel="stylesheet" type="text/css" href="{% static 'css/modal-dialog.css' %}">
       <style type="text/css">
         
+        .round{
+          padding:12px;
+          border-radius: 50px;
+        }
         table span:hover, tr:hover{
           cursor: pointer;
         }
@@ -197,6 +201,7 @@
                               {% include 'mainapp/layouts/_pagination.html' %}
                           {% endblock %}
                               
+                              <span class="btn round"><i class="material-icons">add</i></span>
                       
                       
                   </div>

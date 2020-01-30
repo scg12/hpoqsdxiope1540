@@ -13,7 +13,7 @@
         table span:hover, tr:hover{
           cursor: pointer;
         }
-
+        
     /* no select sur les elemenst th */
         th {
         -webkit-touch-callout: none; /* iOS Safari */
@@ -23,7 +23,6 @@
               -ms-user-select: none; /* Internet Explorer/Edge */
                   user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
       }
-
 
 
       </style>
@@ -104,8 +103,8 @@
                         </div>
                         <div class="fixed-btn-add">
                             {% if perms.mainapp.can_add_cours or perms.mainapp.add_cours %}
-                              <button type="button" rel="tooltip" class="btn btn-round btn-sm ajouter-cours-link" data-toggle="modal" data-target="#modal_ajouter_cours">
-                                  <i class="material-icons">add</i>
+                              <button type="button" rel="tooltip" class="btn round ajouter-cours-link" data-toggle="modal" data-target="#modal_ajouter_cours">
+                                  <i class="material-icons text_align-center">add</i>
                               </button>
                             {% endif %}
                         </div>

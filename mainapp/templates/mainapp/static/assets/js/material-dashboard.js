@@ -457,27 +457,31 @@ md = {
 
       nav_content = $navbar.html();
 
-      nav_content = '<ul class="nav navbar-nav nav-mobile-menu">' + nav_content + '</ul>';
-
-      // navbar_form = $('nav').find('.navbar-form').get(0).outerHTML;
+      $nav_content = '<ul class="nav navbar-nav nav-mobile-menu">' + nav_content + '</ul>';
 
       /*myown*/
-
-      navbar_form = $('nav').find('.navbar-form');
-      // alert(navbar_form.text());
+ 
       if($('nav').find('.navbar-form').text() != ""){
+
           navbar_form = $('nav').find('.navbar-form').get(0).outerHTML;
+
+          navbar_form = $('nav').find('.navbar-form');
+          
+          if($('nav').find('.navbar-form').text() != ""){
+              navbar_form = $('nav').find('.navbar-form').get(0).outerHTML;
+              $navbar_form = $(navbar_form);
+              $navbar_form.insertBefore($nav_content);
+
+          }
+          $sidebar_nav = $sidebar_wrapper.find(' > .nav');
+
+          // insert the navbar form before the sidebar list
+          $nav_content = $(nav_content);
           $navbar_form = $(navbar_form);
+          $nav_content.insertBefore($sidebar_nav);
           $navbar_form.insertBefore($nav_content);
-
       }
-      $sidebar_nav = $sidebar_wrapper.find(' > .nav');
 
-      // insert the navbar form before the sidebar list
-      $nav_content = $(nav_content);
-      // $navbar_form = $(navbar_form);
-      $nav_content.insertBefore($sidebar_nav);
-      // $navbar_form.insertBefore($nav_content);
 
       $(".sidebar-wrapper .dropdown .dropdown-menu > li > a").click(function(event) {
         event.stopPropagation();

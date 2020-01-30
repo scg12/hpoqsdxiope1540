@@ -1,51 +1,55 @@
-<nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top text-white">
+<nav class="navbar navbar-expand navbar-transparent navbar-absolute fixed-top text-white">
     <div class="container">
-      <div class="navbar-wrapper">
-        <a class="navbar-brand" href="{% url 'mainapp:accueil' %}">SCHOOL APP</a>
-      </div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="navbar-toggler-icon icon-bar"></span>
-        <span class="navbar-toggler-icon icon-bar"></span>
-        <span class="navbar-toggler-icon icon-bar"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-end">
-        <ul class="navbar-nav">
-          <li class="nav-item active">
-            <a href="{% url 'mainapp:accueil' %}" class="nav-link">
-              <i class="material-icons">home</i> Accueil
-            </a>
-          </li>          
-          <li class="nav-item">
-            <a href="{% url 'mainapp:dashboard' %}" class="nav-link">
-              <i class="material-icons">dashboard</i> Tableau de bord
-            </a>
-          </li>
-          {% if user.is_anonymous %}
-            <li class="nav-item ">
-            <a href="{% url 'mainapp:login' %}" class="nav-link">
-              <i class="material-icons">fingerprint</i> Connexion
-            </a>
-          </li>
-          {% else %}
-          <li class="nav-item ">
-            <a href="{% url 'mainapp:logout_user' %}" class="nav-link">
-              <i class="material-icons">fingerprint</i> Deconnexion
-            </a>
-          </li>
-          {% endif %}
+        <div class="navbar-wrapper">
+          <a class="navbar-brand" href="{% url 'mainapp:accueil' %}">SCHOOL APP</a>
+        </div>
 
-          {% if user.is_anonymous %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="navbar-toggler-icon icon-bar"></span>
+          <span class="navbar-toggler-icon icon-bar"></span>
+          <span class="navbar-toggler-icon icon-bar"></span>
+        </button>
 
-          {% else %}
+        <div class="collapse navbar-collapse justify-content-end" style="position: relative;left: -30px!important;">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a href="{% url 'mainapp:accueil' %}" class="nav-link">
+                <i class="material-icons">home</i> Accueil
+              </a>
+            </li>          
+            <li class="nav-item">
+              <a href="{% url 'mainapp:dashboard' %}" class="nav-link">
+                <i class="material-icons">dashboard</i> Tableau de bord
+              </a>
+            </li>
+            {% if user.is_anonymous %}
+              <li class="nav-item ">
+              <a href="{% url 'mainapp:login' %}" class="nav-link">
+                <i class="material-icons">fingerprint</i> Connexion
+              </a>
+            </li>
+            {% else %}
             <li class="nav-item ">
-            <a href="{% url 'mainapp:verrouiller' %}" class="nav-link">
-              <i class="material-icons">lock_open</i> {{ verrou }}
-            </a>
-          </li>
-          {% endif %}
-          
-        </ul>
-      </div>
+              <a href="{% url 'mainapp:logout_user' %}" class="nav-link">
+                <i class="material-icons">fingerprint</i> Deconnexion
+              </a>
+            </li>
+            {% endif %}
+
+            {% if user.is_anonymous %}
+
+            {% else %}
+              <li class="nav-item ">
+              <a href="{% url 'mainapp:verrouiller' %}" class="nav-link">
+                <i class="material-icons">lock_open</i> {{ verrou }}
+              </a>
+            </li>
+            {% endif %}
+            
+          </ul>
+        </div>
+
+
     </div>
   </nav>

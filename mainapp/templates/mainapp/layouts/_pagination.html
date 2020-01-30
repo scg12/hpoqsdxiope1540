@@ -1,48 +1,66 @@
-<div class="pagination">
-      <div class="contenu">
-        {% if page_active.has_previous %}
-
-        <button class="btn btn-white btn-sm pagination-element" id="{{ page_active.previous_page_number }}"><i class="material-icons">arrow_back</i>
-        </button>
-
-       {% else %}
-
-        <button class="btn btn-white btn-sm pagination-element" id="" disabled><i class="material-icons">arrow_back</i>
-        </button>
-
-       {% endif %}
-
-
-        {% for num_page in paginator.page_range  %}
-
-            {% if num_page == page_active.number %}
-
-              <button class="btn btn-sm pagination-element" id="{{ num_page }}">
-                {{ num_page }}
-              </button>
-
-            {% else %}
-
-              <button class="btn btn-sm pagination-element" id="{{ num_page }}">
-                {{ num_page }}
-              </button>
-
-            {% endif %}
-
-        {% endfor %}
-
-       {% if page_active.has_next %}
-
-        <button class="btn btn-white btn-sm pagination-element" id="{{ page_active.next_page_number }}"><i class="material-icons">arrow_forward</i>
-        </button>
-
-        {% else %}
-
-        <button class="btn btn-white btn-sm pagination-element" id="" disabled><i class="material-icons">arrow_forward</i>
-        </button>                                  
-
-       {% endif %}
-
-
-    </div>
+<div class="row">
+  
+  <div class="col-md-5 col-sm-12">
+    Affichage <span class="first_item_page">{{ first_item_page }}</span> à <span class="last_item_page">{{ last_item_page }}</span> de <span class="nbre_item">{{ nbre_item }}</span> elements
   </div>
+
+  <div class="col-md-7 col-sm-12 text-right">
+      
+      <div class="pagination" >
+
+          <div class="contenu" >
+            
+            <span class="pagination-element" id="1">PREMIER</span>
+
+            {% if page_active.has_previous %}
+
+                <span class="pagination-element" id="{{ page_active.previous_page_number }}" disabled>PREC</span>
+
+           {% else %}
+
+               <span class="pagination-element" disabled>PREC</span>
+           
+           {% endif %}
+
+
+            {% for num_page in paginator.page_range  %}
+
+                {% if num_page == page_active.number %}
+
+                  <button class="cursus-btn-pagination pagination-element pagination-element-on" id="{{ num_page }}">
+                    {{ num_page }}
+                  </button>
+
+                {% else %}
+
+                  <button class="cursus-btn-pagination-off pagination-element" id="{{ num_page }}">
+                    {{ num_page }}
+                  </button>
+
+                {% endif %}
+
+            {% endfor %}
+
+          {% if page_active.has_next %}
+
+            <span class="pagination-element"  id="{{ page_active.next_page_number }}">SUIV</span>
+          
+          {% else %}
+            
+            <span class="pagination-element">SUIV</span>
+
+          {% endif %}
+
+          <span class="pagination-element" id="{{ paginator.num_pages }}">DERNIER</span>
+
+
+        </div>
+
+      </div>
+
+  </div>
+
+</div>
+
+
+

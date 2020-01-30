@@ -15,8 +15,10 @@
 
 /*     brand Colors              */
 
+/* myown */
 .card {
-  font-size: .875rem;
+  /*font-size: .875rem;*/
+  font-size: .75rem;
 }
 
 *,
@@ -14494,6 +14496,10 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   border-left: 4px solid transparent;
 }
 
+/* myown */
+
+
+
 .sidebar[data-background-color="black"] {
   background-color: #191919;
 }
@@ -15072,7 +15078,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 .fixed-plugin .dropdown-menu {
   right: 80px;
   left: auto;
-  width: 290px;
+  width: 200px;
   border-radius: 0.1875rem;
   padding: 0 10px;
 }
@@ -16094,10 +16100,11 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   color: transparent;
 }
 
+/* myown */
 .fixed-plugin .dropdown .dropdown-menu {
   top: -40px !important;
   opacity: 0;
-  left: -303px !important;
+  left: -216px !important;
   transform-origin: 100% 0;
 }
 
@@ -16149,7 +16156,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 }
 
 .table>thead>tr>th {
-  border-bottom-width: 1px;
+   border-bottom-width: 1px; 
   font-size: 1.0625rem;
   font-weight: 300;
 }
@@ -16188,7 +16195,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 .table>thead>tr>td,
 .table>tbody>tr>td,
 .table>tfoot>tr>td {
-  padding: 12px 8px;
+  padding: 12px;
   vertical-align: middle;
   border-color: #ddd;
 }
@@ -16992,8 +16999,9 @@ label {
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
 }
 
+/* myown */
 .card .table tr:first-child td {
-  border-top: none;
+  /*border-top: none;*/
 }
 
 .card .card-title {
