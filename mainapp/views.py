@@ -6303,6 +6303,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
         print("LEN = ",school)
         # location = request.FILES['file']
         location = request.session.get('location', None)
+        print("location: ", location)
         print("Le debut ...")
         xl = pd.ExcelFile(location)
         nb_sheet = len(xl.sheet_names)
@@ -6433,7 +6434,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                     cycle.save()
                     list_cycle.append(nom_cycle)
                     sousEtab.cycles.add(cycle)
-                    sousEtab.save()
+                    # sousEtab.save()
 
                     print(nom_cycle)
 
@@ -6454,7 +6455,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                             cycle.save()
                             list_cycle.append(nom_cycle)
                             sousEtab.cycles.add(cycle)
-                            sousEtab.save()
+                            # sousEtab.save()
 
                             print("* ",nom_cycle)
                             passed = False
@@ -6498,7 +6499,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                 cycle.save()
                                 list_cycle.append(df['Unnamed: 3'].values[i])
                                 sousEtab.cycles.add(cycle)
-                                sousEtab.save()
+                                # sousEtab.save()
 
                                 print("Cycle ",nb_cycle," :",df['Unnamed: 3'].values[i])
                             else:
@@ -6756,7 +6757,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                         sousEtab.divisions_temps.add(dt)
                         sousEtab.profondeur_division_temps = profondeur_division_temps
                         # sousEtab.objects.update(profondeur_division_temps=F('profondeur_division_temps') + 1)
-                        sousEtab.save()
+                        # sousEtab.save()
 
                         print("   {} - {}".format(df['Unnamed: 16'].values[index_division_temps],df['Unnamed: 17'].values[index_division_temps]))
                         index_division_temps += 1
@@ -7210,6 +7211,7 @@ def matriculeformat(request):
                         matricule2[position[id]] = '0'
                     else:
                         matricule[position[id]] = 'c'
+                        print("µµµµµµµµ: ", (position[id]+1))
                         val1 = ord(request.POST['c'+str((position[id]+1))])
                         val2 = ord(request.POST[str((position[id]+1))+'c'])
                         if val1 > val2:
@@ -7226,27 +7228,41 @@ def matriculeformat(request):
                         print(request.POST['c'+str((position[id]+1))])
                     id += 1
                 print(matricule)
+
                 print(" matricule2 : ",matricule2)
                 ANNEE_SCOLAIRE = "2019-2020"
                 ann= list(ANNEE_SCOLAIRE.split("-")[0])
                 # cpx = 0
                 cpy = 3
                 nbr = len(matricule2) - 1
-
+                nbr2 = nbr
                 while nbr >= 0: 
                     if matricule2[nbr] == "A" or matricule2[nbr] == "Y":
                         matricule2[nbr] = ann[cpy]
                         cpy -= 1
                     nbr -= 1
+
                 print(" Apres le for matricule2 : ",matricule2)
                 mat = '*'.join(matricule2)
                 print('mat ',mat)
                 mat = mat.split('*')
                 print('mat ',mat)
+                matok = [''] * (nbr2 + 1)
+                pst = 0
+
+                while pst <= nbr2:
+                    print("INSIDE ")
+                    if len(matricule2[pst]) > 1:
+                        matok[pst] = matricule2[pst][0]
+                    else:
+                        matok[pst] = matricule2[pst]
+                    pst += 1
+                print("MATOK: ", matok)
                 
                 # print("posss ", posss)
                 print('position ',position)
                 request.session['matformat'] = ''.join(matricule2)
+                request.session['first_matricule'] = ''.join(matok)
                 request.session['fixedindex'] = i
                 request.session['yearindex'] = u
                 request.session['varyindex'] = h
@@ -7283,7 +7299,7 @@ def matriculeformat(request):
                 if 'Enreg' in request.POST['submit'] or 'Save' in request.POST['submit']:
                     id = int (request.session.get('id_modif', None))
                     matformat = request.session.get('matformat', None)
-                    matricule2 = request.session.get('matricule2', None)
+                    matricule2 = request.session.get('first_matricule', None)
                     i = int(request.session.get('mat_fixedindex', None))
                     u = int(request.session.get('mat_yearindex', None))
                     h = int(request.session.get('mat_varyindex', None))

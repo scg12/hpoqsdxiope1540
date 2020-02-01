@@ -23,7 +23,7 @@ $(document).ready(function(){
             //e.stopImmediatePropagation(); 
                   //$("#form").submit();
                   $(".loader").show();
-                  var form = $("#form").submit();
+                  // var form = $("#form").submit();
                   
                   var url_action = $("#form").attr("action");
 
