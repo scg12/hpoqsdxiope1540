@@ -265,6 +265,8 @@ class Enseignant(models.Model):
 class TypeAdminStaff(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
+     # type peut etre: Pers Administratif, Pers Appui
+    type_admin_staff = models.CharField(max_length=100)
     priorite = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
@@ -608,8 +610,8 @@ class Cours(models.Model):
     id_matiere = models.IntegerField(default=1)
     code_matiere = models.CharField(max_length=100)
     coef = models.FloatField()
-    volume_horaire_hebdo = models.IntegerField()
-    volume_horaire_annuel = models.IntegerField()
+    volume_horaire_hebdo = models.CharField(max_length=10)
+    volume_horaire_annuel = models.CharField(max_length=10)
     archived = models.CharField(max_length=2,default="0")
     nom_cycle = models.CharField(max_length=100)
     nom_sousetab = models.CharField(max_length=100)
@@ -946,6 +948,7 @@ class SousEtab(models.Model):
     deja_configure = models.BooleanField()
     has_group_matiere = models.BooleanField()
     format_matricule = models.CharField(max_length=100)
+    first_matricule = models.CharField(max_length=100)
     mat_fixedindex = models.CharField(max_length=10)
     mat_yearindex = models.CharField(max_length=10)
     mat_varyindex = models.CharField(max_length=10)

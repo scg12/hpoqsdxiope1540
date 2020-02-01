@@ -334,11 +334,11 @@ class CoursForm(forms.Form):
         label=_('Coef'),
         widget=forms.TextInput(attrs={ 'class': 'form-control form-group coef', 'name': 'coef'}),
     )
-    volume_horaire_hebdo = forms.FloatField(
+    volume_horaire_hebdo = forms.CharField(
         label=_('Volume Hebdo'),
         widget=forms.TextInput(attrs={'class': 'form-control form-group volume_horaire_hebdo', 'name': 'volume_horaire_hebdo'}),
     )
-    volume_horaire_annuel = forms.FloatField(
+    volume_horaire_annuel = forms.CharField(
         label=_('Volume Annuel'),
         widget=forms.TextInput(attrs={ 'class': 'form-control form-group volume_horaire_annuel', 'name': 'volume_horaire_annuel'}),
     )

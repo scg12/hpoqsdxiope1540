@@ -13,8 +13,11 @@ url(r'^logout/$', views.logout_user, name='logout_user'),
 url(r'^verrouiller/$', views.verrouiller, name='verrouiller'),
 url(r'^deverrouiller/$', views.deverrouiller, name='deverrouiller'),
 
+url('matformat/', views.matriculeformat, name="matformat"),
+
 url(r'mlab/$', views.mlab, name="mlab"),
-url('initialisation/', views.initialisation, name="initialisation"),
+url('initialisation-charger-fichier/', views.initialisation_charger_fichier, name="initialisation_charger_fichier"),
+url('initialisation-fin/', views.initialisation_fin, name="initialisation_fin"),
 url('emploi-de-temps/', views.emploi_de_temps, name="emploi_de_temps"),
 
 
@@ -60,6 +63,7 @@ url(r'^recherche-cycle/$', views.recherche_cycle, name='recherche_cycle'),
 url(r'^recherche-sous-etablissement/$', views.recherche_sous_etablissement, name='recherche_sous_etablissement'),
 url(r'^recherche-niveau/$', views.recherche_niveau, name='recherche_niveau'),
 url(r'^recherche-classe/$', views.recherche_classe, name='recherche_classe'),
+url(r'^recherche-sousetab/$', views.recherche_sousetab, name='recherche_sousetab'),
 url(r'^recherche-matiere/$', views.recherche_matiere, name='recherche_matiere'),
 url(r'^recherche-appellation-apprenant-formateur/$', views.recherche_appellation_apprenant_formateur, name='recherche_appellation_apprenant_formateur'),
 url(r'^recherche-type-apprenant/$', views.recherche_type_apprenant, name='recherche_type_apprenant'),
