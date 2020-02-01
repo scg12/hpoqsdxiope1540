@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from mainapp.models import Profil, Etudiant, SousEtab, Etab, Cycle
+from mainapp.models import Profil, Etudiant, SousEtab, Etab, Cycle, Cours
 from django.contrib.auth.models import User, Group
 
 
@@ -144,6 +144,45 @@ class ClasseSerializer(serializers.Serializer):
         instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
         instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
         # instance.classe_id = validated_data.get('id', instance.id)
+
+class CoursSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    nom_matiere = serializers.CharField(max_length=150)
+    id_matiere = serializers.IntegerField(default=1)
+    code_matiere = serializers.CharField(max_length=150)
+    coef = serializers.FloatField()
+    volume_horaire_hebdo = serializers.IntegerField()
+    volume_horaire_annuel = serializers.IntegerField()
+    nom_cycle = serializers.CharField(max_length=150)
+    nom_sousetab = serializers.CharField(max_length=150)
+    nom_etab = serializers.CharField(max_length=150)
+    nom_classe = serializers.CharField(max_length=150)
+    id_cycle = serializers.IntegerField(default=1)
+    id_classe = serializers.IntegerField(default=1)
+    id_sousetab = serializers.IntegerField(default=1)
+    id_etab = serializers.IntegerField(default=1)
+
+    def create(self, validated_data):
+        return Classe.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.nom_matiere = validated_data.get('nom_matiere', instance.nom_matiere.lower())
+        instance.id_matiere = validated_data.get('id_matiere', instance.id_matiere)
+        instance.code_matiere = validated_data.get('code_matiere', instance.code_matiere.lower())
+        instance.coef = validated_data.get('coef', instance.coef)
+        instance.volume_horaire_hebdo = validated_data.get('volume_horaire_hebdo', instance.volume_horaire_hebdo)
+        instance.volume_horaire_annuel = validated_data.get('volume_horaire_annuel', instance.volume_horaire_annuel)
+        instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
+        instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
+        instance.id_cycle = validated_data.get('id_cycle', instance.id_cycle)
+        instance.id_classe = validated_data.get('id_classe', instance.id_classe)
+        instance.id_sousetab = validated_data.get('id_sousetab', instance.id_sousetab)
+        instance.id_etab = validated_data.get('id_etab', instance.id_etab)
+
+
+
 
 class MatiereSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""

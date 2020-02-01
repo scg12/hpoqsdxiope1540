@@ -114,9 +114,9 @@
                         <table class="table table-striped table-hover">
                             <thead class="">
                               <tr>
-                                <th scope="col">#</th>
+                                <th scope="col" class="fix-col">#</th>
                                 
-                                <th scope="col" class="nom_etab">
+                                <th scope="col" class="nom_etab fix-col1">
                                     <span class="tri tri-asc">Cours
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
@@ -172,9 +172,9 @@
                               
                                 {% for cours in page_active  %}
                                     <tr class="{{ cours.id }}²²{{ cours.nom_matiere }}²²{{ cours.code_matiere }}²²{{ cours.volume_horaire_hebdo }}²²{{ cours.volume_horaire_annuel }}">
-                                      <th scope="row" class="detail-eleve-link-td">{{ forloop.counter }}</th>
+                                      <th scope="row" class="detail-eleve-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cours.nom_matiere }}</td>
+                                      <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ cours.nom_matiere }}</td>
                                       <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cours.code_matiere }}</td>
                                       <td class="detail-eleve-link-td" style="text-transform: capitalize;">
                                             {{ cours.nom_classe }}
@@ -212,8 +212,8 @@
                             </tbody>
                             <tfoot>
                               <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Cours</th>
+                                <th scope="col" class="fix-col">#</th>
+                                <th scope="col" class="fix-col1">Cours</th>
                                 <th scope="col">Code</th>
                                 <th scope="col">Classe</th>
                                 <th scope="col">Coefficient</th>

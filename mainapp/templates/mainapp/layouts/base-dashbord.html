@@ -271,7 +271,8 @@ Handle on hover
     }
 
     .sidebar-bleu{
-        background-image: url("/static/assets/img/sidebar-bleu.png");
+    	background-color: #002171;
+        /*background-image: url("/static/assets/img/sidebar-bleu.png");*/
 
     }.sidebar-vert{
         background-image: url("/static/assets/img/sidebar-vert.png");
@@ -759,6 +760,7 @@ Handle on hover
 /*  jQuery(document).ready(function(){
     jQuery('.textarea-scrollbar').scrollbar();
 });*/
+
 jQuery(document).ready(function(){
      jQuery('.scrollbar-macosx').scrollbar();
 });
@@ -839,7 +841,8 @@ jQuery(document).ready(function(){
 		/* choix par defaut */  	
 
 		$(".sidebar").attr("data-color", "{{ data_color }}");
-		$(".sidebar").addClass("{{ sidebar_class }}");
+		$(".sidebar").attr("data-background-color", "{{ sidebar_class }}");
+		// $(".sidebar").addClass("{{ sidebar_class }}");
 		// $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
 		$(".btn-cursus").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
 		$(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass("{{ theme_class }}");
@@ -913,7 +916,8 @@ jQuery(document).ready(function(){
 	        console.log(data);
 
             $(".sidebar").attr("data-color", data.data_color);
-            $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
+            $(".sidebar").attr("data-background-color", data.sidebar_class);
+            // $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
 
             $(".btn").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
 
@@ -940,13 +944,7 @@ jQuery(document).ready(function(){
 
 	</script>
 
-    <script>
 
-		jQuery(document).ready(function(){
-		    jQuery('.scrollbar-macosx').scrollbar();
-		});
-
-    </script>
 </div>
   {% block script_page %}
   {% endblock %}

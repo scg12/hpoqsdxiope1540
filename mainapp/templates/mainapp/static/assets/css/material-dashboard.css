@@ -15,6 +15,17 @@
 
 /*     brand Colors              */
 
+/*
+ * style propre
+ =========================================================
+ */
+
+/* myown */
+
+
+
+
+
 /* myown */
 .card {
   /*font-size: .875rem;*/
@@ -14480,7 +14491,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   left: 0;
   z-index: 2;
   width: 260px;
-  background: #fff;
+  background: #002171;
   box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.56), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
 }
 
@@ -14502,10 +14513,6 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 
 .sidebar[data-background-color="black"] {
   background-color: #191919;
-}
-
-.sidebar[data-background-color="blue"] {
-  background-color: #00f;
 }
 
 .sidebar .sidebar-wrapper {
@@ -14662,7 +14669,7 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 .sidebar .nav li .dropdown-menu a {
   margin: 10px 15px 0;
   border-radius: 3px;
-  color: #3C4858;
+  color: #fff;
   padding-left: 10px;
   padding-right: 10px;
   text-transform: capitalize;
@@ -18865,7 +18872,55 @@ Copyright (c) 2015 Daniel Eden
   }
 }
 /* style propre*/
+/* myown */
+.sidebar[data-background-color="bleu"] {
+  background-color: #002171;
+}
+.sidebar[data-background-color="bleu"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+
+.sidebar[data-background-color="vert"] {
+  background-color: #013B04;
+}
+.sidebar[data-background-color="vert"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+ 
+.sidebar[data-background-color="violet"] {
+  background-color: #470454;
+}
+.sidebar[data-background-color="violet"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+  
+.sidebar[data-background-color="orange"] {
+  background-color: #905702;
+}
+.sidebar[data-background-color="orange"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+
+.sidebar[data-background-color="rose"] {
+  background-color: #81174E;
+}
+.sidebar[data-background-color="rose"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+
+.sidebar[data-background-color="turquoise"] {
+  background-color: #006B7A;
+}
+.sidebar[data-background-color="turquoise"] .nav .nav-item .nav-link {
+  color: #fff;
+}
+
+.sidebar[data-background-color="jaune"] {
+  background-color: #836B05;
+}
+.sidebar[data-background-color="jaune"] .nav .nav-item .nav-link {
+  color: #fff;
+}
 
 
-        
 /*# sourceMappingURL=dashboard-free.css.map */

@@ -123,34 +123,38 @@ $(document).ready(function(){
                 resultat_pagination = '<div class="contenu">';
 
                 if(possede_page_precedente == true){
-                  resultat_pagination += '<button class="btn btn-white btn-sm pagination-element" id="'+precedent +'"><i class="material-icons">arrow_back_ios</i></button>';
+                  resultat_pagination += '<span class="pagination-element" id="'+precedent +'"><i class="material-icons">arrow_back_ios</i></span>';
                 }else{
-                  resultat_pagination += '<button class="btn btn-sm btn-white pagination-element" id="" disabled><i class="material-icons">arrow_back_ios</i></button>';
+                  resultat_pagination += '<span class="pagination-element" id="" disabled><i class="material-icons">arrow_back_ios</i></span>';
                 }
 
                 for (var num_page= 0; num_page < liste_page.length; num_page++) {
 
                     if (liste_page[num_page] == numero_page_active){
                      
-                      resultat_pagination +='<button class="btn btn-sm pagination-element" id="'+liste_page[num_page]+'">'+ liste_page[num_page]+'</button>';
+                      resultat_pagination +='<button class="cursus-btn-pagination pagination-element" id="'+liste_page[num_page]+'">'+ liste_page[num_page]+'</button>';
                     
                     }else{
                       
-                      resultat_pagination +='<button class="btn btn-sm pagination-element" id="'+ liste_page[num_page] +'">'+ liste_page[num_page]+'</button>';
+                      resultat_pagination +='<button class="cursus-btn-pagination-off pagination-element" id="'+ liste_page[num_page] +'">'+ liste_page[num_page]+'</button>';
                       
                     }
                   
                 }
 
                 if(possede_page_suivante == true){
-                  resultat_pagination += '<button class="btn btn-white btn-sm pagination-element" id="'+ suivant +'"><i class="material-icons">arrow_forward_ios</i></button>'
+                  resultat_pagination += '<span class="pagination-element" id="'+ suivant +'"><i class="material-icons">arrow_forward_ios</i></span>'
                 }else{
-                  resultat_pagination += '<button class="btn btn-white btn-sm pagination-element" id="" disabled><i class="material-icons">arrow_forward_ios</i></button>'
+                  resultat_pagination += '<span class="pagination-element" id="" disabled><i class="material-icons">arrow_forward_ios</i></span>'
                 }
             
                 resultat_pagination += '</div>';
 
                 $(".pagination").append(resultat_pagination);
+
+                $(".first_item_page").text(data.first_item_page);
+                $(".last_item_page").text(data.last_item_page);
+                $(".nbre_item").text(data.nbre_item);
 
               }
               else{
