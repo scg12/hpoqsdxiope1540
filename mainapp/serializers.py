@@ -107,6 +107,19 @@ class SousEtabSerializer(serializers.Serializer):
         instance.nom_fondateur = validated_data.get('nom_fondateur', instance.nom_fondateur.lower())
         instance.localisation = validated_data.get('localisation', instance.localisation.lower())
 
+class SousEtabConfigSerializer(serializers.Serializer):
+    """docstring for SousEtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    nom_sousetab = serializers.CharField(max_length=150)
+    format_matricule = serializers.CharField(max_length=150)
+
+    def create(self, validated_data):
+        return SousEtab.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.format_matricule = validated_data.get('format_matricule', instance.format_matricule.lower())
+
 class NiveauSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
     niveau_id = serializers.IntegerField(read_only=True)

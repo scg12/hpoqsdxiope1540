@@ -109,6 +109,8 @@
             taille = $(".wizard-navigation ul li").length;
             jj = $(this).index()+1;
 
+            $("#position").val(jj);alert(jj);
+
             width =  $(".wizard-navigation ul li:first").width()*(jj-1);
 
             /* chargement du contenu de l'onglet actif*/

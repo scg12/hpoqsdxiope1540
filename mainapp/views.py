@@ -41,6 +41,9 @@ from base64 import b64decode
 from django.core.files.base import ContentFile
 #from django.core.files.images.ImageFile 
 
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
+
 # definition des constantes
 pagination_nbre_element_par_page = 10
 photo_repertoire = "/photos/"
@@ -49,6 +52,10 @@ photo_repertoire = "/photos/"
 data_color_default = "blue"
 sidebar_class_default = "bleu"
 theme_class_default = "bleu"
+
+#chemin vers le fichier excel
+chemin_fichier_excel = "mainapp/templates/mainapp/static/upload/"
+
 
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
@@ -3422,8 +3429,8 @@ def find_classe(recherche, trier_par):
     return classes_serializers.data
 
 
-def recherche_cours(request):
-    
+def recherche_sousetab(request):
+
     if (request.method == 'POST'):
         if(request.is_ajax()):
             donnees = request.POST['form_data']
@@ -3436,15 +3443,14 @@ def recherche_cours(request):
 
             trier_par = donnees[3]
 
-            
-            cours = find_classe(donnees_recherche,trier_par)
+            sousetabs = find_sousetab(donnees_recherche,trier_par)
 
             
             if (nbre_element_par_page == -1):
-                nbre_element_par_page = len(cours)
+                nbre_element_par_page = len(sousetabs)
 
             #form = EtudiantForm
-            paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+            paginator = Paginator(sousetabs, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
             try:
                 # La définition de nos URL autorise comme argument « page » uniquement 
@@ -3458,7 +3464,8 @@ def recherche_cours(request):
                 page_active = paginator.page(paginator.num_pages)
 
             #gestion de la description textuelle de la pagination
-            nbre_item = len(cours)
+
+            nbre_item = len(sousetabs)
 
             first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
  
@@ -3510,7 +3517,8 @@ def recherche_cours(request):
 
 
             data = {
-                "cours": cours,
+
+                "sousetabs": sousetabs,
                 "message_resultat":"",
                 "numero_page_active" : int(numero_page_active),
                 "liste_page" : liste_page,
@@ -3528,54 +3536,76 @@ def recherche_cours(request):
                 "last_item_page" : last_item_page,
             }
 
-           
             return JSONResponse(data) 
 
-def find_cours(recherche, trier_par):
+# def find_cours(recherche, trier_par):
+
+#     if recherche == "" or not recherche:
+#         if (trier_par == "non defini"):
+#             cours = Cours.objects.filter(archived = "0").order_by('-nom_cours')
+#         else:
+#             cours = Cours.objects.filter(archived = "0").order_by(trier_par)
+
+
+def find_sousetab(recherche, trier_par):
 
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            cours = Cours.objects.filter(archived = "0").order_by('-nom_cours')
+            sousetabs = SousEtab.objects.filter(archived = "0").order_by('-nom_sousetab')
         else:
-            cours = Cours.objects.filter(archived = "0").order_by(trier_par)
+            sousetabs = SousEtab.objects.filter(archived = "0").order_by(trier_par)
 
     else:
         if (trier_par == "non defini"):
 
-            cours = Cours.objects.filter(Q(archived ="0") &
-                (Q(code_matiere__icontains=recherche) |
-                Q(nom_matiere__icontains=recherche) |
-                Q(coef__icontains=recherche) |
-                Q(nom_classe__icontains=recherche) |
-                Q(volume_horaire_hebdo__icontains=recherche) |
-                Q(volume_horaire_annuel__icontains=recherche) |
-                Q(nom_etab__icontains=recherche) |
-                Q(nom_sousetab__icontains=recherche) |
-                Q(nom_cycle__icontains=recherche)
+                # cours = Cours.objects.filter(Q(archived ="0") &
+                # (Q(code_matiere__icontains=recherche) |
+                # Q(nom_matiere__icontains=recherche) |
+                # Q(coef__icontains=recherche) |
+                # Q(nom_classe__icontains=recherche) |
+                # Q(volume_horaire_hebdo__icontains=recherche) |
+                # Q(volume_horaire_annuel__icontains=recherche) |
+                # Q(nom_etab__icontains=recherche) |
+                # Q(nom_sousetab__icontains=recherche) |
+                # Q(nom_cycle__icontains=recherche)
+
+            sousetabs = SousEtab.objects.filter(Q(archived ="0") &
+                (Q(nom_sousetab__icontains=recherche) |
+                Q(format_matricule__icontains=recherche)
                 )
             ).distinct()
 
         else:
         
-            cours = Cours.objects.filter(Q(archived ="0") &
-                (Q(code_matiere__icontains=recherche) |
-                Q(nom_matiere__icontains=recherche) |
-                Q(coef__icontains=recherche) |
-                Q(nom_classe__icontains=recherche) |
-                Q(volume_horaire_hebdo__icontains=recherche) |
-                Q(volume_horaire_annuel__icontains=recherche) |
-                Q(nom_etab__icontains=recherche) |
-                Q(nom_sousetab__icontains=recherche) |
-                Q(nom_cycle__icontains=recherche) 
+            # cours = Cours.objects.filter(Q(archived ="0") &
+            #     (Q(code_matiere__icontains=recherche) |
+            #     Q(nom_matiere__icontains=recherche) |
+            #     Q(coef__icontains=recherche) |
+            #     Q(nom_classe__icontains=recherche) |
+            #     Q(volume_horaire_hebdo__icontains=recherche) |
+            #     Q(volume_horaire_annuel__icontains=recherche) |
+            #     Q(nom_etab__icontains=recherche) |
+            #     Q(nom_sousetab__icontains=recherche) |
+            #     Q(nom_cycle__icontains=recherche) 
+
+            print("*******recherche ",recherche)
+            sousetabs = SousEtab.objects.filter(Q(archived ="0") &
+                (Q(nom_sousetab__icontains=recherche) |
+                Q(format_matricule__icontains=recherche)
                 )
             ).distinct().order_by(trier_par)
 
             
 
     # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
-    cours_serializers = CoursSerializer(cours, many=True)
 
-    return classes_serializers.data
+    # cours_serializers = CoursSerializer(cours, many=True)
+
+    # return classes_serializers.data
+
+    sousetabs_serializers = SousEtabConfigSerializer(sousetabs, many=True)
+
+    return sousetabs_serializers.data
 
 def recherche_matiere(request):
     
@@ -6133,7 +6163,7 @@ def modifier_theme(request):
         return JSONResponse(data)
 
 @csrf_exempt
-def initialisation(request):
+def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_element_par_page):
     #gerer les preferences utilisateur en terme de theme et couleur
     if (request.user.id != None):
         prof = Profil.objects.get(user=request.user)
@@ -6186,30 +6216,93 @@ def initialisation(request):
 
 
     
-    configure = 0
-    if request.method == 'POST':  
-        config = InitialisationForm(request.POST, request.FILES)
-        #print(request.FILES['file'])
-        if config.is_valid():  
-            handle_uploaded_file(request.FILES['file'])
-            #print(request.FILES['file'].name)
-        configure = 1  
-            # return HttpResponse("File uploaded successfuly")
+    # configure = 0
+    # if request.method == 'POST':  
+    #     config = InitialisationForm(request.POST, request.FILES)
+    #     #print(request.FILES['file'])
+    #     if config.is_valid():  
+    #         handle_uploaded_file(request.FILES['file'])
+    #         #print(request.FILES['file'].name)
+    #     configure = 1  
+    #         # return HttpResponse("File uploaded successfuly")
 
-    else:  
-        form = InitialisationForm()
-        isConfig =0
-        if(Etab.objects.count() > 0):
-            isConfig = 1
+    # else:  
+    #     form = InitialisationForm()
+    #     isConfig =0
+    #     if(Etab.objects.count() > 0):
+    #         isConfig = 1
           
-        # return render(request,"index.html",{'form':config})  
-        return render(request,"mainapp/pages/initialisation.html", locals())  
+    #     # return render(request,"index.html",{'form':config})  
+    #     return render(request,"mainapp/pages/initialisation.html", locals())  
 
-    if configure == 1:
+    # configure = 1
+    isNbMatformatOk = "ok"
+    if request.method == 'GET':
+
+        sousetabs = SousEtab.objects.filter(archived = "0").order_by('-nom_sousetab')
+
+        for se in sousetabs:
+            if not se.format_matricule:
+                isNbMatformatOk = "no"
+                break
+
+
+        nbreItem = len(sousetabs)
+
+
+        #form = ClasseForm  
+        paginator = Paginator(sousetabs, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+        try:
+            # La définition de nos URL autorise comme argument « page » uniquement 
+            # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+            page_active = paginator.page(page)
+        except PageNotAnInteger:
+            page_active = paginator.page(1)
+        except EmptyPage:
+            # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+            # Par convention, nous renvoyons la dernière page dans ce cas
+            page_active = paginator.page(paginator.num_pages)
+
+        #gestion de la description textuelle de la pagination
+        nbre_item = len(sousetabs)
+
+        first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+        if(int(page_active.number)-1 != 0):
+            last_item_page = first_item_page + len(list(paginator.page_range)) -1
+        else:
+            last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+        #gerer les preferences utilisateur en terme de theme et couleur
+        if (request.user.id != None):
+            if(request.user.is_superuser == True):
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            else:          
+                #print(request.user.is_superuser)
+                prof = Profil.objects.get(user=request.user)
+                data_color = prof.data_color
+                sidebar_class = prof.sidebar_class
+                theme_class = prof.theme_class
+        else:
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+
+      
+        return render(request, 'mainapp/pages/initialisation-fin.html', locals())
+
+
+
+    else:
+
         school = Etab.objects.count()
         print("LEN = ",school)
-        print("Location: ",request.FILES['file'])
-        location = request.FILES['file']
+        # location = request.FILES['file']
+        location = request.session.get('location', None)
         print("Le debut ...")
         xl = pd.ExcelFile(location)
         nb_sheet = len(xl.sheet_names)
@@ -6222,9 +6315,10 @@ def initialisation(request):
         df2 = pd.read_excel(location, sheet_name="Start")
         # print(df.columns)
         nom_etab = df[df.columns[1]].values[0]
-        etab = Etab()
-        etab.nom_etab=nom_etab
-        etab.save()
+        # etab = Etab()
+        # etab.nom_etab=nom_etab
+        # etab.save()
+        etab = Etab.objects.filter(nom_etab=nom_etab)[0]
         print(nom_etab)
         
         ANNEE_SCOLAIRE = "2019-2020"
@@ -6262,11 +6356,6 @@ def initialisation(request):
                     else:
                         has_groupe_matiere = ""
                     
-                    matformat = "H*T*1*9*0*0*0*0"
-                    mat_fixedindex = 2
-                    mat_yearindex = 4
-                    mat_varyindex = 8
-                    position = [x for x in range(mat_varyindex)]
                     print("has_groupe_matiere: ",has_groupe_matiere)
                     max_niveau_classe = int(df[df.columns[5]].values[1])
                     print("max_niveau_classe:  ", max_niveau_classe)
@@ -6274,27 +6363,37 @@ def initialisation(request):
                     langue = df[df.columns[1]].values[3]
                     nom_sous_etab = df.columns[1]
                     current_sousetab = nom_sous_etab
-                    sousEtab = SousEtab()
-                    sousEtab.nom_sousetab =nom_sous_etab
-                    sousEtab.annee_scolaire = ANNEE_SCOLAIRE
-                    sousEtab.langue = langue
-                    sousEtab.bulletin_base_sur = df[df.columns[1]].values[4]
-                    sousEtab.notation_sur = float(df[df.columns[1]].values[5])
-                    sousEtab.appellation_coef = df[df.columns[1]].values[6]
-                    sousEtab.format_bulletin = df[df.columns[1]].values[10]
-                    sousEtab.has_group_matiere = True if has_groupe_matiere == "Oui" else False
-                    sousEtab.profondeur_division_temps = 0
-                    sousEtab.format_matricule = matformat
-                    sousEtab.mat_fixedindex = mat_fixedindex
-                    sousEtab.mat_yearindex = mat_yearindex
-                    sousEtab.mat_varyindex = mat_varyindex
+                    # sousEtab = SousEtab()
+                    # sousEtab.nom_sousetab =nom_sous_etab
+                    # sousEtab.annee_scolaire = ANNEE_SCOLAIRE
+                    # sousEtab.langue = langue
+                    # sousEtab.bulletin_base_sur = df[df.columns[1]].values[4]
+                    # sousEtab.notation_sur = float(df[df.columns[1]].values[5])
+                    # sousEtab.appellation_coef = df[df.columns[1]].values[6]
+                    # sousEtab.format_bulletin = df[df.columns[1]].values[10]
+                    # sousEtab.has_group_matiere = True if has_groupe_matiere == "Oui" else False
+                    # sousEtab.profondeur_division_temps = 0
+                    # sousEtab.format_matricule = matformat
+                    # sousEtab.mat_fixedindex = mat_fixedindex
+                    # sousEtab.mat_yearindex = mat_yearindex
+                    # sousEtab.mat_varyindex = mat_varyindex
 
-                    sousEtab.nom_etab = etab.nom_etab
-                    sousEtab.id_etab = etab.id
+                    # sousEtab.nom_etab = etab.nom_etab
+                    # sousEtab.id_etab = etab.id
 
-                    sousEtab.save()
-                    etab.sous_etabs.add(sousEtab)
-                    etab.save()
+                    # sousEtab.save()
+                    # etab.sous_etabs.add(sousEtab)
+                    # etab.save()
+                    sousEtab = SousEtab.objects.filter(nom_sousetab=current_sousetab)[0]
+
+                    # matformat = "HT190000"
+                    matformat = sousEtab.format_matricule
+                    mat_fixedindex = int(sousEtab.mat_fixedindex)
+                    mat_yearindex = int(sousEtab.mat_yearindex)
+                    mat_varyindex = int(sousEtab.mat_varyindex)
+                    first_matricule = sousEtab.first_matricule
+
+                    position = [x for x in range(mat_varyindex)]
 
                     amc = AppellationModuleChapitreLecon()
                     amc.appellation_module = df[df.columns[1]].values[7]
@@ -6505,6 +6604,7 @@ def initialisation(request):
                     print("\n---Bus: {}".format(has_bus))
 
                     index_hierachie = i + 3
+                    index_pers_appui = i + 3
                     index_operation = i + 3
                     index_matiere = i + 3
                     index_type_enseignant = i + 3
@@ -6538,7 +6638,7 @@ def initialisation(request):
                         # break
 
 
-                    print("\n---Les Hierachies: ")
+                    print("\n---Les Pers Administratif: ")
 
                     priorite_admin_staff = 0
                     while pd.isnull(df['Unnamed: 7'].values[index_hierachie] ) == False:
@@ -6546,6 +6646,7 @@ def initialisation(request):
                         tas = TypeAdminStaff()
                         tas.libelle = df['Unnamed: 7'].values[index_hierachie]
                         tas.priorite = priorite_admin_staff
+                        tas.type_admin_staff = "Pers Administratif"
                         tas.save()
 
                         liste_admin_staff.append(df['Unnamed: 7'].values[index_hierachie])
@@ -6555,17 +6656,35 @@ def initialisation(request):
                         print("   {}".format(df['Unnamed: 7'].values[index_hierachie]))
 
                         index_hierachie += 1
+                    print("\n---Les Pers d'Appui: ")
+
+                    priorite_admin_staff = 0
+                    while pd.isnull(df['Unnamed: 8'].values[index_pers_appui] ) == False:
+                        
+                        tas = TypeAdminStaff()
+                        tas.libelle = df['Unnamed: 8'].values[index_pers_appui]
+                        tas.priorite = priorite_admin_staff
+                        tas.type_admin_staff = "Pers Appui"
+                        tas.save()
+
+                        liste_admin_staff.append(df['Unnamed: 8'].values[index_pers_appui])
+
+                        priorite_admin_staff += 1
+
+                        print("   {}".format(df['Unnamed: 8'].values[index_pers_appui]))
+
+                        index_pers_appui += 1
                     
                         print("\n---Les Type Enseignant: ")  
-                    while pd.isnull(df['Unnamed: 14'].values[index_type_enseignant] ) == False:
+                    while pd.isnull(df['Unnamed: 15'].values[index_type_enseignant] ) == False:
 
                         te = TypeEnseignant()
-                        te.libelle = df['Unnamed: 14'].values[index_type_enseignant]
+                        te.libelle = df['Unnamed: 15'].values[index_type_enseignant]
                         te.save()
 
-                        liste_admin_staff.append(df['Unnamed: 14'].values[index_type_enseignant])
+                        liste_admin_staff.append(df['Unnamed: 15'].values[index_type_enseignant])
 
-                        print("   {}".format(df['Unnamed: 14'].values[index_type_enseignant]))
+                        print("   {}".format(df['Unnamed: 15'].values[index_type_enseignant]))
 
                         index_type_enseignant += 1
 
@@ -6613,6 +6732,7 @@ def initialisation(request):
 
                         matiere = Matiere()
                         matiere.nom_matiere = df['Unnamed: 13'].values[index_matiere]
+                        matiere.code = df['Unnamed: 14'].values[index_matiere]
                         matiere.id_sousetab = sousEtab.id
                         matiere.nom_sousetab = sousEtab.nom_sousetab
                         matiere.save()
@@ -6627,10 +6747,10 @@ def initialisation(request):
 
                     print("\n---Les Divisions du temps: ")  
                     profondeur_division_temps = 1
-                    while pd.isnull(df['Unnamed: 15'].values[index_division_temps] ) == False:
+                    while pd.isnull(df['Unnamed: 16'].values[index_division_temps] ) == False:
                         
                         dt = LesDivisionTemps()
-                        dt.libelle = df['Unnamed: 15'].values[index_division_temps]
+                        dt.libelle = df['Unnamed: 16'].values[index_division_temps]
                         dt.niveau_division_temps = profondeur_division_temps
                         dt.save()
                         sousEtab.divisions_temps.add(dt)
@@ -6638,7 +6758,7 @@ def initialisation(request):
                         # sousEtab.objects.update(profondeur_division_temps=F('profondeur_division_temps') + 1)
                         sousEtab.save()
 
-                        print("   {} - {}".format(df['Unnamed: 15'].values[index_division_temps],df['Unnamed: 16'].values[index_division_temps]))
+                        print("   {} - {}".format(df['Unnamed: 16'].values[index_division_temps],df['Unnamed: 17'].values[index_division_temps]))
                         index_division_temps += 1
                         profondeur_division_temps += 1
 
@@ -6703,6 +6823,19 @@ def initialisation(request):
                                     cours.nom_matiere = nom_matiere
                                     cours.id_matiere = matiere.id
                                     cours.code_matiere = matiere.code
+                                    
+                                    # id_clss = Classe.objects.filter(nom_classe=current_classe).values_list('id', flat=True)
+                                    clss = Classe.objects.filter(nom_classe=current_classe)[0]
+                                    
+                                    cours.nom_classe = current_classe
+                                    cours.nom_cycle = clss.nom_cycle
+                                    cours.nom_sousetab = clss.nom_sousetab
+                                    cours.nom_etab = clss.nom_etab
+                                    cours.id_cycle = clss.id_cycle
+                                    cours.id_classe = clss.id
+                                    cours.id_sousetab = clss.id_sousetab
+                                    cours.id_etab = clss.id_etab
+
                                     cours.matiere.add(matiere)
                                     cours.coef = eff_coef
                                     cours.save()
@@ -6831,9 +6964,10 @@ def initialisation(request):
                                             # exists = Eleve.objects.exists()
                                             if  idf == 0: #and exists == False:
                                                 idf += 1
-                                                matformat = matformat.split('*')
-                                                matlast = matformat
-                                                print("***PREMIER ELEVE: ", matformat)
+                                                # matformat = matformat.split('*')
+                                                # matlast = matformat
+                                                matlast = first_matricule
+                                                print("***PREMIER ELEVE: ", matlast)
                                                 # position = [x for x in range(mat_varyindex)]
                                                 eleve.matricule = ''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
                                                 matlast = eleve.matricule
@@ -6853,7 +6987,138 @@ def initialisation(request):
 
 
             cpt_sheet += 1
-    return render(request, 'mainapp/pages/liste-etablissements.html', locals())
+        # return render(request, 'mainapp/pages/config-terminee.html', locals())
+        return redirect('mainapp:dashboard')
+
+@csrf_exempt
+def initialisation_charger_fichier(request):
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        prof = Profil.objects.get(user=request.user)
+        data_color = prof.data_color
+        sidebar_class = prof.sidebar_class
+        theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+   
+    configure = 0
+    if request.method == 'POST':  
+        config = InitialisationForm(request.POST, request.FILES)
+        #print(request.FILES['file'])
+        if config.is_valid():  
+            handle_uploaded_file(request.FILES['file'])
+            #print(request.FILES['file'].name)
+        configure = 1  
+            # return HttpResponse("File uploaded successfuly")
+
+    else:  
+        form = InitialisationForm()
+        isConfig =0
+        if(Etab.objects.count() > 0):
+            isConfig = 1
+          
+        # return render(request,"index.html",{'form':config})  
+        return render(request,"mainapp/pages/initialisation-charger-fichier.html", locals())  
+
+    if configure == 1:
+        school = Etab.objects.count()
+        print("LEN = ",school)
+        print("Location: ",request.FILES['file'])
+        location = chemin_fichier_excel + request.FILES['file'].name
+        request.session['location'] = location
+
+        print("Le debut ...")
+        xl = pd.ExcelFile(location)
+        nb_sheet = len(xl.sheet_names)
+        print(nb_sheet)
+        # print(xl.sheet_names[2])
+        cpt_sheet = 0
+        cpt_sheet2 = 0
+        
+        df = pd.read_excel(location, sheet_name="Start")
+        df2 = pd.read_excel(location, sheet_name="Start")
+        # print(df.columns)
+        nom_etab = df[df.columns[1]].values[0]
+        etab = Etab()
+        etab.nom_etab=nom_etab
+        etab.save()
+        print(nom_etab)
+        
+        ANNEE_SCOLAIRE = "2019-2020"
+        
+
+        while cpt_sheet < nb_sheet:
+            cpt_sheet2 = 0
+            appellation_formateur = ""
+            list_cycle = []
+            list_cycle_classe = []
+            list_niveau = []
+            list_classe = []
+            liste_admin_staff = []
+            current_sousetab = ""
+            has_groupe_matiere =""
+            max_niveau_classe = 0
+            selected_sheet = xl.sheet_names[cpt_sheet]
+            liste_last_group_matiere = []
+            group_matiere_classe = ""
+            if "Sous_Etab" in selected_sheet or "Sub_School" in selected_sheet:
+                print(selected_sheet)
+                df = pd.read_excel(location, sheet_name=selected_sheet)
+                # print (df.loc[0, 'B'])
+                # print("Column headings:")
+                print(df.columns)
+                # print(len(list_classe))
+                # break
+                if len(df.columns) > 10:
+                    # pd.isnull(df.columns[51])== False
+                    if pd.isnull(df[df.columns[4]].values[1])== False:
+                        if df[df.columns[4]].values[1] == "Oui":
+                            has_groupe_matiere = "Oui"
+                        else:
+                            has_groupe_matiere = ""
+                    else:
+                        has_groupe_matiere = ""
+                    
+                    # matformat = "H*T*1*9*0*0*0*0"
+                    mat_fixedindex = 2
+                    mat_yearindex = 4
+                    mat_varyindex = 8
+                    position = [x for x in range(mat_varyindex)]
+                    print("has_groupe_matiere: ",has_groupe_matiere)
+                    max_niveau_classe = int(df[df.columns[5]].values[1])
+                    print("max_niveau_classe:  ", max_niveau_classe)
+                    print("NOTATION SUR ", df[df.columns[1]].values[5])
+                    langue = df[df.columns[1]].values[3]
+                    nom_sous_etab = df.columns[1]
+                    current_sousetab = nom_sous_etab
+                    sousEtab = SousEtab()
+                    sousEtab.nom_sousetab =nom_sous_etab
+                    sousEtab.annee_scolaire = ANNEE_SCOLAIRE
+                    sousEtab.langue = langue
+                    sousEtab.bulletin_base_sur = df[df.columns[1]].values[4]
+                    sousEtab.notation_sur = float(df[df.columns[1]].values[5])
+                    sousEtab.appellation_coef = df[df.columns[1]].values[6]
+                    sousEtab.format_bulletin = df[df.columns[1]].values[10]
+                    sousEtab.has_group_matiere = True if has_groupe_matiere == "Oui" else False
+                    sousEtab.profondeur_division_temps = 0
+                    # sousEtab.format_matricule = matformat
+                    sousEtab.mat_fixedindex = mat_fixedindex
+                    sousEtab.mat_yearindex = mat_yearindex
+                    sousEtab.mat_varyindex = mat_varyindex
+
+                    sousEtab.nom_etab = etab.nom_etab
+                    sousEtab.id_etab = etab.id
+
+                    sousEtab.save()
+                    etab.sous_etabs.add(sousEtab)
+                    etab.save()
+
+
+            cpt_sheet += 1
+    # return render(request, 'mainapp/pages/initialisation-fin.html', locals())
+    return redirect('mainapp:initialisation_fin')
 
 def handle_uploaded_file(f):
     with open("mainapp/templates/mainapp/static/upload/" + f.name, 'wb+') as destination:
@@ -6875,6 +7140,9 @@ def matriculeformat(request):
             matvalue = request.POST['matricule']
             matlen = len(matvalue)
             print(matlen)
+            print("*** id_modif",request.POST['id_modif'])
+            request.session['id_modif'] = request.POST['id_modif']
+            return render(request,'mainapp/pages/matformat.html',locals())
         else:
             matlen = 0
             matvalue = request.POST['matricule']
@@ -6916,7 +7184,9 @@ def matriculeformat(request):
             finish = 1
             print(request.POST['submit'])
             id = 0
-            if 'Enreg' in request.POST['submit'] or 'Save' in request.POST['submit']:
+
+            if 'Voir' in request.POST['submit'] or 'See' in request.POST['submit']:
+                finish = 2
                 print(matvalue)
                 lenmat2 = True
                 nbrematperyear = 1
@@ -6956,7 +7226,19 @@ def matriculeformat(request):
                         print(request.POST['c'+str((position[id]+1))])
                     id += 1
                 print(matricule)
-                print(matricule2)
+                print(" matricule2 : ",matricule2)
+                ANNEE_SCOLAIRE = "2019-2020"
+                ann= list(ANNEE_SCOLAIRE.split("-")[0])
+                # cpx = 0
+                cpy = 3
+                nbr = len(matricule2) - 1
+
+                while nbr >= 0: 
+                    if matricule2[nbr] == "A" or matricule2[nbr] == "Y":
+                        matricule2[nbr] = ann[cpy]
+                        cpy -= 1
+                    nbr -= 1
+                print(" Apres le for matricule2 : ",matricule2)
                 mat = '*'.join(matricule2)
                 print('mat ',mat)
                 mat = mat.split('*')
@@ -6964,7 +7246,7 @@ def matriculeformat(request):
                 
                 # print("posss ", posss)
                 print('position ',position)
-                request.session['matformat'] = matricule2
+                request.session['matformat'] = ''.join(matricule2)
                 request.session['fixedindex'] = i
                 request.session['yearindex'] = u
                 request.session['varyindex'] = h
@@ -6981,9 +7263,45 @@ def matriculeformat(request):
                 # getNextMat(request)
                 matformat = request.session['matformat']
 
-                print("Mat genere: ",getNextMatt(matformat,position,i,u,h,matricule2))
-    return render(request,'matformat.html',locals())
+                # id = int(request.POST['id_modif'])
+                
 
+                # format_matricule =  ""
+                # mat_fixedindex = ""
+                # mat_yearindex = ""
+                # mat_varyindex = ""
+
+                request.session["format_matricule"] = matformat
+                request.session["mat_fixedindex"] = i
+                request.session["mat_yearindex"] = u
+                request.session["mat_varyindex"] = h
+                request.session['matricule2'] = matricule2
+
+                # print("Mat genere: ",getNextMatt(matformat,position,i,u,h,matricule2))
+                return render(request,'mainapp/pages/matformat.html',locals())
+            else:
+                if 'Enreg' in request.POST['submit'] or 'Save' in request.POST['submit']:
+                    id = int (request.session.get('id_modif', None))
+                    matformat = request.session.get('matformat', None)
+                    matricule2 = request.session.get('matricule2', None)
+                    i = int(request.session.get('mat_fixedindex', None))
+                    u = int(request.session.get('mat_yearindex', None))
+                    h = int(request.session.get('mat_varyindex', None))
+                    position = [x for x in range(h)]
+
+                    print("Mat genere: ",getNextMatt(matformat,position,i,u,h,matricule2))
+                    matricule2 = ''.join(matricule2)
+
+                    print("*** id modif ***: ", id)
+                    SousEtab.objects.filter(pk=id).update(format_matricule=matformat,mat_fixedindex=i,mat_yearindex=u,mat_varyindex=h,first_matricule = matricule2)
+                    # return render(request,'mainapp/pages/initialisation-fin.html',locals())
+                    return redirect('mainapp:initialisation_fin')
+
+                else:
+                    return render(request,'mainapp/pages/matformat.html',locals())
+
+    # return render(request,'mainapp/pages/matformat.html',locals())
+    # return redirect('mainapp:initialisation_fin')
 # Fonction pour tester la génération du prochain matricule
 def getNextMat(request):
     position = request.session.get('position', None)
@@ -7100,9 +7418,11 @@ def getNextMat(request):
 
 def getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast):
 
+    matformat = list(matformat)
     i = mat_fixedindex
     j = mat_yearindex
     h = mat_varyindex
+    ANNEE_SCOLAIRE = "2019-2020"
 
     deborde = 0
     newmat, mat2 = ['']*(h+deborde), ['']*(h+deborde)

@@ -6,7 +6,7 @@
 
   {% block header %}
     
-      <script src="{% static 'js/main-initialisation.js' %}"></script>
+      <script src="{% static 'js/initialisation.js' %}"></script>
      
       
 
@@ -64,10 +64,6 @@
 
                 <div class="card">
 
-                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
-                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
-                  </div> -->
-
                   <div class="card-body">
                       <div class="row">
 
@@ -79,7 +75,7 @@
 
                         <div class="row">
 
-                          <form id="form" method="POST" action="{% url 'mainapp:initialisation' %}" enctype="multipart/form-data">  
+                          <form id="form" method="POST" action="{% url 'mainapp:initialisation_charger_fichier' %}" enctype="multipart/form-data">  
                             {% csrf_token %}  
                             {{ form.as_p }}
                               <span id="config" class="{{ isConfig }}"></span>
@@ -88,33 +84,7 @@
                               <img class="loader " width="70px" height="70px" style="visibility: visible;">
                               
                               <br><br>
-                              <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <ul class="timeline">
-                              <li class="timeline-item">
-                                <p class="timeline-content"><a href="#">Ben Tossell</a> assign you a task</p>
-                                <p class="event-time">Just now</p>
-                              </li>
-                              <li class="timeline-item">
-                                <p class="timeline-content"><a href="#">Ben Tossell</a> assign you a task</p>
-                                <p class="event-time">Just now</p>
-                              </li>
-                              <li class="timeline-item">
-                                <p class="timeline-content"><a href="#">Ben Tossell</a> assign you a task</p>
-                                <p class="event-time">Just now</p>
-                              </li>
-                              <li class="timeline-item">
-                                <p class="timeline-content"><a href="#">Ben Tossell</a> assign you a task</p>
-                                <p class="event-time">Just now</p>
-                              </li>
-                              <li class="timeline-item">
-                                <p class="timeline-content"><a href="#">Ben Tossell</a> assign you a task</p>
-                                <p class="event-time">Just now</p>
-                              </li>
-                            </ul>
-
-
+                            
                           </form>
 
                       </div>  
