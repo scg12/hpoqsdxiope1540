@@ -1,17 +1,80 @@
-{% load static i18n %}
+{% extends 'mainapp/layouts/base-dashbord.html' %}
+
+{% load i18n static %}
 {% load customfilters %}
-{% load crispy_forms_tags %}<!DOCTYPE html>
-<html >
-<head>
-	<meta charset="UTF-8">
+
+
+
+  {% block header %}
+    <meta charset="UTF-8">
 	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 	<link rel="stylesheet" type="text/css" href="{% static "css/styles.css" %}">
-<title>{% trans "Groupe" %}</title>
-</head>
-<body style="display: flex; flex-direction: column; justify-content: space-around; align-items: center;">
-	  <div style="width: 80%; height: 10%;
+	<title>{% trans "Groupe" %}</title>
+
+      <script src="{% static 'js/classes.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th, td {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+		/* 
+		tr:nth-child(even) {background: #CCC}
+		tr:nth-child(odd) {background: #FFF} */
+
+
+      </style>
+      
+  {% endblock %}
+
+        {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_classes' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+
+  {% block content %}
+    
+      <div class="container-fluid">
+        <div class="row">
+
+          <div class="col-md-12">
+
+            <div class="card">
+              
+              <div class="card-body">
+					
+					 <div style="width: 80%; height: 10%;
 	  display: flex; flex-direction: column; justify-content: space-around; align-items: center; ">
 		<form action="{% url 'mainapp:matformat' %}" method="post">
 		    {% csrf_token %}
@@ -209,6 +272,176 @@
 		});
 	});
 </script>
+                          
+                  
+                  
+              </div>
 
-</body>
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+
+
+        <!-- Detail-Dialog box -->
+      <div class="modal fade" id="modal_detail_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+
+                  <div class="modal-body ">
+                      <div class="card-body card-primary">
+                        <p class="h4 text-center">DETAIL CLASSE</p>
+                        <form method="post"  class="detail_classe" action=" ">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+
+                              <div class="text-center">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                             </div>
+
+                        </form>
+
+                      </div>
+                      
+                  </div>
+                     
+              </div>
+          </div>
+      </div>
+
+
+        <!-- dialog box ajouter classe  -->
+
+      <div class="modal fade" id="modal_ajouter_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+                      <div class="modal-body ">
+                        <div class="card-body">
+                          <p class="h4 text-center">AJOUTER CLASSE</p>
+                          <form method="post"  class="" action="{% url 'mainapp:creation_classe' %}">
+                              {% csrf_token %}
+                              {{ form.as_p }}
+
+                               <label id="message"></label>
+                              <div class="text-center">
+                                  <button type="submit" class="btn">Créer</button>
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                               </div>
+                          </form>
+
+                        </div>
+                        
+                    </div>
+         
+              </div>
+          </div>
+      </div>
+
+        <!-- dialog box modifier classe  -->
+
+      <div class="modal fade" id="modal_modifier_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+
+                  <div class="modal-body ">
+                    <div class="card-body">
+                      <p class="h4 text-center">MODIFIER CLASSE</p>
+                         <form method="post" class="modifier_classe" action="{% url 'mainapp:modification_classe' %}">
+                          {% csrf_token %}
+                          {{ form.as_p }}
+
+                            <input type="hidden" name="id_modif" id="id_modif">
+                            <div class="text-center">
+                              <button type="submit" class="btn">Modifier</button>
+                              <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                              
+                            </div>
+                          </form>
+                    </div>
+                    
+                  </div>
+                          
+              </div>
+          </div>
+      </div>
+
+
+
+        <!-- Suppression-Dialog box -->
+
+      <div class="modal fade" id="modal_supprimer_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+                  <div class="modal-body ">
+                      <div class="card-body card-primary">
+
+                        <form method="post"  class="suppression_classe" action="{% url 'mainapp:suppression_classe' %} ">
+                          <p class="h4 text-center">SUPPRIMER CLASSE</p>
+                            {% csrf_token %}
+                              <input type="hidden" name="id_supp" id="id_supp">
+
+                              <div class="form-group">
+                                <label class="">Classe : </label>
+                                <label class="nom_classe"></label>
+                              </div>
+                              <div class="form-group">
+                                <label class="">Niveau : </label>
+                                <label class="nom_niveau"></label>
+                              </div>
+                              <div class="form-group">
+                                <label class="">Cycle : </label>
+                                <label class="nom_cycle"></label>
+                              </div>
+
+                              <div class="form-group">
+                                <label class="">Sous Etab : </label>
+                                <label class="nom_sousetab"></label>
+                              </div>
+
+                              <div class="form-group">
+                                <label class="">etablissement : </label>
+                                <label class="nom_etab"></label>
+                              </div>
+                              
+                              <div class="card-body">Voulez vous vraiment supprimer?</div>
+                              <div class="text-center">
+                                <button type="submit" class="btn">OUI</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                              </div>
+
+                        </form>
+
+                      </div>
+                      
+                  </div>
+                     
+              </div>
+          </div>
+      </div>
+
+
+
+        <!-- markup -->
+        <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+            <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+
+      <button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
+
+
+  {% endblock %}
 </html>

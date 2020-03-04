@@ -14792,51 +14792,59 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 
 /* myown */
 
-.sidebar[data-color="yellow"] li.active>a {
+.sidebar[data-color="jaune"] li.active>a {
   background-color: #ddb102;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(248, 248, 1, 0.4);
 }
-
-.sidebar[data-color="blue"] li.active>a {
-  background-color: #506CE9; /*#e5e5e5;*/
+ .sidebar[data-color="bleu"] li.active>a {
+  background-color: #506CE9; #e5e5e5;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(229, 229, 229, 0.4);
 }
-
-.sidebar[data-color="purple"] li.active>a {
+.sidebar[data-color="violet"] li.active>a {
   background-color: #9c27b0;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(156, 39, 176, 0.4);
 }
-
+.sidebar[data-color="vert"] li.active>a {
+  background-color: #4caf50;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4);
+}
 .sidebar[data-color="turquoise"] li.active>a {
   background-color: #00bcd4;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(0, 188, 212, 0.4);
 }
-
-.sidebar[data-color="green"] li.active>a {
-  background-color: #4caf50;
-  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4);
-}
-
 .sidebar[data-color="orange"] li.active>a {
   background-color: #ff9800;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(255, 152, 0, 0.4);
 }
+.sidebar[data-color="rose"] li.active>a {
+  background-color: #e91e63;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4);
+}
 
-.sidebar[data-color="danger"] li.active>a {
+/* .sidebar[data-color="yellow"] li.active>a {
+  background-color: #ddb102;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(248, 248, 1, 0.4);
+} */
+
+/* .sidebar[data-color="blue"] li.active>a {
+  background-color: #506CE9; #e5e5e5;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(229, 229, 229, 0.4);
+} */
+
+/* .sidebar[data-color="purple"] li.active>a {
+  background-color: #9c27b0;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(156, 39, 176, 0.4);
+} */
+
+/* .sidebar[data-color="green"] li.active>a {
+  background-color: #4caf50;
+  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4);
+} */
+
+/* .sidebar[data-color="danger"] li.active>a {
   background-color: #f44336;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(244, 67, 54, 0.4);
-}
-
-.sidebar[data-color="rose"] li.active>a {
-  background-color: #e91e63;
-  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4);
-}
-
-.sidebar[data-color="rose"] li.active>a {
-  background-color: #e91e63;
-  box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4);
-}
-
+} */
 .sidebar[data-color="white"] li.active>a {
   background-color: #fff;
   box-shadow: 0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(255, 255, 255, 0.4);
@@ -18871,6 +18879,9 @@ Copyright (c) 2015 Daniel Eden
     display: none !important;
   }
 }
+
+
+
 /* style propre*/
 /* myown */
 .sidebar[data-background-color="bleu"] {

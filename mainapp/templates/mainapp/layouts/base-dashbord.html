@@ -55,7 +55,9 @@ Handle on hover
   		margin-top: 60px;
 	}
 
-
+	.nav-item{
+		cursor: pointer;
+	}
 /*	td:first-child{
 		position: fixed;
 		left: 50px;
@@ -270,35 +272,35 @@ Handle on hover
     	color: #fff;
     }
 
-    .sidebar-bleu{
-    	background-color: #002171;
-        /*background-image: url("/static/assets/img/sidebar-bleu.png");*/
-
-    }.sidebar-vert{
-        background-image: url("/static/assets/img/sidebar-vert.png");
-        
-    }.sidebar-rouge{
-        background-image: url("/static/assets/img/sidebar-rouge.png");
-        
-    }.sidebar-violet{
-        background-image: url("/static/assets/img/sidebar-violet.png");
-        
-    }.sidebar-orange{
-        background-image: url("/static/assets/img/sidebar-orange.png");
-        
-    }.sidebar-rose{
-        background-image: url("/static/assets/img/sidebar-rose.png");
-        
-    }
-      .sidebar-turquoise{
-        background-image: url("/static/assets/img/sidebar-turquoise.png");
-
-    }
-      .sidebar-jaune{
-        background-image: url("/static/assets/img/sidebar-jaune.png");
-
-    }
-
+   /*  .sidebar-bleu{
+   	background-color: #002171;
+       background-image: url("/static/assets/img/sidebar-bleu.png");
+   
+   }.sidebar-vert{
+       background-image: url("/static/assets/img/sidebar-vert.png");
+       
+   }.sidebar-rouge{
+       background-image: url("/static/assets/img/sidebar-rouge.png");
+       
+   }.sidebar-violet{
+       background-image: url("/static/assets/img/sidebar-violet.png");
+       
+   }.sidebar-orange{
+       background-image: url("/static/assets/img/sidebar-orange.png");
+       
+   }.sidebar-rose{
+       background-image: url("/static/assets/img/sidebar-rose.png");
+       
+   }
+     .sidebar-turquoise{
+       background-image: url("/static/assets/img/sidebar-turquoise.png");
+   
+   }
+     .sidebar-jaune{
+       background-image: url("/static/assets/img/sidebar-jaune.png");
+   
+   }
+    */
       .loader_vert{
 
         content:url("/static/images/loader-vert.gif");
@@ -619,12 +621,12 @@ Handle on hover
 		<div class="scrollbar-macosx">	
 		  {% block sidebar %}
 				
-				{# {% include 'mainapp/layouts/_nav_base_sidebar.html' %} #}
+				
 
 		  {% endblock %}
 		</div>		
 		  {% block langue %}
-		   {#  {% include 'mainapp/layouts/_langue_menu_header.html' %} #}
+		   
 		  {% endblock %}
 
 
@@ -659,7 +661,7 @@ Handle on hover
 		                	<a class="nav-link" href="{% url 'mainapp:accueil' %}">
 		                  		<i class="material-icons">home</i>  
 		                	</a>
-		              
+		                </li>
 		              	<li class="nav-item">
 		               
 			                {% block language %}
@@ -682,44 +684,50 @@ Handle on hover
 
 		              	</li>
 
-		              	<li class="nav-item">
-
-		              		<form class="navbar-form1" style="position: relative;padding-left: 15px!important">
-				              
-				                <div class="dropdown">
-			                      <button class="btn btn-secondary1 btn-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> <!-- .dropdown-menu -->
-			                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
-			                        <div class="dropdown-arrow"></div><!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
-			                        </div><!-- /.custom-control -->
-			                        <!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
-			                        </div><!-- /.custom-control -->
-			                        <!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
-			                        </div><!-- /.custom-control -->
-			                        <!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
-			                        </div><!-- /.custom-control -->
-			                        <!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
-			                        </div><!-- /.custom-control -->
-			                        <!-- .custom-control -->
-			                        <div class="custom-control custom-radio">
-			                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
-			                        </div><!-- /.custom-control -->
-			                      </div><!-- /.dropdown-menu -->
-			                    </div>
-
-		            		</form>
-
-		              	</li>
-
+		              	<!-- <li class="nav-item">
+		              	
+		              		<form class="navbar-form" style="position: relative;padding-left: 15px!important">
+		              					              
+		              					                <div class="dropdown">
+		              				                      <button class="btn btn-secondary btn-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> .dropdown-menu
+		              				                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
+		              				                        <div class="dropdown-arrow"></div>.custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
+		              				                        </div>/.custom-control
+		              				                        .custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
+		              				                        </div>/.custom-control
+		              				                        .custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
+		              				                        </div>/.custom-control
+		              				                        .custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
+		              				                        </div>/.custom-control
+		              				                        .custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
+		              				                        </div>/.custom-control
+		              				                        .custom-control
+		              				                        <div class="custom-control custom-radio">
+		              				                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
+		              				                        </div>/.custom-control
+		              				                      </div>/.dropdown-menu
+		              				                    </div>
+		              	
+		              			            		</form>
+		              	
+		              	</li> -->
+		              	<!-- <li class="nav-item">
+		              		<a class="nav-link" href="{% url 'mainapp:accueil' %}">
+		              			                  		<i class="material-icons">home</i> Section francophone 
+		              			                	</a>
+		              			            		
+		              			            	</li>
+		              	 -->
 		            </ul>
 
 	          </div>
@@ -743,6 +751,7 @@ Handle on hover
 						{% include 'mainapp/layouts/_dashboard_configuration.html' %}
 						{% include 'mainapp/layouts/_dashboard_personnel.html' %}
 						{% include 'mainapp/layouts/_dashboard_apprenant.html' %}
+						{% include 'mainapp/layouts/_dashboard_classe.html' %}
 
 				{% endblock %}
 
@@ -777,6 +786,8 @@ jQuery(document).ready(function(){
 				$(".myDashboard-configuration").removeAttr("hidden");
 				$(".myDashboard-personnel").attr("hidden",true);
 				$(".myDashboard-apprenant").attr("hidden",true);
+				$(".myDashboard-classe").attr("hidden",true);
+
 				$(".fixed-plugin").attr("hidden",true);
 
 
@@ -800,6 +811,8 @@ jQuery(document).ready(function(){
 				$(".myDashboard-personnel").removeAttr("hidden");
 				$(".myDashboard-configuration").attr("hidden",true);
 				$(".myDashboard-apprenant").attr("hidden",true);
+				$(".myDashboard-classe").attr("hidden",true);
+
 				$(".fixed-plugin").attr("hidden",true);
 
 
@@ -823,17 +836,43 @@ jQuery(document).ready(function(){
 				$(".myDashboard-apprenant").removeAttr("hidden");
 				$(".myDashboard-configuration").attr("hidden",true);
 				$(".myDashboard-personnel").attr("hidden",true);
+				$(".myDashboard-classe").attr("hidden",true);
+
 				$(".fixed-plugin").attr("hidden",true);
 
 
 			}else{
 
-				$(".myDashboard-aprenant").attr("hidden",true);
+				$(".myDashboard-apprenant").attr("hidden",true);
 				$(".fixed-plugin").removeAttr("hidden");
 				
 			}
 
 			k++;
+			
+		});
+
+		var l = 0;
+		$(".classe").click(function(){
+
+			if (l%2 ==0){
+
+				$(".myDashboard-classe").removeAttr("hidden");
+				$(".myDashboard-configuration").attr("hidden",true);
+				$(".myDashboard-personnel").attr("hidden",true);
+				$(".myDashboard-apprenant").attr("hidden",true);
+				$(".fixed-plugin").attr("hidden",true);
+
+
+			}else{
+
+				$(".myDashboard-classe").attr("hidden",true);
+				$(".fixed-plugin").removeAttr("hidden");
+
+				
+			}
+
+			l++;
 			
 		});
 
@@ -856,6 +895,9 @@ jQuery(document).ready(function(){
 	    $(".scroll-bar").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
 		$(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+
+        $(".cursus-btn-round").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+
 
 
 		$("#themes").click(function(){
@@ -920,6 +962,7 @@ jQuery(document).ready(function(){
             // $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
 
             $(".btn").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+            $(".cursus-btn-round").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
 
             $(".moving-tab").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
 
@@ -940,7 +983,17 @@ jQuery(document).ready(function(){
 	        console.log(error);
 	     }
 
+	    $("body").on("mouseover", ".classe-elt", function(){
 
+			$(this).addClass("animated shake"); 
+
+		});
+
+		$("body").on("mouseleave", ".classe-elt", function(){
+
+			$(this).removeClass("animated shake"); 
+
+		});
 
 	</script>
 

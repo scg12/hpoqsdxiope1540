@@ -181,9 +181,10 @@ $(document).ready(function(){
 
       /* mettre a jour le nouveau theme de l'utilisateur */
       $(".sidebar").attr("data-color", data_color);
-      $(".sidebar").addClass(sidebar_class);
+      // $(".sidebar").addClass(sidebar_class);
       $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
       $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
+      $(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(theme_class);
 
       }
 

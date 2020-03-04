@@ -54,7 +54,7 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% include 'mainapp/layouts/_nav_sidebar_dashboard.html' %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
 {% endblock %}
 
 
@@ -139,11 +139,11 @@
                                       <td class="detail-sousetab-link-td" style="text-transform: capitalize;">{{ sousetab.format_matricule }}</td>
                                       <td class="td-actions text-right"> 
 
-                                      {% if perms.mainapp.can_change_sousetab or perms.mainapp.change_sousetab %}
+                                      
                                         <button rel="tooltip" class="btn modifier-sousetab-link">
                                             <i class="material-icons">edit</i>
                                         </button>
-                                      {% endif %}
+                                      
   
 
                               <!-- *<button type="button" rel="tooltip" class="btn btn-cursus ajouter-sousetab-link" data-toggle="modal" data-target="#modal_ajouter_sousetab">

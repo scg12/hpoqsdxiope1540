@@ -65,6 +65,7 @@ url(r'^recherche-niveau/$', views.recherche_niveau, name='recherche_niveau'),
 url(r'^recherche-classe/$', views.recherche_classe, name='recherche_classe'),
 url(r'^recherche-sousetab/$', views.recherche_sousetab, name='recherche_sousetab'),
 url(r'^recherche-matiere/$', views.recherche_matiere, name='recherche_matiere'),
+url(r'^recherche-cours/$', views.recherche_cours, name='recherche_cours'),
 url(r'^recherche-appellation-apprenant-formateur/$', views.recherche_appellation_apprenant_formateur, name='recherche_appellation_apprenant_formateur'),
 url(r'^recherche-type-apprenant/$', views.recherche_type_apprenant, name='recherche_type_apprenant'),
 url(r'^recherche-discipline/$', views.recherche_discipline, name='recherche_discipline'),
@@ -150,6 +151,9 @@ url(r'^modification-type-paiement-cantine/$', views.modification_type_paiement_c
 url(r'^modification-type-paiement-transport/$', views.modification_type_paiement_transport, name='modification_type_paiement_transport'),
 url(r'^modification-type-paiement-dortoir/$', views.modification_type_paiement_dortoir, name='modification_type_paiement_dortoir'),
 url(r'^modification-type-paiement-facture/$', views.modification_type_paiement_facture, name='modification_type_paiement_facture'),
+
+url(r'^classe/(?P<id>\d+)$', views.classe, name='classe'),
+
 
 url('modifier-theme/', views.modifier_theme, name="modifier_theme"),
 # url(r'^createsuperuser/', views.createSuperUser, name="createSuperUser"),
