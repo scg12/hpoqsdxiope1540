@@ -45,7 +45,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 
 # definition des constantes
-pagination_nbre_element_par_page = 10
+pagination_nbre_element_par_page = 50
 photo_repertoire = "/photos/"
 
 # definition des preferences utilisateurs par defaut (couleur, theme, ...) pour ceux qui ne sont pas connectés
