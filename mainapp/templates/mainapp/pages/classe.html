@@ -78,8 +78,7 @@ tr:nth-child(odd) {background: #FFF} */
                             
                              <label>Afficher </label> 
                              <select id="nbre_element_par_page" class="form-control-sm">
-                                <option value="10" selected>10</option>
-                                <option value="20">20</option>
+                                
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                                 <option value="150">150</option>
@@ -178,14 +177,14 @@ tr:nth-child(odd) {background: #FFF} */
                         <tbody>
                            
                                 {% for eleve in page_active  %}
-                                <tr class="{{ eleve.id }}²²{{ eleve.nom_eleve }}²²{{ eleve.nom_niveau }}²²{{ eleve.nom_cycle }}²²{{ eleve.nom_sousetab }}²²{{ eleve.nom_etab }}">
+                                <tr class="{{ eleve.id }}²²{{ eleve.nom }}²²{{ eleve.nom_prenom }}²²{{ eleve.matricule }}²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}">
                                   <th scope="row" class="detail-eleve-link-td fix-col"><img class="photo" src="/../../media/photos/22_signe.jpeg" width="30px" height="30px"></th>
                                  
                                   <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ eleve.nom }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.prenom }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.matricule }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.sexe }}</td>
-                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.date_naissance|date:"F d Y" }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.date_naissance }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.lieu_naissance }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.date_entree }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.redouble }}</td>

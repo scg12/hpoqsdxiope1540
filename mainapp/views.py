@@ -35,7 +35,7 @@ from .forms import InitialisationForm
 from django.contrib.staticfiles.storage import staticfiles_storage
 
 import pandas as pd
-
+from pandas import Timestamp
 #pour la webcam
 from base64 import b64decode
 from django.core.files.base import ContentFile
@@ -6324,7 +6324,7 @@ def modifier_theme(request):
 
         return JSONResponse(data)
 
-def classe(request,id, page=1,nbre_element_par_page=20):
+def classe(request,id, page=1,nbre_element_par_page=50):
     
     classe = Classe.objects.filter(id=id)[0]
     eleves = Cours.objects.filter(id_classe = id)[0].eleves.all()
@@ -7175,7 +7175,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                             if pd.isnull(df2[df2.columns[1]].values[indc])== False:
                                                 eleve.prenom = df2[df2.columns[1]].values[indc]
                                             if pd.isnull(df2[df2.columns[2]].values[indc])== False:
-                                                eleve.date_naissance = df2[df2.columns[2]].values[indc]
+                                                eleve.date_naissance = str(Timestamp(df2[df2.columns[2]].values[indc])).split(" ")[0]
                                             if pd.isnull(df2[df2.columns[3]].values[indc])== False:
                                                 eleve.lieu_naissance = df2[df2.columns[3]].values[indc]
                                             if pd.isnull(df2[df2.columns[4]].values[indc])== False:
