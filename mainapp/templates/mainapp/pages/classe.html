@@ -99,13 +99,13 @@ tr:nth-child(odd) {background: #FFF} */
                         </div>
 
                     </div>
-                    <div class="fixed-btn-add">
-                        {% if perms.mainapp.can_add_cours or perms.mainapp.add_classe %}
-                          <button type="button" rel="tooltip" class="cursus-btn-round ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
-                              <i class="material-icons text_align-center">add</i>
-                          </button>
-                        {% endif %}
-                    </div>
+                   <!--  <div class="fixed-btn-add">
+                       {% if perms.mainapp.can_add_cours or perms.mainapp.add_classe %}
+                         <button type="button" rel="tooltip" class="cursus-btn-round ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
+                             <i class="material-icons text_align-center">add</i>
+                         </button>
+                       {% endif %}
+                   </div> -->
                     
 
               <div class="table-responsive">
@@ -155,7 +155,7 @@ tr:nth-child(odd) {background: #FFF} */
                                
                             </th>
                             <th scope="col" class="nom_etab">
-                                <span class="tri tri-asc">Redouble ?
+                                <span class="tri tri-asc">Redouble?
                                   <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                 </span> 
                                
@@ -166,10 +166,7 @@ tr:nth-child(odd) {background: #FFF} */
                                 </span> 
                                
                             </th>
-                            <th scope="col" class="text-right"><span class="tri tri-asc">Opérations
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                </span> 
-                             
+                            <th scope="col" class="text-right">Opérations
                             </th>
 
                           </tr>
@@ -199,28 +196,35 @@ tr:nth-child(odd) {background: #FFF} */
                                     {% endif %}
 
                                   </td>
+                                    
                                   <td class="td-actions text-right"> 
-
+                                  <!-- 
                                   {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
                                     <button rel="tooltip" class="btn btn-cursus modifier-classe-link">
                                         <i class="material-icons">edit</i>
                                     </button>
                                     {% endif %}
-
+                                  
                                     {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
                                     <button class="btn btn-cursus supprimer-classe-link">
                                         <i class="material-icons">close</i>
                                     </button>
                                     {% endif %}
+                                  -->
+                                      
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">insert_chart</i></a>
 
-                         
-                                  </td>
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">edit</i></a>
+                                    
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">contact_mail</i></a>
+                                                         
+                                  </td> 
 
                                 </tr>
 
                                 {% empty %}
                                   <tr>
-                                    <td colspan="7" class="text-center h4">Aucun classe(s) créé(s) </td>
+                                    <td colspan="10" class="text-center h4">Aucun classe(s) créé(s) </td>
                                   </tr>
                             {% endfor %}
 
@@ -228,11 +232,15 @@ tr:nth-child(odd) {background: #FFF} */
                         <tfoot>
                           <tr>
                             <th scope="col" class="fix-col">#</th>
-                            <th scope="col" class="fix-col1">Classe</th>
-                            <th scope="col" >Niveau</th>
-                            <th scope="col" >Cycle</th>
-                            <th scope="col">Sous Etab</th>
-                            <th scope="col">Ecole</th>                             
+                            <th scope="col" class="fix-col1">Nom</th>
+                            <th scope="col" >Prenom</th>
+                            <th scope="col" >Matricule</th>
+                            <th scope="col">Sexe</th>
+                            <th scope="col">Date Naissance</th>                             
+                            <th scope="col">Lieu Naissance</th>                             
+                            <th scope="col">Date Entrée</th>                             
+                            <th scope="col">Redouble</th>                             
+                            <th scope="col">Santé</th>                             
                             <th scope="col">Actions</th>                              
 
                           </tr>
