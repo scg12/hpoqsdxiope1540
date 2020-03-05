@@ -93,8 +93,32 @@ def creation_etudiant(request):
     elif request.method == 'POST':
         form = EtudiantForm(request.POST)
         if form.is_valid():
+            # matricule = form.cleaned_data['matricule']
+            matlast = Etudiant.objects.filter().order_by('-id').values_list('matricule')[0]
+            # matlast = "HT19A032"
+            sousEtab = SousEtab.objects.filter()[0]
 
-            matricule = form.cleaned_data['matricule']
+            matformat = sousEtab.format_matricule
+            mat_fixedindex = int(sousEtab.mat_fixedindex)
+            mat_yearindex = int(sousEtab.mat_yearindex)
+            mat_varyindex = int(sousEtab.mat_varyindex)
+            first_matricule = sousEtab.first_matricule
+
+            position = [x for x in range(mat_varyindex)]
+            
+            matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast[0]))
+            # matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
+
+            # exists_mat_nb = Etudiant.objects.filter(matricule=matlast[0]).count()
+            exists_mat_nb = Etudiant.objects.filter(matricule__icontains=matricule).count()
+            
+            while exists_mat_nb > 0:
+                matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matricule))
+                exists_mat_nb = Etudiant.objects.filter(matricule__icontains=matricule).count()
+                print("On Boucle ...")
+
+            # print("Exists Mat: ", exists_mat)
+            print("NEW MAT: ", matricule)
             nom = form.cleaned_data['nom']
             prenom = form.cleaned_data['prenom']
             age = form.cleaned_data['age']
@@ -108,6 +132,109 @@ def creation_etudiant(request):
             etudiant.save()
 
             return redirect('mainapp:liste_etudiants')
+
+def creation_eleve(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-eleve.html',{'form':EleveForm})
+    elif request.method == 'POST':
+        form = EleveForm(request.POST)
+        if form.is_valid():            
+            # matricule = form.cleaned_data['matricule']
+            matlast = Eleve.objects.filter().order_by('-id').values_list('matricule')[0]
+            # matlast = "HT19A032"
+            sousEtab = SousEtab.objects.filter()[0]
+
+            matformat = sousEtab.format_matricule
+            mat_fixedindex = int(sousEtab.mat_fixedindex)
+            mat_yearindex = int(sousEtab.mat_yearindex)
+            mat_varyindex = int(sousEtab.mat_varyindex)
+            first_matricule = sousEtab.first_matricule
+
+            position = [x for x in range(mat_varyindex)]
+            
+            matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast[0]))
+            # matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
+
+            # exists_mat_nb = Etudiant.objects.filter(matricule=matlast[0]).count()
+            exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
+            
+            while exists_mat_nb > 0:
+                matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matricule))
+                exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
+                print("On Boucle ...")
+
+            # print("Exists Mat: ", exists_mat)
+            print("NEW MAT: ", matricule)
+            nom = form.cleaned_data['nom']
+            prenom = form.cleaned_data['prenom']
+            sexe = form.cleaned_data['sexe']
+            redouble = form.cleaned_data['redouble']
+            date_naissance = form.cleaned_data['date_naissance']
+            lieu_naissance = form.cleaned_data['lieu_naissance']
+            date_entree = form.cleaned_data['date_entree']
+            nom_pere = form.cleaned_data['nom_pere']
+            prenom_pere = form.cleaned_data['prenom_pere']
+            nom_mere = form.cleaned_data['nom_mere']
+            prenom_mere = form.cleaned_data['prenom_mere']
+            tel_pere = form.cleaned_data['tel_pere']
+            tel_mere = form.cleaned_data['tel_mere']
+            email_pere = form.cleaned_data['email_pere']
+            email_mere = form.cleaned_data['email_mere']
+            sexe = form.cleaned_data['sexe']
+
+            photo_webcam = request.POST.get("webcam_photo", False)
+
+
+            photo = request.FILES.get('photo', "/photos/profil.jpg")
+
+            eleve = Eleve(
+            matricule = matricule, 
+            nom = nom,
+            prenom = prenom,
+            sexe = sexe,
+            redouble = redouble,
+            date_naissance = date_naissance,
+            lieu_naissance = lieu_naissance,
+            date_entree =  date_entree,
+            nom_pere = nom_pere,
+            prenom_pere = prenom_pere, 
+            nom_mere = nom_mere,
+            prenom_mere = prenom_mere,
+            tel_pere = tel_pere,
+            tel_mere = tel_mere,
+            email_pere = email_pere,
+            email_mere = email_mere,
+            annee_scolaire = "2019-2020"
+            )
+            eleve.save()
+
+            if (photo_webcam != ""):
+                forma, imgstr = photo_webcam.split(';base64,')
+                print("format", forma)
+                ext = forma.split('/')[-1]
+
+                photo_raw = b64decode(imgstr)
+                photo_content = ContentFile(photo_raw)
+                photo = photo_content
+
+                file_name = "myphoto." + ext
+                eleve.photo.save(file_name, photo_content, save=True) # image is User's model field
+            else:
+                eleve.photo = photo
+            eleve.save()
+
+            eleve.photo_url = eleve.photo.url
+            ext = eleve.photo.name.split(".")
+            ext = ext[len(ext)-1]
+            # photo_repertoire + str(instance.matricule)+ '_' + instance.nom + '_' + instance.prenom + '.' + ext
+
+            eleve.photo.name = photo_repertoire + matricule+ '_' + nom + '_' + prenom +'.' + ext
+            eleve.save()
+
+
+            return redirect('mainapp:liste_eleves')
 
 def creation_etablissement(request):
 
@@ -806,7 +933,7 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 
 
 
-    etudiants = Etudiant.objects.all().order_by('-id')
+    etudiants = Etudiant.objects.filter(archived="0").order_by('-id')
 
     
     form = EtudiantForm  
@@ -843,6 +970,46 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 
   
     return render(request, 'mainapp/pages/liste-etudiants.html', locals())
+
+def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    
+    eleves = Eleve.objects.all().order_by('-id')
+
+    form = EleveForm  
+    paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-eleves.html', locals())
 
 def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -1969,20 +2136,30 @@ def suppression_etudiant(request):
 
     id = int(request.POST['id_supp'])
 
-    try:
-        services.suppression_etudiant(id)
+    # try:
+    #     services.suppression_etudiant(id)
 
-    except ConnectionError:
-        message_title = "Service de gestion des étudiants indisponible !!!"
-        message_body = "Ce service est indisponible pour l'instant, veuillez reéssayer plus tard ou contacter l'administrateur"
-        message_phone1 = "(+237) 676 06 94 52"
-        message_phone2 = "(+237) 674 90 58 41"
-        message_email1 = "ulrichguebayi@gmail.com"
-        message_email2 = "agathe.signe@gmail.com"
+    # except ConnectionError:
+    #     message_title = "Service de gestion des étudiants indisponible !!!"
+    #     message_body = "Ce service est indisponible pour l'instant, veuillez reéssayer plus tard ou contacter l'administrateur"
+    #     message_phone1 = "(+237) 676 06 94 52"
+    #     message_phone2 = "(+237) 674 90 58 41"
+    #     message_email1 = "ulrichguebayi@gmail.com"
+    #     message_email2 = "agathe.signe@gmail.com"
 
-        return render(request, 'mainapp/pages/erreur-service-indisponible.html', locals())
-
+    #     return render(request, 'mainapp/pages/erreur-service-indisponible.html', locals())
+    Etudiant.objects.filter(pk=id).update(archived="1")
     return redirect('mainapp:liste_etudiants')
+
+def suppression_eleve(request):
+
+    id = int(request.POST['id_supp'])
+
+    eleve = Eleve.objects.get(pk=id)
+    eleve.archived = "1"
+    eleve.save()
+
+    return redirect('mainapp:liste_eleves')
 
 def suppression_etablissement(request):
 
@@ -2389,6 +2566,55 @@ def modification_matiere(request):
             Matiere.objects.filter(pk=id).update(nom_matiere = nom_matiere, code= code, nom_sousetab=nom_sousetab)
 
         return redirect('mainapp:liste_matieres')
+
+def modification_eleve(request):
+
+    id = int(request.POST['id_modif'])
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = EleveForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+
+        nom = form.cleaned_data['nom']
+        prenom = form.cleaned_data['prenom']
+        sexe = form.cleaned_data['sexe']
+        redouble = form.cleaned_data['redouble']
+        date_naissance = form.cleaned_data['date_naissance'].split('T')[0]
+        lieu_naissance = form.cleaned_data['lieu_naissance']
+        date_entree = form.cleaned_data['date_entree']
+        nom_pere = form.cleaned_data['nom_pere']
+        prenom_pere = form.cleaned_data['prenom_pere']
+        nom_mere = form.cleaned_data['nom_mere']
+        prenom_mere = form.cleaned_data['prenom_mere']
+        tel_pere = form.cleaned_data['tel_pere']
+        tel_mere = form.cleaned_data['tel_mere']
+        email_pere = form.cleaned_data['email_pere']
+        email_mere = form.cleaned_data['email_mere']
+        sexe = form.cleaned_data['sexe']  
+        print("PRENOM PERE:", prenom_pere)
+        Eleve.objects.filter(pk=id).update(
+        # matricule = matricule,
+        nom = nom,
+        prenom= prenom,
+        sexe=sexe,
+        redouble=redouble,
+        date_naissance=date_naissance,
+        lieu_naissance=lieu_naissance,
+        date_entree=date_entree,
+        nom_pere=nom_pere,
+        prenom_pere=prenom_pere,
+        nom_mere=nom_mere,
+        prenom_mere=prenom_mere,
+        tel_pere=tel_pere,
+        tel_mere=tel_mere,
+        email_pere=email_pere,
+        email_mere=email_mere,
+        )
+
+        return redirect('mainapp:liste_eleves')
 
 def modification_appellation_apprenant_formateur(request):
 
@@ -2856,6 +3082,156 @@ def recherche_etablissement(request):
 
            
             return JSONResponse(data) 
+
+def recherche_eleve(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            eleves = find_eleve(donnees_recherche,trier_par)
+
+
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(eleves)
+
+            #form = EtudiantForm
+            paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "eleves": eleves,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_eleve(recherche, trier_par):
+    
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            eleves = Eleve.objects.order_by('-id')
+        else:
+            eleves = Eleve.objects.order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+            # Q(archived ="0") &
+            eleves = Eleve.objects.filter(Q(archived ="0") &
+                (Q(matricule__icontains=recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(sexe__icontains=recherche)|
+                Q(redouble__icontains=recherche)|
+                Q(date_naissance__icontains=recherche) |
+                Q(lieu_naissance__icontains=recherche) |
+                Q(date_entree__icontains=recherche) |
+                Q(nom_pere__icontains=recherche)|
+                Q(prenom_pere__icontains=recherche)|
+                Q(nom_mere__icontains=recherche)|
+                Q(prenom_mere__icontains=recherche)|
+                Q(tel_pere__icontains=recherche)|
+                Q(tel_mere__icontains=recherche)|
+                Q(email_pere__icontains=recherche)|
+                Q(email_mere__icontains=recherche))
+            ).distinct()
+
+        else:
+
+            eleves = Eleve.objects.filter(Q(archived ="0") &
+                (Q(matricule__icontains=recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(sexe__icontains=recherche)|
+                Q(redouble__icontains=recherche)|
+                Q(date_naissance__icontains=recherche) |
+                Q(lieu_naissance__icontains=recherche) |
+                Q(date_entree__icontains=recherche) |
+                Q(nom_pere__icontains=recherche)|
+                Q(prenom_pere__icontains=recherche)|
+                Q(nom_mere__icontains=recherche)|
+                Q(prenom_mere__icontains=recherche)|
+                Q(tel_pere__icontains=recherche)|
+                Q(tel_mere__icontains=recherche)|
+                Q(email_pere__icontains=recherche)|
+                Q(email_mere__icontains=recherche))
+            ).distinct().order_by(trier_par)
+
+    eleves_serializers = EleveSerializer(eleves, many=True)
+
+    return eleves_serializers.data
 
 def find_etablissement(recherche, trier_par):
     
@@ -5980,6 +6356,8 @@ def add_perms_group(model, permss, group, app='mainapp'):
             continue
         else:
             p = Permission.objects.filter(content_type=content_type).filter(codename=pn)
+            # Il faudra essayer plutot la ligne suivante en commentaire
+            # p = Permission.objects.filter(content_type=content_type, codename=pn )
             for pr in p:
                 print('p: {}'.format(p))
                 group.permissions.add(pr)
@@ -6180,6 +6558,9 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
     #             .annees.filter(annee="2019-2020")[0]
     # list_eleves = classes.eleves.all()
     # annee = "2019-2020"
+
+    # ASSOCIATION DES ELEVES AUX COURS
+
     # for clss in all_classes:
     #     classes = Classe.objects.filter(nom_classe=clss,annee_scolaire=annee)[0]\
     #             .annees.filter(annee=annee)[0]
@@ -6194,6 +6575,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
     #             print("cours: ",lc)
     #             grp.filter(nom_cours=lc)[0].eleves.add(*list_eleves)
 
+    # TEST UPDATE NOTES POUR UN ELEVE DANS UNE MATIERE
 
         # rep = classes.groupes.filter(libelle="G1")[0].cours.filter(nom_cours="Maths")[0].eleves.filter(id=1)[0]#.values('matricule','nom')
         # pr = rep.divisions_temps.all()
@@ -6633,7 +7015,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                             print("participant list:", tr.participants)
                             
                         tr.save()
-                        print("participant list:", tr.participants)
+                        # print("participant list:", tr.participants)
 
                         index_reunion += 1
                         # break
@@ -6994,6 +7376,9 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
 @csrf_exempt
 def initialisation_charger_fichier(request):
     #gerer les preferences utilisateur en terme de theme et couleur
+    # last_eleve_mat = Eleve.objects.filter().order_by('-id').values('matricule')
+    # print("LAST MAT: ", last_eleve_mat[0]['matricule'])
+   
     if (request.user.id != None):
         prof = Profil.objects.get(user=request.user)
         data_color = prof.data_color
@@ -7025,6 +7410,61 @@ def initialisation_charger_fichier(request):
 
     if configure == 1:
         school = Etab.objects.count()
+        # if school > 0:
+            # Profil.objects.all().delete()
+            # Etudiant.objects.all().delete()
+            # AppellationModuleChapitreLecon.objects.all().delete()
+            # AppellationApprenantFormateur.objects.all().delete()
+            # TypeApprenant.objects.all().delete()
+            # Document.objects.all().delete()
+            # Chambre.objects.all().delete()
+            # Bus.objects.all().delete()
+            # Chauffeur.objects.all().delete()
+            # Dortoir.objects.all().delete()
+            # AppreciationNote.objects.all().delete()
+            # CorrepondanceNoteLettre.objects.all().delete()
+            # TypeReunion.objects.all().delete()
+            # Reunion.objects.all().delete()
+            # Periode.objects.all().delete()
+            # Absence.objects.all().delete()
+            # TypeEnseignant.objects.all().delete()
+            # Enseignant.objects.all().delete()
+            # TypeAdminStaff.objects.all().delete()
+            # Pause.objects.all().delete()
+            # Jour.objects.all().delete()
+            # ConfigAnnee.objects.all().delete()
+            # Discipline.objects.all().delete()
+            # ConditionRenvoi.objects.all().delete()
+            # ConditionSucces.objects.all().delete()
+            # Note.objects.all().delete()
+            # ResultatEleve.objects.all().delete()
+            # GroupeInfosRecap.objects.all().delete()
+            # CoursInfosRecap.objects.all().delete()
+            # LesDivisionTemps.objects.all().delete()
+            # ObservationsEleve.objects.all().delete()
+            # DivisionTemps.objects.all().delete()
+            # Message.objects.all().delete()
+            # Matiere.objects.all().delete()
+            # Transport.objects.all().delete()
+            # Cantine.objects.all().delete()
+            # PayementChambre.objects.all().delete()
+            # Eleve.objects.all().delete()
+            # CahierDeTexte.objects.all().delete()
+            # Cours.objects.all().delete()
+            # Groupe.objects.all().delete()
+            # AnneeScolaire.objects.all().delete()
+            # Classe.objects.all().delete()
+            # AdminStaff.objects.all().delete()
+            # Niveau.objects.all().delete()
+            # Cycle.objects.all().delete()
+            # TypePayementAdminStaff.objects.all().delete()
+            # TypePayementDivers.objects.all().delete()
+            # PayementAdminStaff.objects.all().delete()
+            # PayementFacture.objects.all().delete()
+            # TypePayementEleve.objects.all().delete()
+            # PayementEleve.objects.all().delete()
+            # SousEtab.objects.all().delete()
+            # Etab.objects.all().delete()
         print("LEN = ",school)
         print("Location: ",request.FILES['file'])
         location = chemin_fichier_excel + request.FILES['file'].name

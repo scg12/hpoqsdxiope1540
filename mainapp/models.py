@@ -10,6 +10,13 @@ def renommage_photo(instance, filename):
 	name_file = photo_repertoire + str(instance.user.id)+ '_' + instance.user.last_name + '.' + ext
 	return name_file
 
+def renommage_photo_eleve(instance, filename):
+    name, ext = filename.split('.')
+    photo_repertoire = "photos/"
+    
+    name_file = photo_repertoire + str(instance.matricule)+ '_' + instance.nom + '_' + instance.prenom + '.' + ext
+    return name_file
+
 class Profil(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE,)
 	telephone = models.TextField(blank=True)
@@ -546,10 +553,11 @@ class PayementChambre(models.Model):
 class Eleve(models.Model):
     matricule = models.CharField(max_length=30)
     nom = models.CharField(max_length=100)
+    adresse = models.CharField(max_length=200, default="")
     prenom = models.CharField(max_length=150)
+    sexe = models.CharField(max_length=2, default='M')
     date_naissance = models.CharField(max_length=100)
     lieu_naissance = models.CharField(max_length=100)
-    matricule = models.CharField(max_length=100)
     date_entree = models.CharField(max_length=50)
     nom_pere = models.CharField(max_length=100)
     prenom_pere = models.CharField(max_length=100)
@@ -559,9 +567,11 @@ class Eleve(models.Model):
     tel_mere = models.CharField(max_length=100)
     email_pere = models.CharField(max_length=100)
     email_mere = models.CharField(max_length=100)
-    photo_url = models.CharField(max_length=200)
+    photo_url = models.CharField(max_length=300)
+    photo = models.ImageField(upload_to=renommage_photo_eleve, default='photos/profil.jpg')
     annee_scolaire = models.CharField(max_length=100)
     redouble = models.CharField(max_length=100)
+    age = models.IntegerField(default=0)
     archived = models.CharField(max_length=2,default="0")
 
     divisions_temps = models.ArrayReferenceField(

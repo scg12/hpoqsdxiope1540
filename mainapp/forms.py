@@ -7,15 +7,15 @@ from django.contrib.auth.models import Group, User
 from django.utils.translation import ugettext_lazy as _
 
 class EtudiantForm(forms.Form):
-    matricule = forms.CharField(
-        label=_('MATRICULE'),
-        max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE MATRICULE', 'class': 'form-control form-group matricule', 'style': 'text-transform:uppercase' }),
-    )
+    # matricule = forms.CharField(
+    #     label=_('MATRICULE'),
+    #     max_length=100,
+    #     widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE MATRICULE', 'class': 'form-control form-group matricule', 'style': 'text-transform:uppercase' }),
+    # )
     nom = forms.CharField(
         label='NOM',
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE AGE', 'class': 'form-control form-group nom', 'style': 'text-transform:uppercase'}),
+        widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE NOM', 'class': 'form-control form-group nom', 'style': 'text-transform:uppercase'}),
     )
     prenom = forms.CharField(
         label=_('PRENOM'),
@@ -25,6 +25,95 @@ class EtudiantForm(forms.Form):
     age = forms.IntegerField(
         label='ÂGE',
         widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
+    )
+
+class EleveForm(forms.Form):
+    nom = forms.CharField(
+        label='Nom',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom', 'style': 'text-transform:uppercase'}),
+    )
+    prenom = forms.CharField(
+        label=_('Prénom'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom', 'style': 'text-transform:capitalize'}),
+    )
+    sexe = forms.CharField(
+        label='Sexe',
+        max_length=5,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group sexe', 'style': 'text-transform:capitalize'}),
+    )
+    adresse = forms.CharField(
+        label='Adresse',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group adresse', 'style': 'text-transform:capitalize'}),
+    )
+    date_naissance = forms.CharField(
+        label='Date Naissance',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group date_naissance'}),
+    )
+    lieu_naissance = forms.CharField(
+        label='Lieu Naissance',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group lieu_naissance'}),
+    )
+    date_entree = forms.CharField(
+        label='Date Entrée',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group date_entree', 'style': 'text-transform:capitalize'}),
+    )
+    nom_pere = forms.CharField(
+        label='Nom Père',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_pere', 'style': 'text-transform:capitalize'}),
+    )
+    prenom_pere = forms.CharField(
+        label='Prénom Père',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_pere', 'style': 'text-transform:capitalize'}),
+    )
+    nom_mere = forms.CharField(
+        label='Nom Mère',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_mere', 'style': 'text-transform:capitalize'}),
+    )
+    prenom_mere = forms.CharField(
+        label='Prénom Mère',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_mere', 'style': 'text-transform:capitalize'}),
+    )
+    tel_pere = forms.CharField(
+        label='Téléphone Père',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_pere', 'style': 'text-transform:capitalize'}),
+    )
+    tel_mere = forms.CharField(
+        label='Téléphone Mère',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_mere', 'style': 'text-transform:capitalize'}),
+    )
+    email_pere = forms.CharField(
+        label='Email Père',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group email_pere', 'style': 'text-transform:capitalize'}),
+    )
+    email_mere = forms.CharField(
+        label='Email Mère',
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group email_mere', 'style': 'text-transform:capitalize'}),
+    )
+    photo = forms.ImageField(
+        #label='', 
+        help_text="Formats accepted: JPEG nd PNG", 
+        required=False,
+        #validators=[FileTypeValidator(allowed_types=[ 'image/jpeg','image/png'])],
+        widget=forms.ClearableFileInput(attrs={ 'class': ' file-image','style':'display:none', 'name' : 'photo', 'id': 'file'}),
+    )
+    redouble = forms.CharField(
+        label='Redouble',
+        max_length=2,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group redouble', 'style': 'text-transform:capitalize'}),
     )
 
 class GroupForm(forms.ModelForm):
