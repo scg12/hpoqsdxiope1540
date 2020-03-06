@@ -215,8 +215,8 @@ class CoursSerializer(serializers.Serializer):
     id_matiere = serializers.IntegerField(default=1)
     code_matiere = serializers.CharField(max_length=150)
     coef = serializers.FloatField()
-    volume_horaire_hebdo = serializers.IntegerField()
-    volume_horaire_annuel = serializers.IntegerField()
+    volume_horaire_hebdo = serializers.CharField(max_length=150)
+    volume_horaire_annuel = serializers.CharField(max_length=150)
     nom_cycle = serializers.CharField(max_length=150)
     nom_sousetab = serializers.CharField(max_length=150)
     nom_etab = serializers.CharField(max_length=150)
@@ -227,7 +227,7 @@ class CoursSerializer(serializers.Serializer):
     id_etab = serializers.IntegerField(default=1)
 
     def create(self, validated_data):
-        return Classe.objects.create(**validated_data)
+        return Cours.objects.create(**validated_data)
         
     def update(self, instance, validated_data):
         instance.nom_matiere = validated_data.get('nom_matiere', instance.nom_matiere.lower())

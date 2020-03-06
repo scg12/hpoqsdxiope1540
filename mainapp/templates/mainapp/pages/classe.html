@@ -1,0 +1,438 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/classes.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th, td {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+/* 
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF} */
+
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_classes' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_classe.html' %}
+{% endblock %}
+
+  {% block content %}
+    
+      <div class="container-fluid">
+        <div class="row">
+
+          <div class="col-md-12">
+
+            <div class="card">
+              
+              <div class="card-body">
+                  <div class="row">
+
+                    <div class="col-sm-12 col-md-12">
+                      <p class="h3 text-center">CLASSE : {{ classe.nom_classe }}</p>
+                    </div>
+
+                  </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-12 col-md-8">
+                            
+                             <label>Afficher </label> 
+                             <select id="nbre_element_par_page" class="form-control-sm">
+                                
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="150">150</option>
+                                <option value="200">200</option>
+                                <option value="-1">Tout</option>
+                              </select> 
+                              <label>Elements</label> 
+                            
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                          <form action="{% url 'mainapp:recherche_classe' %}" class="recherche_classe" method="GET">
+                            {% csrf_token %}
+                              <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                              <div id="message" ></div>
+                          </form>
+                          
+                        </div>
+
+                    </div>
+                   <!--  <div class="fixed-btn-add">
+                       {% if perms.mainapp.can_add_cours or perms.mainapp.add_classe %}
+                         <button type="button" rel="tooltip" class="cursus-btn-round ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
+                             <i class="material-icons text_align-center">add</i>
+                         </button>
+                       {% endif %}
+                   </div> -->
+                    
+
+              <div class="table-responsive">
+                    <div class="table-scroll">
+                      <table class="table">
+                        <thead class="">
+                          <tr>
+                            <th scope="col" class="fix-col" >#
+                                  
+                            </th>
+                            
+                            <th scope="col" class="nom_classe fix-col1 active" >
+                                <span class="tri tri-asc">Nom
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span>                                                       
+                            </th>
+                            <th scope="col" class="nom_niveau" >
+                                <span class="tri tri-asc">Prenom
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span>                                                       
+                            </th>
+                            <th scope="col" class="nom_cycle" >
+                                <span class="tri tri-asc">Matricule
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span>                                                       
+                            </th>
+                            <th scope="col" class="nom_cycle" >
+                                <span class="tri tri-asc">Sexe
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span>                                                       
+                            </th>
+                            <th scope="col" class="nom_sousetab">
+                                <span class="tri tri-asc">Date Naissance
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span>                                  
+                            </th>
+                            <th scope="col" class="nom_etab">
+                                <span class="tri tri-asc">Lieu Naissance
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span> 
+                               
+                            </th>
+                            <th scope="col" class="nom_etab">
+                                <span class="tri tri-asc">Date Entrée
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span> 
+                               
+                            </th>
+                            <th scope="col" class="nom_etab">
+                                <span class="tri tri-asc">Redouble?
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span> 
+                               
+                            </th>
+                            <th scope="col" class="nom_etab">
+                                <span class="tri tri-asc">Santé
+                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                </span> 
+                               
+                            </th>
+                            <th scope="col" class="text-right">Opérations
+                            </th>
+
+                          </tr>
+                        </thead>
+                        <tbody>
+                           
+                                {% for eleve in page_active  %}
+                                <tr class="{{ eleve.id }}²²{{ eleve.nom }}²²{{ eleve.nom_prenom }}²²{{ eleve.matricule }}²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}">
+                                  <th scope="row" class="detail-eleve-link-td fix-col"><img class="photo" src="/../../media/photos/22_signe.jpeg" width="30px" height="30px"></th>
+                                 
+                                  <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ eleve.nom }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.prenom }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.matricule }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.sexe }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.date_naissance }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.lieu_naissance }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.date_entree }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.redouble }}</td>
+                                  <td class="detail-eleve-link-td" style="text-transform: capitalize;">
+
+                                    {% if eleve.etat_sante == "0" %}                                                      
+                                        <div class="etat-sante-signe vert" style=""></div>
+                                    {% elif eleve.etat_sante == "1" %}                                 
+                                        <div class="etat-sante-signe orange" style=""></div>
+                                    {% else %}
+                                       <div class="etat-sante-signe rouge" style=""></div>                            
+                                    {% endif %}
+
+                                  </td>
+                                    
+                                  <td class="td-actions text-right"> 
+                                  <!-- 
+                                  {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
+                                    <button rel="tooltip" class="btn btn-cursus modifier-classe-link">
+                                        <i class="material-icons">edit</i>
+                                    </button>
+                                    {% endif %}
+                                  
+                                    {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
+                                    <button class="btn btn-cursus supprimer-classe-link">
+                                        <i class="material-icons">close</i>
+                                    </button>
+                                    {% endif %}
+                                  -->
+                                      
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">insert_chart</i></a>
+
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">edit</i></a>
+                                    
+                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">contact_mail</i></a>
+                                                         
+                                  </td> 
+
+                                </tr>
+
+                                {% empty %}
+                                  <tr>
+                                    <td colspan="10" class="text-center h4">Aucun classe(s) créé(s) </td>
+                                  </tr>
+                            {% endfor %}
+
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <th scope="col" class="fix-col">#</th>
+                            <th scope="col" class="fix-col1">Nom</th>
+                            <th scope="col" >Prenom</th>
+                            <th scope="col" >Matricule</th>
+                            <th scope="col">Sexe</th>
+                            <th scope="col">Date Naissance</th>                             
+                            <th scope="col">Lieu Naissance</th>                             
+                            <th scope="col">Date Entrée</th>                             
+                            <th scope="col">Redouble</th>                             
+                            <th scope="col">Santé</th>                             
+                            <th scope="col">Actions</th>                              
+
+                          </tr>
+                        </tfoot>
+                  
+                    </table>
+                    </div>
+
+              </div>      
+      
+                       {% block pagination %}
+                          {% include 'mainapp/layouts/_pagination.html' %}
+                      {% endblock %}
+                          
+                  
+                  
+              </div>
+
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+
+
+        <!-- Detail-Dialog box -->
+      <div class="modal fade" id="modal_detail_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+
+                  <div class="modal-body ">
+                      <div class="card-body card-primary">
+                        <p class="h4 text-center">DETAIL CLASSE</p>
+                        <form method="post"  class="detail_classe" action=" ">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+
+                              <div class="text-center">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                             </div>
+
+                        </form>
+
+                      </div>
+                      
+                  </div>
+                     
+              </div>
+          </div>
+      </div>
+
+
+        <!-- dialog box ajouter classe  -->
+
+      <div class="modal fade" id="modal_ajouter_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+                      <div class="modal-body ">
+                        <div class="card-body">
+                          <p class="h4 text-center">AJOUTER CLASSE</p>
+                          <form method="post"  class="" action="{% url 'mainapp:creation_classe' %}">
+                              {% csrf_token %}
+                              {{ form.as_p }}
+
+                               <label id="message"></label>
+                              <div class="text-center">
+                                  <button type="submit" class="btn">Créer</button>
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                               </div>
+                          </form>
+
+                        </div>
+                        
+                    </div>
+         
+              </div>
+          </div>
+      </div>
+
+        <!-- dialog box modifier classe  -->
+
+      <div class="modal fade" id="modal_modifier_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+
+                  <div class="modal-body ">
+                    <div class="card-body">
+                      <p class="h4 text-center">MODIFIER CLASSE</p>
+                         <form method="post" class="modifier_classe" action="{% url 'mainapp:modification_classe' %}">
+                          {% csrf_token %}
+                          {{ form.as_p }}
+
+                            <input type="hidden" name="id_modif" id="id_modif">
+                            <div class="text-center">
+                              <button type="submit" class="btn">Modifier</button>
+                              <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                              
+                            </div>
+                          </form>
+                    </div>
+                    
+                  </div>
+                          
+              </div>
+          </div>
+      </div>
+
+
+
+        <!-- Suppression-Dialog box -->
+
+      <div class="modal fade" id="modal_supprimer_classe" tabindex="-1" role="">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content card card-nav-tabs">
+                  <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
+                  </div>
+                  <div class="modal-body ">
+                      <div class="card-body card-primary">
+
+                        <form method="post"  class="suppression_classe" action="{% url 'mainapp:suppression_classe' %} ">
+                          <p class="h4 text-center">SUPPRIMER CLASSE</p>
+                            {% csrf_token %}
+                              <input type="hidden" name="id_supp" id="id_supp">
+
+                              <div class="form-group">
+                                <label class="">Classe : </label>
+                                <label class="nom_classe"></label>
+                              </div>
+                              <div class="form-group">
+                                <label class="">Niveau : </label>
+                                <label class="nom_niveau"></label>
+                              </div>
+                              <div class="form-group">
+                                <label class="">Cycle : </label>
+                                <label class="nom_cycle"></label>
+                              </div>
+
+                              <div class="form-group">
+                                <label class="">Sous Etab : </label>
+                                <label class="nom_sousetab"></label>
+                              </div>
+
+                              <div class="form-group">
+                                <label class="">etablissement : </label>
+                                <label class="nom_etab"></label>
+                              </div>
+                              
+                              <div class="card-body">Voulez vous vraiment supprimer?</div>
+                              <div class="text-center">
+                                <button type="submit" class="btn">OUI</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                              </div>
+
+                        </form>
+
+                      </div>
+                      
+                  </div>
+                     
+              </div>
+          </div>
+      </div>
+
+
+
+        <!-- markup -->
+        <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+            <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+
+      <button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
+
+
+  {% endblock %}
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+
+    
+  {% endblock %}

@@ -551,7 +551,7 @@ class PayementChambre(models.Model):
     def __str__(self):
             return self.date_deb_valide
 class Eleve(models.Model):
-    matricule = models.CharField(max_length=30)
+    matricule = models.CharField(max_length=100)
     nom = models.CharField(max_length=100)
     adresse = models.CharField(max_length=200, default="")
     prenom = models.CharField(max_length=150)
@@ -573,6 +573,7 @@ class Eleve(models.Model):
     redouble = models.CharField(max_length=100)
     age = models.IntegerField(default=0)
     archived = models.CharField(max_length=2,default="0")
+    etat_sante = models.CharField(max_length=2,default="0")
 
     divisions_temps = models.ArrayReferenceField(
         to=DivisionTemps,
@@ -620,6 +621,7 @@ class Cours(models.Model):
     id_matiere = models.IntegerField(default=1)
     code_matiere = models.CharField(max_length=100)
     coef = models.FloatField()
+    annee_scolaire = models.CharField(max_length=100)
     volume_horaire_hebdo = models.CharField(max_length=10)
     volume_horaire_annuel = models.CharField(max_length=10)
     archived = models.CharField(max_length=2,default="0")
@@ -664,7 +666,7 @@ class Cours(models.Model):
 
     objects = models.DjongoManager()
     def __str__(self):
-        return self.nom_cours
+        return self.nom_matiere
 
 
 
@@ -733,9 +735,12 @@ class Classe(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.nom_classe
-    def nom_de_ma_classe(self):
-        return self.classe.nom_classe
 
+    # def liste_eleves(self):
+    #     p = Cours.
+    #     my_sous_etab = SousEtab.objects.filter(cycles__id = self.id )
+
+    
 class AdminStaff(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     nom = models.CharField(max_length=100)

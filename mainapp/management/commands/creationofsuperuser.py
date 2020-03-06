@@ -15,7 +15,7 @@ class Command(createsuperuser.Command):
         if current_nb_superuser >= MAX_SUPERUSER:
             raise CommandError("There is no room for you, pass your way!")
         else:
-            user_ulrich = User.objects.create_user(username='ulrich', email='ulrichguebayie@gmail.com', password='ABCDE2019', is_superuser = True, is_staff = True)
+            user_ulrich = User.objects.create_user(username='ulrich', email='ulrichguebayi@gmail.com', password='ABCDE2019', is_superuser = True, is_staff = True)
             user_gerard = User.objects.create_user(username='gerard', email='gerard.signe@gmail.com', password='ABCDE2019', is_superuser = True, is_staff = True)
 
 

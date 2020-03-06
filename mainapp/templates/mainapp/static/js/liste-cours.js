@@ -9,7 +9,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_cours");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -35,7 +35,7 @@ $(document).ready(function(){
           if(data.permissions.indexOf("cours") == -1){
             $("table tbody tr").remove();
 
-             nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
+             nouvelle_ligne = '<tr><td colspan="10" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
              $("table tbody").append(nouvelle_ligne);
           }else{
 
@@ -45,7 +45,7 @@ $(document).ready(function(){
             //$("table thead").remove();
               //alert("1");
 
-              liste_classes = data.classes;
+              liste_cours = data.cours;
               nbre_element_par_page = data.nbre_element_par_page;
               numero_page_active = data.numero_page_active;
               liste_page = data.liste_page;
@@ -64,29 +64,40 @@ $(document).ready(function(){
       /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
-                fin = data.classes.length;
+                fin = data.cours.length;
               }
 
-              if (liste_classes.length != 0){
+              if (liste_cours.length != 0){
 
                   for (var i = debut; i < fin; i++) {
 
-                      nom_etab = liste_classes[i].nom_etab;
-                      nom_sousetab = liste_classes[i].nom_sousetab                      
-                      nom_niveau = liste_classes[i].nom_niveau;
-                      nom_cycle = liste_classes[i].nom_cycle;
-                      nom_classe = liste_classes[i].nom_classe;
-                      id = liste_classes[i].id;
+                      nom_etab = liste_cours[i].nom_etab;
+                      nom_sousetab = liste_cours[i].nom_sousetab                      
+                      nom_niveau = liste_cours[i].nom_niveau;
+                      nom_cycle = liste_cours[i].nom_cycle;
+                      nom_classe = liste_cours[i].nom_classe;
+                      nom_matiere = liste_cours[i].nom_matiere;
+                      code_matiere = liste_cours[i].code_matiere;
+                      volume_horaire_hebdo = liste_cours[i].volume_horaire_hebdo;
+                      volume_horaire_annuel = liste_cours[i].volume_horaire_annuel;
+                      coef = liste_cours[i].coef;
+                      id = liste_cours[i].id;
                       // alert(nom_etab, nom_sousetab, nom_classe, id);
                         nouvelle_ligne = "<tr class='"+ id +'²²'+ nom_classe +'²²'+ nom_niveau +'²²'+ nom_cycle + '²²'+ nom_sousetab +'²²'+ nom_etab +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-classe-link-td fix-col1">'+ nom_classe + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_niveau + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_cycle + '</td><td style="text-transform: capitalize;" class="detail-classe-link-td">' + nom_sousetab + '</td><td class="detail-classe-link-td">'+ nom_etab +'</td><td class="td-actions text-right">';
+                    '</th><td style="text-transform: uppercase;" class="detail-classe-link-td fix-col1">'+ 
+                    code_matiere+ '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ nom_matiere + '</td><td style="text-transform: uppercase;" class="detail-classe-link-td">'+ 
+                    nom_classe + '</td><td style="text-transform: capitalize;" class="detail-classe-link-td">' + 
+                    coef + '</td><td class="detail-classe-link-td">' +
+                    
+                    nom_cycle + '</td><td class="detail-classe-link-td">'+ 
+                    nom_sousetab + '</td>'+ '<td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="detail-classe-link-td btn" data-toggle="modal" data-target="#modal_detail_classe"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-classe-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
                    
                     //$("table tbody button:last").addClass("supprimer-classe-link");
-                    // alert(data.permissions.indexOf("classes"));
+                    // alert(data.permissions.indexOf("cours"));
 
                         index_model = data.permissions.indexOf("cours")
                         /*if(data.permissions[index_model + 1] ==1 ){
@@ -118,21 +129,24 @@ $(document).ready(function(){
                 precedent = numero_page_active - 1;
 
 
-                $(".pagination .contenu").remove();
+                                $(".pagination .contenu").remove();
 
                 resultat_pagination = '<div class="contenu">';
 
+                resultat_pagination += '<span class="pagination-element" id="1">PREMIER </span>';
+
+
                 if(possede_page_precedente == true){
-                  resultat_pagination += '<span class="pagination-element" id="'+precedent +'"><i class="material-icons">arrow_back_ios</i></span>';
+                  resultat_pagination += '<span class="pagination-element" id="'+precedent +'">PREC </span>';
                 }else{
-                  resultat_pagination += '<span class="pagination-element" id="" disabled><i class="material-icons">arrow_back_ios</i></span>';
+                  resultat_pagination += '<span class="pagination-element-inactive">PREC </span>';
                 }
 
                 for (var num_page= 0; num_page < liste_page.length; num_page++) {
 
                     if (liste_page[num_page] == numero_page_active){
                      
-                      resultat_pagination +='<button class="cursus-btn-pagination pagination-element" id="'+liste_page[num_page]+'">'+ liste_page[num_page]+'</button>';
+                      resultat_pagination +='<button class="cursus-btn-pagination pagination-element pagination-element-on" id="'+liste_page[num_page]+'">'+ liste_page[num_page]+'</button>';
                     
                     }else{
                       
@@ -143,11 +157,13 @@ $(document).ready(function(){
                 }
 
                 if(possede_page_suivante == true){
-                  resultat_pagination += '<span class="pagination-element" id="'+ suivant +'"><i class="material-icons">arrow_forward_ios</i></span>'
+                  resultat_pagination += '<span class="pagination-element" id="'+ suivant +'">SUIV</span>'
                 }else{
-                  resultat_pagination += '<span class="pagination-element" id="" disabled><i class="material-icons">arrow_forward_ios</i></span>'
+                  resultat_pagination += '<span class="pagination-element-inactive">SUIV</span>'
                 }
-            
+                
+                resultat_pagination += '<span class="pagination-element" id="'+ liste_page.length +'"> DERNIER </span>';
+
                 resultat_pagination += '</div>';
 
                 $(".pagination").append(resultat_pagination);
@@ -177,10 +193,11 @@ $(document).ready(function(){
 
       /* mettre a jour le nouveau theme de l'utilisateur */
       $(".sidebar").attr("data-color", data_color);
-      $(".sidebar").addClass(sidebar_class);
+      // $(".sidebar").addClass(sidebar_class);
       $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
       $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
-
+      $(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(theme_class);
+      
       }
 
       function gererErreur(error) {
@@ -297,7 +314,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_cours");
         var url_action = form.attr("action");
 
         var trier_par = "non defini";
@@ -398,7 +415,7 @@ $(document).ready(function(){
 
           var recherche = $("#recherche").val().trim();
 
-          var form = $(".recherche_classe");
+          var form = $(".recherche_cours");
           var url_action = form.attr("action");
 
           var trier_par = "non defini";
@@ -451,7 +468,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " ";
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_cours");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
@@ -489,7 +506,7 @@ $(document).ready(function(){
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_classe");
+        var form = $(".recherche_cours");
         var url_action = form.attr("action");
         var trier_par = $(this).parents("th").attr("class").split(" ")[0];
         
