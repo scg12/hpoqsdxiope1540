@@ -8186,7 +8186,12 @@ def getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,ma
                 # print('on y est: {}'.format(newmat[position[id]]))
         else:
             # print('toto {}'.format(matformat[position[id]]))
-            c1, c2 = matformat[position[id]][0],matformat[position[id]][1]
+            # print("---- Ici matformat=", matformat, "id = ", id, " position[id] ", position[id], " newmat = ", newmat)
+            # c1 = matformat[position[id]][0]
+            # c2 = matformat[position[id]][1]
+            c1 = matformat[position[id]]
+            c2 = matformat[position[id]+1]
+            # print("---- LA c1 = ", c1, " c2 = ", c2)
             if val == c2:
                 newmat[position[id]] = c1
             else:
