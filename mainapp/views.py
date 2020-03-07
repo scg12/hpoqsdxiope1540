@@ -6324,11 +6324,12 @@ def modifier_theme(request):
 
         return JSONResponse(data)
 
-def classe(request,id, page=1,nbre_element_par_page=50):
+def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_page):
     
     classe = Classe.objects.filter(id=id)[0]
-    eleves = Cours.objects.filter(id_classe = id)[0].eleves.all()
+    eleves = Cours.objects.filter(id_classe = id)[0].eleves.all().order_by('nom')
     
+    cours = Cours.objects.filter(id_classe = id);
     classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière

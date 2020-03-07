@@ -68,6 +68,14 @@ tr:nth-child(odd) {background: #FFF} */
 
                     <div class="col-sm-12 col-md-12">
                       <p class="h3 text-center">CLASSE : {{ classe.nom_classe }}</p>
+                      <p class="h4 ">COURS : 
+
+                        <select>
+                          {% for c in cours %}
+                          <option>{{ c.nom_matiere }}</option>
+                          {% endfor %}
+                        </select></p>
+                        <p>COEFF : </p>
                     </div>
 
                   </div>
