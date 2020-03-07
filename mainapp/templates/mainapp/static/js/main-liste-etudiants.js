@@ -42,7 +42,7 @@ $(document).ready(function(){
       function gererSucces(data){
         console.log(data);
 
-          if(data.permissions.indexOf("etudiant") == -1){
+          if(data.permissions.indexOf("eleve") == -1){
             $("table tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
@@ -97,7 +97,7 @@ $(document).ready(function(){
                     //$("table tbody button:last").addClass("supprimer-eleve-link");
                     // alert(data.permissions.indexOf("etudiants"));
 
-                        index_model = data.permissions.indexOf("etudiant")
+                        index_model = data.permissions.indexOf("eleve")
                         if(data.permissions[index_model + 1] ==1 ){
                           nouvelle_ligne += view;
                         }                      

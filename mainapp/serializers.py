@@ -43,6 +43,57 @@ class EtudiantSerializer(serializers.Serializer):
         
         return instance
 
+class EleveSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    matricule = serializers.CharField(max_length=30)
+    nom = serializers.CharField(max_length=100)
+    prenom = serializers.CharField(max_length=150)
+    sexe = serializers.CharField(max_length=2)
+    date_naissance = serializers.CharField(max_length=100)
+    lieu_naissance = serializers.CharField(max_length=100)
+    date_entree = serializers.CharField(max_length=50)
+    nom_pere = serializers.CharField(max_length=100)
+    prenom_pere = serializers.CharField(max_length=100)
+    nom_mere = serializers.CharField(max_length=100)
+    prenom_mere = serializers.CharField(max_length=100)
+    tel_pere = serializers.CharField(max_length=100)
+    tel_mere = serializers.CharField(max_length=100)
+    email_pere = serializers.CharField(max_length=100)
+    email_mere = serializers.CharField(max_length=100)
+    # photo_url = serializers.CharField(max_length=200)
+    annee_scolaire = serializers.CharField(max_length=100)
+    redouble = serializers.CharField(max_length=2)
+    age = serializers.IntegerField()
+    # archived = serializers.CharField(max_length=2)
+
+    def create(self, validated_data):
+        return Eleve.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.matricule = validated_data.get('matricule', instance.matricule.lower())
+        instance.nom = validated_data.get('nom', instance.nom.lower())
+        instance.prenom = validated_data.get('prenom', instance.prenom.lower())
+        instance.date_naissance = validated_data.get('date_naissance', instance.date_naissance.lower())
+        instance.lieu_naissance = validated_data.get('lieu_naissance', instance.lieu_naissance.lower())
+        instance.date_entree = validated_data.get('date_entree', instance.date_entree.lower())
+        instance.nom_pere = validated_data.get('nom_pere', instance.nom_pere.lower())
+        instance.prenom_pere = validated_data.get('prenom_pere', instance.prenom_pere.lower())
+        instance.nom_mere = validated_data.get('nom_mere', instance.nom_mere.lower())
+        instance.prenom_mere = validated_data.get('prenom_mere', instance.prenom_mere.lower())
+        instance.tel_pere = validated_data.get('tel_pere', instance.tel_pere.lower())
+        instance.tel_mere = validated_data.get('tel_mere', instance.tel_mere.lower())
+        instance.email_pere = validated_data.get('email_pere', instance.email_pere.lower())
+        instance.email_mere = validated_data.get('email_mere', instance.email_mere.lower())
+        # instance.photo_url = validated_data.get('photo_url', instance.photo_url.lower())
+        instance.annee_scolaire = validated_data.get('annee_scolaire', instance.annee_scolaire.lower())
+        instance.redouble = validated_data.get('redouble', instance.redouble.lower())
+        instance.age = validated_data.get('age', instance.age.lower())
+        # instance.archived = validated_data.get('archived', instance.archived.lower())
+
+        instance.save()
+        
+        return instance
+
 class CycleSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
     cycle_id = serializers.IntegerField(read_only=True)
