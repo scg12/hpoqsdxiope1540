@@ -6707,6 +6707,9 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
     eleves = Cours.objects.filter(id_classe = id)[0].eleves.all().order_by('nom')
     
     cours = Cours.objects.filter(id_classe = id);
+
+    first_cours = Cours.objects.filter(id_classe = id)[0];
+
     classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière

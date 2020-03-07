@@ -72,10 +72,15 @@ tr:nth-child(odd) {background: #FFF} */
 
                         <select>
                           {% for c in cours %}
-                          <option>{{ c.nom_matiere }}</option>
+                          
+                            {% if c.nom_matiere == first_cours.nom_matiere %}
+                                <option selected="">{{ c.nom_matiere }}</option>
+                            {% else %}
+                            <option>{{ c.nom_matiere }}</option>
+                            {% endif %}
                           {% endfor %}
                         </select></p>
-                        <p>COEFF : </p>
+                        <p>COEFF : {{ first_cours.coef }}</p>
                     </div>
 
                   </div>
