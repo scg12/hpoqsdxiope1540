@@ -944,6 +944,7 @@ class SousEtab(models.Model):
     nom_fondateur = models.CharField(max_length=100)
     localisation = models.CharField(max_length=200)
     appellation_coef = models.CharField(max_length=100)
+    position = models.CharField(max_length=30)
     bp = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
     tel1 = models.CharField(max_length=100)
