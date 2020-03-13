@@ -126,56 +126,59 @@ tr:nth-child(odd) {background: #FFF} */
                       <table class="table">
                         <thead class="">
                           <tr>
-                            <th scope="col" class="fix-col" >#
+                            <th scope="col" class="fix-col0 " >#
+                                  
+                            </th>
+                            <th scope="col" class="fix-col1" >Photo
                                   
                             </th>
                             
-                            <th scope="col" class="nom_classe fix-col1 active" >
+                            <th scope="col" class="nom_classe fix-col2 active" >
                                 <span class="tri tri-asc">Nom
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px" style="display: block"> -->
                                 </span>                                                       
                             </th>
                             <th scope="col" class="nom_niveau" >
                                 <span class="tri tri-asc">Prenom
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span>                                                       
                             </th>
                             <th scope="col" class="nom_cycle" >
                                 <span class="tri tri-asc">Matricule
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span>                                                       
                             </th>
                             <th scope="col" class="nom_cycle" >
                                 <span class="tri tri-asc">Sexe
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!--<img src="{% static 'images/arrow.png' %}" width="20px" height="20px">-->
                                 </span>                                                       
                             </th>
                             <th scope="col" class="nom_sousetab">
                                 <span class="tri tri-asc">Date Naissance
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px" > -->
                                 </span>                                  
                             </th>
                             <th scope="col" class="nom_etab">
                                 <span class="tri tri-asc">Lieu Naissance
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span> 
                                
                             </th>
                             <th scope="col" class="nom_etab">
-                                <span class="tri tri-asc">Date Entrée
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                <span class="tri tri-asc">Entrée
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span> 
                                
                             </th>
                             <th scope="col" class="nom_etab">
                                 <span class="tri tri-asc">Redouble?
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span> 
                                
                             </th>
                             <th scope="col" class="nom_etab">
                                 <span class="tri tri-asc">Santé
-                                  <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                  <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px"> -->
                                 </span> 
                                
                             </th>
@@ -188,51 +191,64 @@ tr:nth-child(odd) {background: #FFF} */
                            
                                 {% for eleve in page_active  %}
                                 <tr class="{{ eleve.id }}²²{{ eleve.nom }}²²{{ eleve.nom_prenom }}²²{{ eleve.matricule }}²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}">
-                                  <th scope="row" class="detail-eleve-link-td fix-col"><img class="photo" src="/../../media/photos/22_signe.jpeg" width="30px" height="30px"></th>
-                                 
-                                  <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ eleve.nom }}</td>
+                                  
+                                  <th scope="row" class="detail-eleve-link-td fix-col0">{{ forloop.counter }}</th>
+                                
+                                  <td class="detail-eleve-link-td fix-col1"><img class="photo" src="/../../media/photos/22_signe.jpeg" width="30px" height="30px"></td>
+                                  <td class="detail-eleve-link-td fix-col2" style="text-transform: uppercase;">
+                                    {{ eleve.nom }}&nbsp;{{ eleve.nom }}</td>
+                                    
+                                      
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.prenom }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.matricule }}</td>
+                                  
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.sexe }}</td>
+                                  
                                   <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ eleve.date_naissance }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.lieu_naissance }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.date_entree }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">{{ eleve.redouble }}</td>
                                   <td class="detail-eleve-link-td" style="text-transform: capitalize;">
-
+                                
                                     {% if eleve.etat_sante == "0" %}                                                      
-                                        <div class="etat-sante-signe vert" style=""></div>
+                                        <div class="etat-sante-signe vert1" style=""></div>
                                     {% elif eleve.etat_sante == "1" %}                                 
-                                        <div class="etat-sante-signe orange" style=""></div>
+                                        <div class="etat-sante-signe jaune" style=""></div>
                                     {% else %}
-                                       <div class="etat-sante-signe rouge" style=""></div>                            
+                                       <div class="etat-sante-signe rouge1" style=""></div>                            
                                     {% endif %}
-
+                                
                                   </td>
                                     
                                   <td class="td-actions text-right"> 
-                                  <!-- 
-                                  {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
-                                    <button rel="tooltip" class="btn btn-cursus modifier-classe-link">
-                                        <i class="material-icons">edit</i>
-                                    </button>
-                                    {% endif %}
                                   
-                                    {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
-                                    <button class="btn btn-cursus supprimer-classe-link">
-                                        <i class="material-icons">close</i>
-                                    </button>
-                                    {% endif %}
-                                  -->
+                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
+                                        <button rel="tooltip" class="btn btn-link modifier-classe-link">
+                                          <i class="material-icons">edit</i>
+                                        </button>
+                                      {% endif %}
+                                        
+                                      {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
+                                        <button class="btn btn-link supprimer-classe-link">
+                                          <i class="material-icons">insert_chart</i>
+                                        </button>
+                                      {% endif %}
+                                        
+                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
+                                        <a rel="tooltip" class="btn btn-link modifier-classe-link">
+                                          <i class="material-icons md-24">contact_mail</i>
+                                        </a>
+                                      {% endif %}
                                       
-                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">insert_chart</i></a>
-
-                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">edit</i></a>
-                                    
-                                        <a class="btn-link" style="color: #506ce9;"><i class="material-icons">contact_mail</i></a>
-                                                         
+                                      {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
+                                        <a class="btn btn-link supprimer-classe-link">
+                                          <i class="material-icons">close</i>
+                                        </a>
+                                      {% endif %}
+  
+                                                                                                
                                   </td> 
-
+                                
                                 </tr>
 
                                 {% empty %}
@@ -244,18 +260,21 @@ tr:nth-child(odd) {background: #FFF} */
                         </tbody>
                         <tfoot>
                           <tr>
-                            <th scope="col" class="fix-col">#</th>
-                            <th scope="col" class="fix-col1">Nom</th>
+                            <th scope="col" class="fix-col0">#</th>
+                            <th scope="col" class="fix-col1">photo</th>
+                            <th scope="col" class="fix-col2">Nom</th>
                             <th scope="col" >Prenom</th>
                             <th scope="col" >Matricule</th>
-                            <th scope="col">Sexe</th>
+                          
+                            <!-- <th scope="col">Sexe</th>-->
+                            
                             <th scope="col">Date Naissance</th>                             
                             <th scope="col">Lieu Naissance</th>                             
                             <th scope="col">Date Entrée</th>                             
                             <th scope="col">Redouble</th>                             
                             <th scope="col">Santé</th>                             
                             <th scope="col">Actions</th>                              
-
+                          
                           </tr>
                         </tfoot>
                   

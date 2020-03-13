@@ -6701,7 +6701,7 @@ def modifier_theme(request):
 
         return JSONResponse(data)
 
-def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_page):
+def classe(request,id, page=1,nbre_element_par_page=200):
     
     classe = Classe.objects.filter(id=id)[0]
     eleves = Cours.objects.filter(id_classe = id)[0].eleves.all().order_by('nom')
