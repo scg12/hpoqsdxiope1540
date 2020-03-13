@@ -105,7 +105,18 @@ def creation_etudiant(request):
             mat_varyindex = int(sousEtab.mat_varyindex)
             first_matricule = sousEtab.first_matricule
 
-            position = [x for x in range(mat_varyindex)]
+            # position = [x for x in range(mat_varyindex)]
+
+            position2 = sousEtab.position
+
+            position3 = list(position2)
+            position = [0]*mat_varyindex
+            idf = 0
+            for item in position3:
+                if item in '0123456789':
+                    position[idf] = int(item)
+                    idf += 1
+                    # print("position : ", position)
             
             matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast[0]))
             # matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
@@ -7011,7 +7022,17 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                     mat_varyindex = int(sousEtab.mat_varyindex)
                     first_matricule = sousEtab.first_matricule
 
-                    position = [x for x in range(mat_varyindex)]
+                    # position = [x for x in range(mat_varyindex)]
+                    position2 = sousEtab.position
+
+                    position3 = list(position2)
+                    position = [0]*mat_varyindex
+                    idf = 0
+                    for item in position3:
+                        if item in '0123456789':
+                            position[idf] = int(item)
+                            idf += 1
+                    print("position : ", position)
 
                     amc = AppellationModuleChapitreLecon()
                     amc.appellation_module = df[df.columns[1]].values[7]
@@ -7552,6 +7573,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                     # idf = 0
                                     while nb_lign > 0 :
                                         if pd.isnull(df2[df2.columns[0]].values[indc])== False:
+                                            # Le nom de l'eleve
                                             print(df2[df2.columns[0]].values[indc])
                                             cross = 1
                                             eleve = Eleve()
@@ -7601,7 +7623,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 # matformat = matformat.split('*')
                                                 # matlast = matformat
                                                 matlast = first_matricule
-                                                print("***PREMIER ELEVE: ", matlast)
+                                                # print("***PREMIER ELEVE: ", matlast)
                                                 # position = [x for x in range(mat_varyindex)]
                                                 eleve.matricule = ''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
                                                 matlast = eleve.matricule
@@ -7824,6 +7846,7 @@ def handle_uploaded_file(f):
             destination.write(chunk)
 
 def matriculeformat(request):
+    # print("POSPOS ",int(SousEtab.objects.filter(pk=1)[0].position))
 
     #gerer les preferences utilisateur en terme de theme et couleur
     if (request.user.id != None):
@@ -7977,6 +8000,7 @@ def matriculeformat(request):
                 
                 # print("posss ", posss)
                 print('position ',position)
+                position2 = position
                 request.session['matformat'] = ''.join(matricule2)
                 request.session['first_matricule'] = ''.join(matok)
                 request.session['fixedindex'] = i
@@ -8019,14 +8043,31 @@ def matriculeformat(request):
                     i = int(request.session.get('mat_fixedindex', None))
                     u = int(request.session.get('mat_yearindex', None))
                     h = int(request.session.get('mat_varyindex', None))
-                    position = [x for x in range(h)]
-
+                    print("********* POSITION", position)
+                    # position = [x for x in range(h)]
+                    position2 = ""
+                    for item in position:
+                        print("ITEM ",item)
+                        position2 += str(item)+"_"
+                    print("FINAL ", position2)
                     print("Mat genere: ",getNextMatt(matformat,position,i,u,h,matricule2))
                     matricule2 = ''.join(matricule2)
 
                     print("*** id modif ***: ", id)
-                    SousEtab.objects.filter(pk=id).update(format_matricule=matformat,mat_fixedindex=i,mat_yearindex=u,mat_varyindex=h,first_matricule = matricule2)
+
+                    # position3 = list(position2)
+                    # position4 = [0]*h
+                    # idf = 0
+                    # for item in position3:
+                    #     if item in '0123456789':
+                    #         position4[idf] = int(item)
+                    #         idf += 1
+                    # print("position4 : ", position4)
+
+                    # print("=== Position: ", position, "Position str: ", str(position)," tab: ", ''.join(str(position)))
+                    SousEtab.objects.filter(pk=id).update(position = position2, format_matricule=matformat,mat_fixedindex=i,mat_yearindex=u,mat_varyindex=h,first_matricule = matricule2)
                     # return render(request,'mainapp/pages/initialisation-fin.html',locals())
+                    # print("POSPOS ",SousEtab.objects.filter(pk=id).position)
                     return redirect('mainapp:initialisation_fin')
 
                 else:
