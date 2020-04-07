@@ -343,17 +343,114 @@ def creation_classe(request):
             nom_cycle = form.cleaned_data['nom_cycle']
             nom_niveau = form.cleaned_data['nom_niveau']
             nom_classe = form.cleaned_data['nom_classe']
-            print(nom_etab," ",nom_sousetab," ",nom_cycle, " ", nom_niveau, " ", nom_classe)
+            specialite = request.POST['choix_specialite'].strip()
+            print(nom_etab," ",nom_sousetab," ",nom_cycle, " ", nom_niveau, " ", nom_classe," ",specialite)
+            print("ICI")
+            # On s'assure que la classe n'existe pas déjà
+            # __iexact pertmet la comparaison en ignorant la casse
+            if Classe.objects.filter(nom_sousetab__iexact = nom_sousetab, nom_classe__iexact = nom_classe, nom_niveau__iexact = nom_niveau).count()== 0:
+                print("Nouvelle classe")
+                classe = Classe()
+                classe.nom_classe = nom_classe
+                classe.nom_niveau = nom_niveau
+                classe.nom_cycle = nom_cycle
+                classe.nom_etab = nom_etab
+                classe.nom_sousetab = nom_sousetab
+                classe.save()
+                id = Classe.objects.values('id').filter(Q( nom_classe__iexact = nom_classe))[0]['id']
 
-            classe = Classe()
-            classe.nom_classe = nom_classe
-            classe.nom_niveau = nom_niveau
-            classe.nom_cycle = nom_cycle
-            classe.nom_etab = nom_etab
-            classe.nom_sousetab = nom_sousetab
-            classe.save()
+                # La classe a été créée avec une spécialité
+                if specialite != "":
+                    classe.specialite = specialite
+                    id_sousetab = SousEtab.objects.values('id').filter(nom_sousetab__iexact = nom_sousetab)[0]['id']
+                    nbre_specialites = Specialite.objects.filter(specialite__iexact = specialite, id_sousetab = id_sousetab).count()
+                    print(nbre_specialites)
+                    id_niveau = Niveau.objects.values('id').filter(nom_niveau__iexact = nom_niveau)[0]['id']
+                    nbre_spe_niv = Specialite.objects.filter(specialite__iexact = specialite, id_sousetab = id_sousetab, id_niveau = id_niveau).count()
+                    liste_classes = str(id)+"_"+nom_classe+"_"
+                    liste_classes_afficher = nom_classe+", "
+                    #  C'est une nouvelle spécialité à enrégistrer
+                    if nbre_spe_niv > 0:
+                        sp = Specialite.objects.filter(specialite__iexact = specialite, id_sousetab = id_sousetab, id_niveau = id_niveau)[0]
+                        sp.liste_classes += liste_classes
+                        sp.liste_classes_afficher += liste_classes_afficher
+                        sp.save()
+                        print("OLD", liste_classes," ", liste_classes_afficher)
+                    elif nbre_specialites == 0:
+                        id_etab = Etab.objects.values('id').filter(nom_etab__iexact = nom_etab)[0]['id']
+
+                        sp = Specialite()
+                        sp.nom_etab = nom_etab
+                        sp.id_etab = id_etab
+                        sp.nom_sousetab = nom_sousetab
+                        sp.id_sousetab = id_sousetab
+                        sp.nom_niveau = nom_niveau
+                        sp.id_niveau = id_niveau
+                        sp.specialite = specialite
+                        sp.liste_classes += liste_classes
+                        sp.liste_classes_afficher = liste_classes_afficher
+                        print("NEW", liste_classes)
+                        print("NEW", liste_classes_afficher)
+                        sp.save()
+                classe.save()
+
 
         return redirect('mainapp:liste_classes')
+
+def creation_specialite(request):
+
+    if request.method == 'GET':
+
+        return render(request, 'mainapp/pages/creation-specialite.html',{'form':SpecialiteForm})
+    elif request.method == 'POST':
+        choix_etab = request.POST["choix_etab"]
+        choix_sousetab = request.POST["choix_sousetab"]
+        specialite = request.POST["specialite"]
+        specialite = specialite.strip()
+
+        if specialite != "":
+
+            specialites = Specialite.objects.values_list('specialite').filter(archived = "0")
+            specialites = [spe[0].lower() for spe in specialites]
+            
+            print(" LA SPECIALITE ", specialite)
+            print(" etab ", choix_etab)
+            nom_etab = choix_etab.split('_')[0].strip()
+            id_etab = int(choix_etab.split('_')[1])
+            if choix_sousetab.lower() == "all":
+                sousetabs = SousEtab.objects.values('id','nom_sousetab','id_etab').all()            
+                for se in sousetabs:
+                    nom_sousetab = se['nom_sousetab']
+                    nbre = Specialite.objects.values('id').filter(Q(specialite__iexact=specialite),Q(nom_sousetab__iexact=nom_sousetab)).count()
+                    if nbre == 0:
+                        spe = Specialite()
+                        spe.id_sousetab = se['id']
+                        spe.id_etab = se['id_etab']
+                        spe.specialite = specialite
+                        spe.nom_etab = nom_etab
+                        spe.nom_sousetab = nom_sousetab
+                        spe.save()
+            else:
+                nom_sousetab = choix_sousetab.split('_')[0].strip()
+                id_sousetab = int(choix_sousetab.split('_')[1])
+                print("NomSousEtab", nom_sousetab)
+                # sousetab = SousEtab.objects.values('id','id_etab','nom_sousetab').filter( )[0]
+                # print(" en BD",sousetab.nom_sousetab)
+                # id_sousetab, id_etab = sousetabs['id'], sousetabs['id_etab']
+                # id_sousetab = int(choix_sousetab.split('_')[1])
+                # [print(spe[0].lower()) for spe in specialites]
+                nbre = Specialite.objects.values('id').filter(Q(specialite__iexact=specialite),Q(nom_sousetab__iexact=nom_sousetab)).count()
+                if nbre == 0:
+                    print("il y est pas encore")
+                    spe = Specialite()
+                    spe.id_sousetab = id_sousetab
+                    spe.id_etab = id_etab
+                    spe.specialite = specialite
+                    spe.nom_etab = nom_etab
+                    spe.nom_sousetab = nom_sousetab
+                    spe.save()
+
+        return redirect('mainapp:liste_specialites')
 
 def creation_cours(request):
 
@@ -1191,7 +1288,12 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classes = Classe.objects.filter(archived = "0").order_by('nom_classe')
+    specialitess = Specialite.objects.values('specialite').filter(archived = "0").order_by('specialite').distinct()
+
+    # liste_classes = "1_3eAll1_2_3eAll2_3_3eAll3_"
+    # liste_afficher = "3eAll1, 3eAll2, 3eAll3, "
+    
 
 
     form = ClasseForm  
@@ -1239,6 +1341,176 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
 
   
     return render(request, 'mainapp/pages/liste-classes.html', locals())
+
+def liste_specialites(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    etabs = Etab.objects.values('id','nom_etab').filter(archived = "0",)
+    sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0",)
+    specialitess = Specialite.objects.values('specialite').filter(archived = "0").order_by('specialite').distinct()
+
+    specialites = Specialite.objects.values('id','specialite','nom_etab','nom_sousetab').filter(archived = "0").order_by('specialite').distinct()
+    for s in specialites:
+        print(s)
+        break
+
+    form = SpecialiteForm  
+    paginator = Paginator(specialites, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gestion de la description textuelle de la pagination
+    nbre_item = len(specialites)
+
+    first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+    if(int(page_active.number)-1 != 0):
+        last_item_page = first_item_page + len(list(paginator.page_range)) -1
+    else:
+        last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-specialites.html', locals())
+
+def liste_classe_specialites(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+    
+    # tab = "24_TleC_25_TleD_27_TleAll_29_TleEsp_"
+    # tab = tab.split("_")
+    # nbre_ = len(tab) - 1
+    # if nbre_ > 0:
+    #     tab.pop(nbre_)
+    #     # clss = [tab[item] for item in range(nbre_) if item % 2 == 1]
+
+    #     clss = ""
+    #     inds = ""
+    #     ind = 0
+    #     for cl in tab:
+    #         if ind % 2 == 1:
+    #             clss += cl+", "
+    #         else:
+    #             inds += cl+", "
+    #         ind += 1
+    #     print(clss)
+    #     print(inds)
+    # classes = Classe.objects.filter(archived = "0").order_by('-specialite')
+    etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
+    sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
+    niveaux = []
+    classes_init = []
+    classes = []
+    specialites = Specialite.objects.values('specialite').filter(~Q(nom_niveau=""),archived = "0")
+    
+    # specialites = [spe[0].lower() for spe in specialites]
+    # [print(s) for s in specialites]
+    if etabs.count() > 0:
+        id_sousetab0 = sousetabs[0]['id']
+        niveaux = Niveau.objects.values('id','nom_niveau').filter(archived = "0",id_sousetab = id_sousetab0)
+        specialitess = Specialite.objects.values('specialite').filter(archived = "0", id_sousetab = id_sousetab0).order_by('specialite').distinct()
+        if niveaux.count() > 0:
+            id_niveau0 = niveaux[0]['id']
+            classes_init = Classe.objects.values('id','nom_classe','code').filter(archived = "0",id_niveau = id_niveau0)
+
+    classes = Specialite.objects.\
+            values('id_niveau','liste_classes_afficher','nom_etab','nom_sousetab','nom_niveau','specialite','liste_classes')\
+            .filter(~Q(nom_niveau=""),archived = "0").distinct().order_by('specialite')
+    for classe in classes:
+        # tab = classe['liste_classes_afficher'].split("_")
+        break
+    #     print("RRR")
+    #     nbre_ = len(tab) - 1
+    #     if nbre_ > 0:
+    #         tab.pop(nbre_)
+    #         # clss = [tab[item] for item in range(nbre_) if item % 2 == 1]
+
+    #         clss = ""
+    #         inds = ""
+    #         ind = 0
+    #         for cl in tab:
+    #             if ind % 2 == 1:
+    #                 clss += cl+", "
+    #             else:
+    #                 inds += cl+", "
+    #             ind += 1
+    #         classe['liste_classes'] = clss
+    #         print(classe)
+
+    # [print(classe) for classe in classes]
+
+    # classes = Classe.objects.values('id_niveau','nom_etab','nom_sousetab','nom_cycle','nom_niveau','specialite')\
+    #             .filter(archived = "0").distinct().order_by('-specialite')
+
+    form = ClasseSpecialiteForm  
+    paginator = Paginator(classes, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gestion de la description textuelle de la pagination
+    nbre_item = len(classes)
+
+    first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+    if(int(page_active.number)-1 != 0):
+        last_item_page = first_item_page + len(list(paginator.page_range)) -1
+    else:
+        last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-classe-specialites.html', locals())
 
 def liste_matieres(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -2214,10 +2486,72 @@ def suppression_niveau(request):
 def suppression_classe(request):
 
     id = int(request.POST['id_supp'])
-    print("id = ", id)    
-    Classe.objects.filter(pk=id).update(archived="1")
+    print("id = ", id)
+    nom_classe = Classe.objects.values('nom_classe').filter(pk = id)[0]['nom_classe']
+    clss = str(id)+"_"+nom_classe+"_"   
+    # Classe.objects.filter(pk=id).update(archived="1", specialite = "")
+    Classe.objects.filter(pk=id).delete()
+    specialites = Specialite.objects.filter(Q(liste_classes__icontains = clss))
+
+    for s in specialites:
+        # print("Inside ...")
+        liste = s.liste_classes.replace(clss,"")
+        liste_classes_afficher = s.liste_classes_afficher.replace(nom_classe+", ","")
+        s.liste_classes = liste
+        s.liste_classes_afficher = liste_classes_afficher
+        if liste == "":
+            # print("Specialite delete ...", s.specialite)
+            # s.nom_niveau = ""
+            s.delete()
+        else:
+            s.save()
 
     return redirect('mainapp:liste_classes')
+
+def suppression_specialite(request):
+
+    id = int(request.POST['id_supp'])
+    print("id = ", id)    
+    
+    specialite_to_delete = Specialite.objects.filter(id = id)[0]
+    print("Specialite", specialite_to_delete)
+
+    inds = []
+    tab = specialite_to_delete.liste_classes.split("_")
+    nbre_ = len(tab) - 1
+    if nbre_ > 0:
+        tab.pop(nbre_)
+        inds = [tab[item] for item in range(nbre_) if item % 2 == 0]
+    print("Classe to delete: ",inds)
+
+    for id_classe in inds:
+        Classe.objects.filter( id = int(id_classe)).update(specialite = "")
+    Specialite.objects.filter(id = id).delete()
+
+    return redirect('mainapp:liste_specialites')
+
+def suppression_classe_specialite(request):
+
+    # Obtenir les classes associées au niveau id et à la spécialité et supprimer
+    id = int(request.POST['id_supp'])
+    print("id = ", id)
+    specialite_to_delete = Specialite.objects.filter(id_niveau = id)[0]
+    print("Specialite", specialite_to_delete)
+
+    inds = []
+    tab = specialite_to_delete.liste_classes.split("_")
+    nbre_ = len(tab) - 1
+    if nbre_ > 0:
+        tab.pop(nbre_)
+        inds = [tab[item] for item in range(nbre_) if item % 2 == 0]
+    print("Classe to delete: ",inds)
+
+    for id_classe in inds:
+        Classe.objects.filter( id = int(id_classe)).update(specialite = "")
+    Specialite.objects.filter(id_niveau = id).delete()
+    # Specialite.objects.filter(id_niveau = id).update(archived="1")
+
+    return redirect('mainapp:liste_classe_specialites')
 
 def suppression_matiere(request):
 
@@ -2418,6 +2752,8 @@ def modification_etablissement(request):
                 Niveau.objects.filter(id_etab = id).update(nom_etab = nom_etab)
                 Classe.objects.filter(id_etab = id).update(nom_etab = nom_etab)
                 Cours.objects.filter(id_etab = id).update(nom_etab = nom_etab)
+                SousEtab.objects.filter(id_etab = id).update(nom_etab = nom_etab)
+                Specialite.objects.filter(id_etab = id).update(nom_etab = nom_etab)
 
             Etab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
                 localisation=localisation,bp=bp,email=email,tel=tel,devise=devise,langue=langue,\
@@ -2473,6 +2809,7 @@ def modification_sous_etablissement(request):
                 Matiere.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 AppellationApprenantFormateur.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Discipline.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Specialite.objects.filter(id_sousetab = id).update(id_sousetab = nom_sousetab)
 
 
             SousEtab.objects.filter(pk=id).update(nom_sousetab=nom_sousetab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
@@ -2502,6 +2839,7 @@ def modification_cycle(request):
                 Classe.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
                 Cours.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
 
+
             Cycle.objects.filter(pk=id).update(nom_cycle=nom_cycle)
 
         return redirect('mainapp:liste_cycles')
@@ -2527,10 +2865,110 @@ def modification_niveau(request):
             if(Niveau.objects.filter(pk=id)[0].nom_niveau.lower() != nom_niveau.lower()):
                 Classe.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
                 ConditionRenvoi.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
+                Specialite.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
+
 
             Niveau.objects.filter(pk=id).update(nom_niveau = nom_niveau)
 
         return redirect('mainapp:liste_niveaux')
+
+def modifier_classe(id, nom_classe, nom_niveau, nom_etab, nom_sousetab, specialite):
+    
+    liste_classes = id+"_"+nom_classe+"_"
+    liste_classes_afficher = nom_classe+", "
+    ids = Classe.objects.values('id_etab','id_sousetab','id_niveau').filter(pk = int(id))[0]
+    id_etab, id_sousetab, id_niveau = ids['id_etab'], ids['id_sousetab'], ids['id_niveau']
+    c = Classe.objects.filter(pk = id)[0]
+
+    if c.nom_classe.lower() == nom_classe.lower():
+        if c.specialite.lower() != specialite.lower():
+            # La classe n'était dans aucune spécialité
+            if c.specialite == "":
+                c.specialite = specialite
+                c.save()
+
+                # On cherche la spécialité ou insérer la classe
+                if Specialite.objects.filter(specialite__iexact = specialite, nom_niveau__iexact = nom_niveau).count() > 0:
+                    spe = Specialite.objects.filter(specialite__iexact = specialite, nom_niveau__iexact = nom_niveau)[0]
+                    if liste_classes not in spe.liste_classes:
+                        spe.liste_classes = spe.liste_classes + liste_classes
+                        spe.liste_classes_afficher = spe.liste_classes_afficher + liste_classes_afficher
+                        spe.save()
+                    specialites = Specialite.objects.filter(~Q(pk = spe.id), Q(liste_classes__icontains = liste_classes))
+                    for s in specialites:
+                        s.liste_classes = s.liste_classes.replace(liste_classes, "")
+                        s.liste_classes_afficher = s.liste_classes_afficher.replace(liste_classes_afficher, "")
+                        s.save()
+                # C'est une nouvelle spécialité
+                else:
+                    sp = Specialite()
+                    sp.nom_etab = nom_etab
+                    sp.id_etab = id_etab
+                    sp.nom_sousetab = nom_sousetab
+                    sp.id_sousetab = id_sousetab
+                    sp.nom_niveau = nom_niveau
+                    sp.id_niveau = id_niveau
+                    sp.specialite = specialite
+                    sp.liste_classes = liste_classes
+                    sp.liste_classes_afficher = liste_classes_afficher
+                    sp.save()
+                    
+            elif specialite == "":
+                c.specialite = ""
+                c.save()
+                specs = Specialite.objects.filter(Q(liste_classes__icontains = liste_classes))
+                for sp in specs:
+                    sp.liste_classes = sp.liste_classes.replace(liste_classes,"")
+                    sp.liste_classes_afficher = sp.liste_classes_afficher.replace(liste_classes_afficher,"")
+                    if sp.liste_classes == "":
+                        sp.delete()
+                    else:
+                        sp.save()
+            # Ancienne et nouvelle spécialité sont différentes
+            elif specialite != "":
+                c.specialite = specialite
+                c.save()
+                print("DEBUT")
+                # On cherche la spécialité ou insérer la classe
+                if Specialite.objects.filter(specialite__iexact = specialite, nom_niveau__iexact = nom_niveau).count() > 0:
+                    spe = Specialite.objects.filter(specialite__iexact = specialite, nom_niveau__iexact = nom_niveau)[0]
+                    if liste_classes not in spe.liste_classes:
+                        spe.liste_classes = spe.liste_classes + liste_classes
+                        spe.liste_classes_afficher = spe.liste_classes_afficher + liste_classes_afficher
+                        spe.save()
+                    specialites = Specialite.objects.filter(~Q(pk = spe.id), Q(liste_classes__icontains = liste_classes))
+                    for s in specialites:
+                        s.liste_classes = s.liste_classes.replace(liste_classes, "")
+                        s.liste_classes_afficher = s.liste_classes_afficher.replace(liste_classes_afficher, "")
+                        if s.liste_classes == "":
+                            s.delete()
+                        else:
+                            s.save()
+                # C'est une nouvelle spécialité
+                else:
+                    sp = Specialite()
+                    sp.nom_etab = nom_etab
+                    sp.id_etab = id_etab
+                    sp.nom_sousetab = nom_sousetab
+                    sp.id_sousetab = id_sousetab
+                    sp.nom_niveau = nom_niveau
+                    sp.id_niveau = id_niveau
+                    sp.specialite = specialite
+                    sp.liste_classes = liste_classes
+                    sp.liste_classes_afficher = liste_classes_afficher
+                    sp.save()
+
+                    print("**ICI")
+                    specs = Specialite.objects.filter(~Q(pk = sp.id), Q(liste_classes__icontains = liste_classes))
+                    print("**count, ", specs.count())
+                    for sp in specs:
+                        print("**On Boucle...")
+                        sp.liste_classes = sp.liste_classes.replace(liste_classes,"")
+                        sp.liste_classes_afficher = sp.liste_classes_afficher.replace(liste_classes_afficher,"")
+                        if sp.liste_classes == "":
+                            sp.delete()
+                        else:
+                            sp.save()
 
 def modification_classe(request):
 
@@ -2548,17 +2986,96 @@ def modification_classe(request):
         nom_niveau = form.cleaned_data['nom_niveau']
         nom_etab = form.cleaned_data['nom_etab']
         nom_sousetab = form.cleaned_data['nom_sousetab']
+        specialite = request.POST['choix_specialite'].strip()
+        # specialite = specialite.lower()
+
+        liste_classes = id+"_"+nom_classe+"_"
+        liste_classes_afficher = nom_classe+", "
+        c = Classe.objects.filter(pk = id)[0]
 
         with transaction.atomic():
-
-            if(Classe.objects.filter(pk=id)[0].nom_classe.lower() != nom_classe.lower()):
+            c = Classe.objects.filter(pk = id)[0]
+            if c.nom_classe.lower() == nom_classe.lower():
+                modifier_classe(id, nom_classe, nom_niveau, nom_etab, nom_sousetab, specialite)
+            else:
+                # On effectue d'abord le rennomage de la classe dans la bd puis on appelle
+                #  la fonction modifier_classe coe ci-dessus car on aura la meme configuration
                 Cours.objects.filter(id_classe = id).update(nom_classe = nom_classe)
+                nom_classe_old = c.nom_classe
+                c.nom_classe = nom_classe
+                c.save()
 
-            Classe.objects.filter(pk=id).update(nom_classe = nom_classe)
+                classe = id+"_"+nom_classe+"_"
+                classe_afficher = nom_classe+", "
+                classe_old = id+"_"+nom_classe_old+"_"
+                classe_afficher_old = nom_classe_old+", "
+
+                specialites = Specialite.objects.filter(Q(liste_classes__icontains = classe_old))
+                for s in specialites:
+                    s.liste_classes = s.liste_classes.replace(classe_old, classe)
+                    s.liste_classes_afficher = s.liste_classes_afficher.replace(classe_afficher_old, classe_afficher)
+                    s.save()
+                modifier_classe(id, nom_classe, nom_niveau, nom_etab, nom_sousetab, specialite)
+
+        return redirect('mainapp:liste_classes')
+
+def modification_specialite(request):
+
+    id = request.POST['id_modif']
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = SpecialiteForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    if form.is_valid():
+
+        specialite = form.cleaned_data['specialite']
+        id_etab = form.cleaned_data['id_etab']
+        id_sousetab = form.cleaned_data['id_sousetab']
+        nom_etab = form.cleaned_data['nom_etab']
+        nom_sousetab = form.cleaned_data['nom_sousetab']
+
+        # with transaction.atomic():
+
+        #     if(Classe.objects.filter(pk=id)[0].specialite.lower() != specialite.lower()):
+        #         Cours.objects.filter(id_classe = id).update(specialite = specialite)
+
+        Specialite.objects.filter(pk=id).update(specialite = specialite)
 
         
 
-        return redirect('mainapp:liste_classes')
+        return redirect('mainapp:liste_specialites')
+
+def modification_classe_specialite(request):
+
+    id = request.POST['id_modif']
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    # print("id =",id)
+    form = ClasseSpecialiteForm(request.POST)
+    # form.fields['nom_sousetab'].disabled = True 
+    # form.fields['nom_etab'].disabled = True 
+
+    # On selectionne les classes impactées par la modif grace à l'id du niveau et la specialite
+    # On update la specialite des classes concernées
+
+    # if form.is_valid():
+
+    #     nom_classe = form.cleaned_data['nom_classe']
+    #     nom_cycle = form.cleaned_data['nom_cycle']
+    #     nom_niveau = form.cleaned_data['nom_niveau']
+    #     nom_etab = form.cleaned_data['nom_etab']
+    #     nom_sousetab = form.cleaned_data['nom_sousetab']
+
+    #     with transaction.atomic():
+
+    #         if(Classe.objects.filter(pk=id)[0].nom_classe.lower() != nom_classe.lower()):
+    #             Cours.objects.filter(id_classe = id).update(nom_classe = nom_classe)
+
+    #         Classe.objects.filter(pk=id).update(nom_classe = nom_classe)
+
+        # return redirect('mainapp:liste_classes')
+    return redirect('mainapp:liste_classe_specialites')
 
 def modification_matiere(request):
 
@@ -3799,6 +4316,7 @@ def find_classe(recherche, trier_par):
                 Q(nom_sousetab__icontains=recherche) |
                 Q(nom_cycle__icontains=recherche) |
                 Q(nom_niveau__icontains=recherche) |
+                Q(specialite__icontains=recherche) |
                 Q(nom_classe__icontains=recherche)
                 )
             ).distinct()
@@ -3810,6 +4328,7 @@ def find_classe(recherche, trier_par):
                 Q(nom_sousetab__icontains=recherche) |
                 Q(nom_cycle__icontains=recherche) |
                 Q(nom_niveau__icontains=recherche) |
+                Q(specialite__icontains=recherche) |
                 Q(nom_classe__icontains=recherche)
                 )
             ).distinct().order_by(trier_par)
@@ -3821,6 +4340,311 @@ def find_classe(recherche, trier_par):
 
     return classes_serializers.data
 
+def recherche_specialite(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            
+            specialites = find_specialite(donnees_recherche,trier_par)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(specialites)
+
+            #form = EtudiantForm
+            paginator = Paginator(specialites, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            #gestion de la description textuelle de la pagination
+            nbre_item = len(specialites)
+
+            first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+            if (nbre_item - first_item_page < nbre_element_par_page):
+                last_item_page = first_item_page + (nbre_item - first_item_page)
+            else:
+                last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "specialites": specialites,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+                "nbre_item" : nbre_item,
+                "first_item_page" : first_item_page,
+                "last_item_page" : last_item_page,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_specialite(recherche, trier_par):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            specialites = Specialite.objects.values('id','specialite','nom_etab','nom_sousetab').filter(archived = "0").order_by('-specialite').distinct()
+        else:
+            specialites = Specialite.objects.values('id','specialite','nom_etab','nom_sousetab').filter(archived = "0").order_by(trier_par).distinct()
+
+    else:
+        if (trier_par == "non defini"):
+
+            specialites = Specialite.objects.values('id','specialite','nom_etab','nom_sousetab').filter(Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(specialite__icontains=recherche)
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            specialites = Specialite.values('id','specialite','nom_etab','nom_sousetab').objects.filter(Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(specialite__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    specialites_serializers = SpecialiteSerializer(specialites, many=True)
+
+    return specialites_serializers.data
+
+def recherche_classe_specialite(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            print("DANS RECHERCHE DEBUT")
+
+            
+            classes = find_classe_specialite(donnees_recherche,trier_par)
+
+            print("DANS RECHERCHE FIN")
+
+            [print(classe) for classe in classes]
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(classes)
+
+            #form = EtudiantForm
+            paginator = Paginator(classes, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            #gestion de la description textuelle de la pagination
+            nbre_item = len(classes)
+
+            first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+            if (nbre_item - first_item_page < nbre_element_par_page):
+                last_item_page = first_item_page + (nbre_item - first_item_page)
+            else:
+                last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "classes": classes,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+                "nbre_item" : nbre_item,
+                "first_item_page" : first_item_page,
+                "last_item_page" : last_item_page,
+            }
+
+            print("AVANT DE BACK AU JS")
+
+           
+            return JSONResponse(data) 
+
+def find_classe_specialite(recherche, trier_par):
+    classes = []
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            classes = Specialite.objects.\
+            values('id_niveau','nom_etab','nom_sousetab','liste_classes_afficher','nom_niveau','specialite','liste_classes')\
+            .filter(~Q(nom_niveau=""),archived = "0").distinct().order_by('-specialite')
+        else:
+            classes = Specialite.objects.\
+            values('id_niveau','nom_etab','nom_sousetab','liste_classes_afficher','nom_niveau','specialite','liste_classes')\
+            .filter(~Q(nom_niveau=""),archived = "0").distinct().order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            classes = Specialite.objects.\
+            values('id_niveau','nom_etab','nom_sousetab','liste_classes_afficher','nom_niveau','specialite','liste_classes')\
+            .filter(~Q(nom_niveau=""),Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(liste_classes_afficher__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(specialite__icontains=recherche)
+                )
+            ).distinct()
+
+        else:
+            print("*******recherche ",recherche)
+            classes = Specialite.objects.\
+            values('id_niveau','nom_etab','nom_sousetab','liste_classes_afficher','nom_niveau','specialite','liste_classes')\
+            .filter(~Q(nom_niveau=""),Q(archived ="0") &
+                (Q(nom_etab__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(liste_classes_afficher__icontains=recherche) |
+                Q(nom_niveau__icontains=recherche) |
+                Q(specialite__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+            
+    print("ON VOIT UN PEUT:")
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    classes_serializers = ClasseSpecialiteSerializer(classes, many=True)
+    print("APRES LE SERIALIZER")
+
+    return classes_serializers.data
 
 def recherche_sousetab(request):
 
@@ -3930,15 +4754,6 @@ def recherche_sousetab(request):
             }
 
             return JSONResponse(data) 
-
-# def find_cours(recherche, trier_par):
-
-#     if recherche == "" or not recherche:
-#         if (trier_par == "non defini"):
-#             cours = Cours.objects.filter(archived = "0").order_by('-nom_cours')
-#         else:
-#             cours = Cours.objects.filter(archived = "0").order_by(trier_par)
-
 
 def find_sousetab(recherche, trier_par):
 
@@ -6785,7 +7600,6 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
 
     return render(request, 'mainapp/pages/classe.html', locals())
 
-
 @csrf_exempt
 def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_element_par_page):
     #gerer les preferences utilisateur en terme de theme et couleur
@@ -8289,3 +9103,227 @@ def createSuperUser(request):
     os.system("C:/Users/scg/Desktop/createsuperuseur.bat ")
 
     return render(request, 'mainapp/pages/liste-etablissements.html', locals())
+
+def load_specialites_ajax(request):
+    sousetabs = []
+    niveaux = []
+    classes = []
+    specialites = []
+    choix =""
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+            # donnees = position + "²²~~" + id_etab + "²²~~" + etab;
+            position = donnees[0]
+            param2 = int(donnees[1])
+            param3 = donnees[2]
+            print("PYTHON: ",position,param2, param3)
+            # cycles = _load_specialites_ajax(donnees_recherche,trier_par)
+
+            # L'etab a changé on cherche les sousetabs associés
+            if position == "1":
+                param2 = 1
+                choix = "etab"
+                # sousetabs = SousEtab.objects.values_list('id','nom_sousetab').filter(id_etab = param2)
+                sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(id_etab = param2)
+                id_sousetab0 = sousetabs[0]['id']
+                niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_sousetab = id_sousetab0)
+                id_niveau0 = niveaux[0]['id']
+                classes = Classe.objects.values('id', 'nom_classe','code').filter(id_niveau = id_niveau0)
+                # print("VALUES_LIST", sousetabs[0][1])
+                # print("VALUES", sousetabs2[0]['nom_sousetab'])
+            # Le sousetab a changé on cherche les niveaux et spécialités associés
+            if position == "2":
+                choix = "sousetab"            
+                niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_sousetab = param2)
+                id_niveau0 = niveaux[0]['id']
+                classes = Classe.objects.values('id', 'nom_classe','code').filter(id_niveau = id_niveau0)
+                specialites = Specialite.objects.values('specialite').filter(archived = "0", id_sousetab = param2).order_by('specialite').distinct()
+            if position == "3":
+                print("PARAM2: ",param2)
+                choix = "niveau"            
+                classes = Classe.objects.values('id', 'nom_classe', 'code').filter(id_niveau = param2)
+                [print(cl) for cl in classes]
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+            data = {
+                "choix":choix,
+                "sousetabs": sousetabs,
+                "niveaux": niveaux,
+                "classes": classes,
+                "specialites": specialites,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data)
+        else:
+            liste_classes = ""
+            liste_classes_afficher = ""
+            print('ON VEUT CREER UNE CLASSE')
+            etab = request.POST['choix_etab']
+            sousetab = request.POST['choix_sousetab']
+            niveau = request.POST['choix_niveau']
+            specialite = request.POST['choix_specialite']
+            print("RES:", etab, sousetab,niveau, specialite)
+            
+            liste_cls, liste_cls2, liste_id = [], [], []
+            for r in request.POST:
+                if "*" in r:
+                    data = r.split('_')
+                    print("data: ", data[0],data[1])
+                    liste_classes += data[1]+"_"+data[0]+"_"
+                    liste_classes_afficher += data[0]+", "
+                    liste_cls.append(data[0])
+                    liste_cls2.append(data[0])
+                    liste_id.append(int(data[1]))
+            
+            specialite = specialite.strip()
+            if specialite == "":
+                print("Specialite vide")
+            else:
+                print("specialite est:", specialite)
+                # On cherche s'il n ya pas deja la spécialité et le niveau en bd
+                same_spe_niv = Specialite.objects.filter(Q(specialite__iexact=specialite),\
+                    Q(nom_niveau__iexact=niveau.split('_')[0]))
+                nbre_spe_niv = same_spe_niv.count()
+
+                # spécialité et le niveau existe déja en bd
+                if nbre_spe_niv != 0:
+                    id_spe_niv = same_spe_niv[0].id
+                    # On retire les classes cochées des éventuelles autres spécialités en bd
+                    for c in liste_id:
+                        d = liste_cls[0]
+                        liste_cls.pop(0)
+                        print(" ID",c," CLS", d)
+                        clss = str(c)+"_"+d+"_"
+                        spes = Specialite.objects.filter(Q(liste_classes__icontains=clss),~Q(id=id_spe_niv))
+                        print("NBRE",spes.count())
+                        for p in spes:
+                            print("YO***",p.liste_classes)
+                            liste = p.liste_classes.replace(clss,"")
+                            liste_afficher = p.liste_classes_afficher.replace(d+", ","")
+                            print("After",liste)
+                            p.liste_classes = liste
+                            p.liste_classes_afficher = liste_afficher
+                            print("NIVEAU: ", p.nom_niveau)
+                            if liste == "":
+                                p.nom_niveau = ""
+                            p.save()
+                        Classe.objects.filter(id=c, id_etab = etab.split('_')[1],\
+                            id_sousetab = sousetab.split('_')[1], id_niveau = niveau.split('_')[1]).\
+                        update(specialite = specialite)
+
+                    s = same_spe_niv[0]
+                    s.nom_etab = etab.split('_')[0]
+                    s.id_etab = etab.split('_')[1]
+                    s.nom_sousetab = sousetab.split('_')[0]
+                    s.id_sousetab = sousetab.split('_')[1]
+                    s.nom_niveau = niveau.split('_')[0]
+                    s.id_niveau = niveau.split('_')[1]
+                    s.specialite = specialite
+                    print("L2", liste_cls2)
+                    for id in liste_id:
+                        d = liste_cls2[0]
+                        liste_cls2.pop(0)
+                        cl = str(id)+"_"+d+"_"
+                        if cl not in s.liste_classes:
+                            s.liste_classes += cl
+                            s.liste_classes_afficher += d+", "
+                            print("ESSAI: ", cl)
+                    s.save()
+                else:
+                    spe = Specialite.objects.filter(Q(specialite__iexact=specialite))
+                    test = False
+
+                    for s in spe:
+                        # C'est une spécialité qui existait déjà mais sans classes associées
+                        if s.nom_niveau == "":
+                            print("existe deja")
+                            s.nom_etab = etab.split('_')[0]
+                            s.id_etab = etab.split('_')[1]
+                            s.nom_sousetab = sousetab.split('_')[0]
+                            s.id_sousetab = sousetab.split('_')[1]
+                            s.nom_niveau = niveau.split('_')[0]
+                            s.id_niveau = niveau.split('_')[1]
+                            s.specialite = specialite
+                            s.liste_classes = liste_classes
+                            s.liste_classes_afficher = liste_classes_afficher
+                            s.save()
+                            test = True
+                            print(liste_classes)
+                            break
+
+                    # C'est une nouvelle specialité on l'ajoute avec la liste des classes cochée
+                    # if test = False:
+                    #     s = Specialite()
+                    #     s.nom_etab = etab.split('_')[0]
+                    #     s.id_etab = etab.split('_')[1]
+                    #     s.nom_sousetab = sousetab.split('_')[0]
+                    #     s.id_sousetab = sousetab.split('_')[1]
+                    #     s.nom_niveau = niveau.split('_')[0]
+                    #     s.id_niveau = niveau.split('_')[1]
+                    #     s.specialite = specialite
+                    #     s.liste_classes = liste_classes
+                    #     s.save()
+                    # On retire les classes cochées des éventuelles autres spécialités en bd
+                    for c in liste_id:
+                        d = liste_cls[0]
+                        liste_cls.pop(0)
+                        print(" ID",c," CLS", d)
+                        clss = str(c)+"_"+d+"_"
+                        spes = Specialite.objects.filter(Q(liste_classes__icontains=clss))
+                        print("NBRE",spes.count())
+                        for p in spes:
+                            # On s'assure que la spécialité ne contient pas déjà la classe courante
+                            if p.specialite != specialite:
+                                print("YO***",p.liste_classes)
+                                liste = p.liste_classes.replace(clss,"")
+                                liste_afficher = p.liste_classes_afficher.replace(d+", ","")
+                                print("After",liste)
+                                p.liste_classes = liste
+                                p.liste_classes_afficher = liste_afficher
+                                print("NIVEAU: ", p.nom_niveau)
+                                if liste == "":
+                                    p.nom_niveau = ""
+                                p.save()
+                        Classe.objects.filter(id=c, id_etab = etab.split('_')[1],\
+                            id_sousetab = sousetab.split('_')[1], id_niveau = niveau.split('_')[1]).\
+                        update(specialite = specialite)
+
+                    if test == False:
+                        sp = Specialite()
+                        sp.nom_etab = etab.split('_')[0]
+                        sp.id_etab = etab.split('_')[1]
+                        sp.nom_sousetab = sousetab.split('_')[0]
+                        sp.id_sousetab = sousetab.split('_')[1]
+                        sp.nom_niveau = niveau.split('_')[0]
+                        sp.id_niveau = niveau.split('_')[1]
+                        sp.specialite = specialite
+                        sp.liste_classes = liste_classes
+                        sp.liste_classes_afficher = liste_classes_afficher
+                        sp.save()
+                        print("ICI")
+                Specialite.objects.filter(specialite__iexact = specialite, nom_niveau = "").delete()
+                
+            return redirect('mainapp:liste_classe_specialites')
+

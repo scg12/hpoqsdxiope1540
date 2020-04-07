@@ -384,6 +384,61 @@ class ClasseForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etab'}),
         # required=False
     )
+
+class SpecialiteForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    speciality= forms.CharField(
+        label=_('Classe'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Entrer nom classe', 'class': 'form-control form-group speciality' }),
+    )
+    nom_sousetaby = forms.CharField(
+        label='Sous Etablissement',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetaby'}),
+        # disabled = True  
+    )
+    nom_etaby = forms.CharField(
+        label=_('Etablissement'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Etablissement', 'class': 'form-control form-group nom_etaby'}),
+        # required=False
+    )
+
+class ClasseSpecialiteForm(forms.Form):
+    # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
+    nom_niveau= forms.CharField(
+        label=_('Niveau'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Niveau', 'class': 'form-control form-group nom_niveau' }),
+    )
+    nom_cycle= forms.CharField(
+        label=_('Cycle'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Cycle', 'class': 'form-control form-group nom_cycle' }),
+    )
+    nom_sousetab = forms.CharField(
+        label='Sous Etab',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Sous Etab', 'class': 'form-control form-group nom_sousetab'}),
+        # disabled = True  
+    )
+    nom_etab = forms.CharField(
+        label=_('Etab'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Etab', 'class': 'form-control form-group nom_etab'}),
+        # required=False
+    )
+    specialite = forms.CharField(
+        label=_('Spécialité'),
+        max_length=200,
+        widget=forms.TextInput(attrs={'placeholder': 'Spécialité', 'class': 'form-control form-group specialite'}),
+    )
+    liste_classes_afficher = forms.CharField(
+        label=_('liste_classes'),
+        max_length=300,
+        widget=forms.TextInput(attrs={'placeholder': '[Classe]', 'class': 'form-control form-group liste_classes_afficher'}),
+    )
  
 class CoursForm(forms.Form):
     nom_etab = forms.CharField(

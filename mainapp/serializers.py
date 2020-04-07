@@ -194,8 +194,9 @@ class ClasseSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     nom_etab = serializers.CharField(max_length=150)
     nom_sousetab = serializers.CharField(max_length=150)
-    nom_cycle = serializers.CharField(max_length=150)
+    specialite = serializers.CharField(max_length=150)
     nom_niveau = serializers.CharField(max_length=150)
+    nom_cycle = serializers.CharField(max_length=150)
     nom_classe = serializers.CharField(max_length=150)
 
     def create(self, validated_data):
@@ -204,10 +205,57 @@ class ClasseSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
         instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
-        instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
+        instance.specialite = validated_data.get('specialite', instance.specialite.lower())
         instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
         instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
+        # instance.nom_classe = validated_data.get('nom_classe', instance.nom_classe.lower())
         # instance.classe_id = validated_data.get('id', instance.id)
+
+class ClasseSpecialiteSerializer(serializers.Serializer):
+    """docstring for EtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    id_niveau = serializers.IntegerField(read_only=True)
+    nom_etab = serializers.CharField(max_length=150)
+    nom_sousetab = serializers.CharField(max_length=150)
+    # nom_cycle = serializers.CharField(max_length=150)
+    nom_niveau = serializers.CharField(max_length=150)
+    specialite = serializers.CharField(max_length=200)
+    liste_classes_afficher = serializers.CharField(max_length=300)
+    liste_classes = serializers.CharField(max_length=300)
+
+    def create(self, validated_data):
+        return Specialite.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.id_niveau = validated_data.get('id_niveau', instance.id_niveau.lower())
+        instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        # instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
+        instance.nom_niveau = validated_data.get('nom_niveau', instance.nom_niveau.lower())
+        instance.specialite = validated_data.get('specialite', instance.specialite.lower())
+        instance.liste_classes_afficher = validated_data.get('liste_classes_afficher', instance.liste_classes_afficher.lower())
+        instance.liste_classes = validated_data.get('liste_classes', instance.liste_classes.lower())
+        # instance.classe_id = validated_data.get('id', instance.id)
+
+class SpecialiteSerializer(serializers.Serializer):
+    """docstring for SpecialiteSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    specialite = serializers.CharField(max_length=200)
+    nom_sousetab = serializers.CharField(max_length=200)
+    nom_etab = serializers.CharField(max_length=200)
+    id_etab = serializers.IntegerField(default = 1)
+    id_sousetab = serializers.IntegerField(default = 1)
+
+    def create(self, validated_data):
+        return Classe.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.specialite = validated_data.get('specialite', instance.specialite.lower())
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.nom_etab = validated_data.get('nom_etab', instance.nom_etab.lower())
+        instance.id_etab = validated_data.get('id_etab', instance.id_etab.lower())
+        instance.id_sousetab = validated_data.get('id_sousetab', instance.id_sousetab.lower())
 
 class CoursSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
@@ -244,9 +292,6 @@ class CoursSerializer(serializers.Serializer):
         instance.id_classe = validated_data.get('id_classe', instance.id_classe)
         instance.id_sousetab = validated_data.get('id_sousetab', instance.id_sousetab)
         instance.id_etab = validated_data.get('id_etab', instance.id_etab)
-
-
-
 
 class MatiereSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
