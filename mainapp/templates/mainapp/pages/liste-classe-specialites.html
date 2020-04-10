@@ -4,7 +4,7 @@
 
   {% block header %}
       
-      <script src="{% static 'js/liste-classes.js' %}"></script>
+      <script src="{% static 'js/liste-classe-specialites.js' %}"></script>
 
       <style type="text/css">
         
@@ -38,7 +38,7 @@ tr:nth-child(odd) {background: #FFF} */
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_classes' %}" />
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_classe_specialites' %}" />
                   
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
@@ -70,9 +70,8 @@ tr:nth-child(odd) {background: #FFF} */
                       <div class="row">
 
                         <div class="col-sm-12 col-md-12">
-                          <p class="h3 text-center">Liste Classes</p>
+                          <p class="h3 text-center">Liste Classes <-> Spécialités</p>
                         </div>
-
                       </div>
 
                         <div class="row">
@@ -81,6 +80,7 @@ tr:nth-child(odd) {background: #FFF} */
                                 
                                  <label>Afficher </label> 
                                  <select id="nbre_element_par_page" class="form-control-sm">
+                                    <option value="5" selected>5</option>
                                     <option value="10" selected>10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -94,7 +94,7 @@ tr:nth-child(odd) {background: #FFF} */
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                              <form action="{% url 'mainapp:recherche_classe' %}" class="recherche_classe" method="GET">
+                              <form action="{% url 'mainapp:recherche_classe_specialite' %}" class="recherche_classe_specialite" method="GET">
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
@@ -110,13 +110,7 @@ tr:nth-child(odd) {background: #FFF} */
                               </button>
                             {% endif %}
                         </div>
-                        <div class="">
-                            {% if perms.mainapp.can_add_cours or perms.mainapp.add_classe %}
-                              <button type="button" rel="tooltip" class="cursus-btn-round ajouter-classe-link" data-toggle="modal" data-target="#modal_ajouter_classe">
-                                  <i class="material-icons text_align-center">add</i>
-                              </button>
-                            {% endif %}
-                        </div>
+                        
 
                   <div class="table-responsive">
                         <div class="table-scroll">
@@ -127,18 +121,18 @@ tr:nth-child(odd) {background: #FFF} */
                                       
                                 </th>
                                 
-                                <th scope="col" class="nom_classe fix-col1 active" >
+                                <th scope="col" class="specialite fix-col1 active" >
+                                    <span class="tri tri-asc">Spécialité
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                                       
+                                </th>
+                                <th scope="col" class="liste_classes_afficher" >
                                     <span class="tri tri-asc">Classe
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
                                 <th scope="col" class="nom_niveau" >
                                     <span class="tri tri-asc">Niveau
-                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span>                                                       
-                                </th>
-                                <th scope="col" class="nom_cycle" >
-                                    <span class="tri tri-asc">Cycle
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
@@ -150,12 +144,8 @@ tr:nth-child(odd) {background: #FFF} */
                                 <th scope="col" class="nom_etab">
                                     <span class="tri tri-asc">Ecole
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span>   
-                                </th>
-                                <th scope="col" class="specialite">
-                                    <span class="tri tri-asc">Spécialité
-                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
-                                    </span>   
+                                    </span> 
+                                   
                                 </th>
                                 <th scope="col" class="text-right"><span class="tri tri-asc">Opérations
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
@@ -168,22 +158,15 @@ tr:nth-child(odd) {background: #FFF} */
                             <tbody>
                                
                                     {% for classe in page_active  %}
-                                    <tr class="{{ classe.id }}²²{{ classe.nom_classe }}²²{{ classe.nom_niveau }}²²{{ classe.nom_cycle }}²²{{ classe.nom_sousetab }}²²{{ classe.nom_etab }}²²{{ classe.specialite }}">
+                                    <tr class="{{ classe.id_niveau }}²²{{ classe.specialite }}²²{{ classe.liste_classes_afficher }}²²{{ classe.nom_niveau }}²²{{ classe.nom_sousetab }}²²{{ classe.nom_etab }}²²{{ classe.liste_classes }}">
                                       <th scope="row" class="detail-classe-link-td fix-col">{{ forloop.counter }}</th>
                                      
-                                      <td class="detail-classe-link-td fix-col1" style="text-transform: uppercase;">{{ classe.nom_classe }}</td>
+                                      <td class="detail-classe-link-td fix-col1" style="text-transform: uppercase;">{{ classe.specialite }}</td>
+                                      <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.liste_classes_afficher | truncatechars:20 }} </td>
                                       <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_niveau }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_cycle }}</td>
                                       <td class="detail-classe-link-td" style="text-transform: uppercase;">{{ classe.nom_sousetab }}</td>
                                       <td class="detail-classe-link-td" style="text-transform: capitalize;">{{ classe.nom_etab }}</td>
-                                      <td class="detail-classe-link-td" style="text-transform: capitalize;">{{ classe.specialite}}</td>
                                       <td class="td-actions text-right"> 
-
-                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
-                                        <button rel="tooltip" class="btn btn-cursus modifier-classe-link">
-                                            <i class="material-icons">edit</i>
-                                        </button>
-                                        {% endif %}
 
                                         {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
                                         <button class="btn btn-cursus supprimer-classe-link">
@@ -198,7 +181,7 @@ tr:nth-child(odd) {background: #FFF} */
 
                                     {% empty %}
                                       <tr>
-                                        <td colspan="7" class="text-center h4">Aucune classe(s) créée(s) </td>
+                                        <td colspan="7" class="text-center h4">Aucun Classe associée a une Spécialité </td>
                                       </tr>
                                 {% endfor %}
 
@@ -206,12 +189,11 @@ tr:nth-child(odd) {background: #FFF} */
                             <tfoot>
                               <tr>
                                 <th scope="col" class="fix-col">#</th>
-                                <th scope="col" class="fix-col1">Classe</th>
+                                <th scope="col" class="fix-col1">Spécialité</th>
+                                <th scope="col" >Classe</th>
                                 <th scope="col" >Niveau</th>
-                                <th scope="col" >Cycle</th>
                                 <th scope="col">Sous Etab</th>
                                 <th scope="col">Ecole</th>                             
-                                <th scope="col">Spécialité</th>                             
                                 <th scope="col">Actions</th>                              
 
                               </tr>
@@ -279,22 +261,61 @@ tr:nth-child(odd) {background: #FFF} */
             </div>
                 <div class="modal-body ">
                   <div class="card-body">
-                    <p class="h4 text-center">AJOUTER CLASSE</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_classe' %}">
+                    <p class="h4 text-center">AJOUTER SPECIALITE </p>
+                    <form action="{% url 'mainapp:load_specialites_ajax' %}"  class="load_specialites_ajax" method="POST">
                         {% csrf_token %}
-                        {{ form.as_p }}
+                        
                         <div class="input-group form-control-md">
-                        <div class="form-group bmd-form-group">
-                          Spécialité:
-                          <input list="choix_specialite" class="choix_specialite" name="choix_specialite" autocomplete="off">
-                            <datalist id="choix_specialite" name="spec">
-                            {% for spe in specialitess %}
-                              <option value="{{ spe.specialite }}">
-                            {% endfor %}
+                              <div class="form-group bmd-form-group">
+                                Etab:
+                                <select class="choix_etab" name="choix_etab">
+                                  {% for etab in etabs %}
+                                    <option value="{{ etab.nom_etab }}_{{etab.id}}">{{ etab.nom_etab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
                         </div>
-                    </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Sous Etab:
+                                <select class="choix_sousetab" name="choix_sousetab" data-size="7">
+                                  {% for setab in sousetabs %}
+                                    <option value="{{ setab.nom_sousetab }}_{{setab.id}}">{{ setab.nom_sousetab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Niveaux:
+                                <select name="choix_niveau" style="width:200px;" class="choix_niveau">
+                                  {% for niv in niveaux %}
+                                    <option value="{{ niv.nom_niveau }}_{{niv.id}}">{{ niv.nom_niveau }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group" id="liste_classes_niveaux">
+                                Classes:&nbsp;&nbsp;&nbsp;
+                                 {% for classe in classes_init %}
+                                    <input type=checkbox name="{{classe.nom_classe}}_{{classe.id}}_*" value="{{classe.nom_classe}}_{{classe.id}}">&nbsp;{{classe.nom_classe}}&nbsp;&nbsp;
+                                {% endfor %}
+                              </div>
+                        </div>
+                          
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                Spécialité:
+                                <input list="choix_specialite" name="choix_specialite" autocomplete="off">
+                                  <datalist id="choix_specialite" name="spec">
+                                  {% for spe in specialitess %}
+                                    <option value="{{ spe.specialite }}">
+                                  {% endfor %}
+                              </div>
+                        </div>
 
-                         <label id="message"></label>
+                        <label id="message"></label>
                         <div class="text-center">
                             <button type="submit" class="btn">Créer</button>
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
@@ -320,28 +341,18 @@ tr:nth-child(odd) {background: #FFF} */
 
             <div class="modal-body ">
               <div class="card-body">
-                <p class="h4 text-center">MODIFIER CLASSE</p>
-                   <form method="post" class="modifier_classe" action="{% url 'mainapp:modification_classe' %}">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="input-group form-control-md">
-                        <div class="form-group bmd-form-group">
-                          Spécialité:
-                          <input list="choix_specialite" class="choix_specialite" name="choix_specialite" autocomplete="off">
-                            <datalist id="choix_specialite" name="spec">
-                            {% for spe in specialitess %}
-                              <option value="{{ spe.specialite }}">
-                            {% endfor %}
-                        </div>
-                    </div>
+                <p class="h4 text-center">MODIFIER SPECIALITE</p>
+                   <form method="post"  class="" action="{% url 'mainapp:creation_classe' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
 
-                      <input type="hidden" name="id_modif" id="id_modif">
-                      <div class="text-center">
-                        <button type="submit" class="btn">Modifier</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-                        
-                      </div>
+                         <label id="message"></label>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Créer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
                     </form>
+                   
               </div>
               
             </div>
@@ -363,22 +374,18 @@ tr:nth-child(odd) {background: #FFF} */
             <div class="modal-body ">
                 <div class="card-body card-primary">
 
-                  <form method="post"  class="suppression_classe" action="{% url 'mainapp:suppression_classe' %} ">
-                    <p class="h4 text-center">SUPPRIMER CLASSE</p>
+                  <form method="post"  class="suppression_classe" action="{% url 'mainapp:suppression_classe_specialite' %} ">
+                    <p class="h4 text-center">SUPPRIMER SPECIALITE</p>
                       {% csrf_token %}
                         <input type="hidden" name="id_supp" id="id_supp">
 
                         <div class="form-group">
                           <label class="">Classe : </label>
-                          <label class="nom_classe"></label>
+                          <label class="liste_classes_afficher"></label>
                         </div>
                         <div class="form-group">
                           <label class="">Niveau : </label>
                           <label class="nom_niveau"></label>
-                        </div>
-                        <div class="form-group">
-                          <label class="">Cycle : </label>
-                          <label class="nom_cycle"></label>
                         </div>
 
                         <div class="form-group">
@@ -387,7 +394,7 @@ tr:nth-child(odd) {background: #FFF} */
                         </div>
 
                         <div class="form-group">
-                          <label class="">etablissement : </label>
+                          <label class="">Ecole : </label>
                           <label class="nom_etab"></label>
                         </div>
                         

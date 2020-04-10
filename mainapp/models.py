@@ -708,6 +708,28 @@ class AnneeScolaire(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.annee
+class Specialite(models.Model):
+    
+    id_etab = models.IntegerField(default=1)
+    nom_etab = models.CharField(max_length=200,default="")
+    id_sousetab = models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=100,default="")
+    id_niveau = models.IntegerField()
+    nom_niveau = models.CharField(max_length=100,default="")
+    # specialite correspond à Scientifique,...
+    specialite = models.CharField(max_length=200)
+    annee_scolaire = models.CharField(max_length=100)
+    # liste_classes elle contient les classes avec les id associées à la spécialité
+    # ex: 1*TleC1,2*TleC2,
+    liste_classes = models.TextField(default="")
+    liste_classes_afficher = models.TextField(default="")
+
+    archived = models.CharField(max_length=2,default="0")
+    
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.specialite
+
 
 class Classe(models.Model):
     nom_classe = models.CharField(max_length=100)
@@ -718,11 +740,14 @@ class Classe(models.Model):
     id_sousetab = models.IntegerField(default=1)
     id_cycle = models.IntegerField(default=1)
     id_niveau = models.IntegerField(default=1)
+    id_specialite = models.IntegerField(default=1)
     nom_etab = models.CharField(max_length=100,default="")
     nom_sousetab = models.CharField(max_length=100,default="")
     nom_cycle = models.CharField(max_length=100,default="")
     nom_niveau = models.CharField(max_length=100,default="")
-
+    # specialite correspond à Scientifique,...
+    specialite = models.CharField(max_length=200,default="")
+    
     annees = models.ArrayReferenceField(
         to=AnneeScolaire,
         #on_delete=models.CASCADE,
