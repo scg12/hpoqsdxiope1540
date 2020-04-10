@@ -27,6 +27,55 @@ tr:nth-child(even) {background: #CCC}
 tr:nth-child(odd) {background: #FFF} */
 
 
+      .box{
+        width: 25%;
+        float: left;
+        background-color: #4CAF50;
+      }
+      .box-mini{
+        width: 100px;
+        
+        position: relative;
+        left: 0px;
+        /*float: left;*/
+        /*background-color: #4CAF50; */
+      }
+      .box .chart{
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 25px;
+        text-align: center;
+        font-size: 30px;
+        color: #fff;
+        line-height: 150px;
+      }
+      .box-mini .chart-mini{
+        position: relative;
+        width: 40px;
+        height: 40px;
+        margin: 5px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        color: #000;
+        line-height: 40px;
+      }
+      .box-mini .chart-mini canvas{
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .box .chart canvas{
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .box .chart h2{
+        text-align: center;
+        text-transform: uppercase;
+      }
       </style>
       
   {% endblock %}
@@ -64,6 +113,77 @@ tr:nth-child(odd) {background: #FFF} */
             <div class="card">
               
               <div class="card-body">
+                <div class="row">
+                  
+                  <div class="col-md-3 col-sm-6 mr-2">
+                    <div class="card card-stats my-card ">
+                      <div class="card-header vert">
+                        <i class="fas fa-home fa-4x" style="margin-right: 4px"></i>
+                        <span class="text-right h5" style="text-transform: uppercase; font-weight: bold;">{{ classe.nom_classe }}</span>
+                      </div>
+                      
+                      <div class="card-body" >
+                        <div class="row"> 
+                          <div class="col-md-12 text-left px-0 mx-0">
+                            <div>
+                                <div class="h5">EFFECTIF : {{ nbre_eleves }}</div>
+                                <span class="h5 mr-5"><i class="fas fa-male fa-2x"></i> : {{ nbre_garcons }}</span>
+                                <span class="h5"><i class="fas fa-female fa-2x"></i> : {{ nbre_filles }}</span> 
+                            </div>
+                            
+                          </div>
+                          
+                                      
+                        </div>
+                      </div>
+                    </div>  
+                  </div>
+
+                  <div class="col-md-2">
+                   
+                    
+                    
+                  </div>
+                  
+                  <div class="col-md-4">
+                    <div class="card card-stats my-card">
+                      <div class="card-header vert">
+                        <i class="fas fa-hospital fa-4x"></i>
+                        <span class="h5 ml-4" style="text-transform: uppercase;font-weight: bold">ETAT DE SANTE</span>
+                      </div>
+                        <div class="card-body" >
+                            <div class="row">
+                              <div class="col-md-4">
+                                <div class="box-mini" style="display: inline;">
+                                  <div class="chart-mini" data-percent="{{ nbre_eleves_en_sante }}">{{ nbre_eleves_en_sante }}%</div><div>BON</div>
+                                  
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="box-mini" style="display: inline">
+                                  <div class="chart-mini" data-percent="{{ nbre_eleves_sante_fragile }}">{{ nbre_eleves_sante_fragile }}%</div><div>MOYEN</div>
+                                  
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="box-mini" style="display: inline">
+                                  <div class="chart-mini" data-percent="{{ nbre_eleves_malade }}">{{ nbre_eleves_malade }}%</div><div>MAUVAIS</div>
+                                  
+                                </div>  
+                              </div>
+
+                            </div>
+                    
+                        </div>
+                
+                    </div>
+                    
+                    
+                  </div>
+                
+                </div>
                   <div class="row">
 
                     <div class="col-sm-12 col-md-12">
@@ -82,6 +202,23 @@ tr:nth-child(odd) {background: #FFF} */
                         </select></p>
                         <p>COEFF : {{ first_cours.coef }}</p>
                     </div>
+                      
+                      <!--                   <div class="box">
+                            <div class="chart" data-percent="73">73%</div>
+                            <h2>Html</h2>
+                      </div>
+                      <div class="box mx-3">
+                            <div class="chart" data-percent="83">83%</div>
+                            <h2>Css</h2>
+                      </div>
+                      <div class="box">
+                            <div class="chart" data-percent="97">97%</div>
+                            <h2>Javascript</h2>
+                      </div>
+                      <div class="box">
+                            <div class="chart" data-percent="49">49%</div>
+                            <h2>Photoshop</h2>
+                      </div> -->
 
                   </div>
 
@@ -119,7 +256,6 @@ tr:nth-child(odd) {background: #FFF} */
                          </button>
                        {% endif %}
                    </div> -->
-                    
 
               <div class="table-responsive">
                     <div class="table-scroll">
@@ -134,7 +270,7 @@ tr:nth-child(odd) {background: #FFF} */
                             </th>
                             
                             <th scope="col" class="nom_classe fix-col2 active" >
-                                <span class="tri tri-asc">Nom
+                                <span class="tri tri-asc">&nbsp;&nbsp;&nbsp;Nom
                                   <!-- <img src="{% static 'images/arrow.png' %}" width="20px" height="20px" style="display: block"> -->
                                 </span>                                                       
                             </th>
@@ -222,7 +358,7 @@ tr:nth-child(odd) {background: #FFF} */
                                     
                                   <td class="td-actions text-right"> 
                                   
-                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
+                                      <!-- {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
                                         <button rel="tooltip" class="btn btn-link modifier-classe-link">
                                           <i class="material-icons">edit</i>
                                         </button>
@@ -232,21 +368,24 @@ tr:nth-child(odd) {background: #FFF} */
                                         <button class="btn btn-link supprimer-classe-link">
                                           <i class="material-icons">insert_chart</i>
                                         </button>
-                                      {% endif %}
+                                      {% endif %} -->
                                         
-                                      {% if perms.mainapp.can_change_classe or perms.mainapp.change_classe %}
-                                        <a rel="tooltip" class="btn btn-link modifier-classe-link">
-                                          <i class="material-icons md-24">contact_mail</i>
-                                        </a>
-                                      {% endif %}
-                                      
-                                      {% if perms.mainapp.can_delete_classe or perms.mainapp.delete_classe %}
-                                        <a class="btn btn-link supprimer-classe-link">
-                                          <i class="material-icons">close</i>
-                                        </a>
-                                      {% endif %}
-  
-                                                                                                
+                                        
+                                       
+                                          <!-- <i class="material-icons">more_horiz</i>
+                                          <i class="material-icons">warning</i> -->
+                                        
+                                          <span><i class="material-icons">insert_chart</i></span>
+                                          <i class="material-icons">contact_mail</i>
+                                       
+                                        <!-- <button class="btn btn-link supprimer-classe-link"  style="color: #506ce9;">
+                                          <i class="material-icons">warning</i>
+                                        </button> -->
+
+                                        
+                                        
+                                                                            
+                                                                                       
                                   </td> 
                                 
                                 </tr>
@@ -457,14 +596,42 @@ tr:nth-child(odd) {background: #FFF} */
       <button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
 
 
+  
+
   {% endblock %}
 
 {% block menu_fixed %}    
-    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+    {% include 'mainapp/layouts/_nav_toolbar_classe.html' %}
 {% endblock %}
 
 
   {% block script_page %}
 
-    
+  <script src="{% static 'assets/js/core/jquery.easypiechart.js' %}"></script>
+  <script>
+    $(function(){
+      $(".chart").easyPieChart({
+          size: 150,
+          barColor:'#17d3e6',
+          scaleColor: false,
+          lineWidth: 15,
+          trackColor: '#373737',
+          lineCap: 'circle',
+          animate: 3500,
+      });
+    });
+
+    $(function(){
+      $(".chart-mini").easyPieChart({
+          size: 60,
+          barColor:'#4CAF50',
+          scaleColor: false,
+          lineWidth: 8,
+          trackColor: '#373737',
+          lineCap: 'circle',
+          animate: 3500,
+      });
+    });
+
+  </script>
   {% endblock %}

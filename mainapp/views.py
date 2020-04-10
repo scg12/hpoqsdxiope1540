@@ -6717,11 +6717,25 @@ def classe(request,id, page=1,nbre_element_par_page=200):
     classe = Classe.objects.filter(id=id)[0]
     eleves = Cours.objects.filter(id_classe = id)[0].eleves.all().order_by('nom')
     
+    garcons = Cours.objects.filter(id_classe = id)[0].eleves.all().filter(sexe="masculin")
+    filles = Cours.objects.filter(id_classe = id)[0].eleves.all().filter(sexe="feminin")
+
+    nbre_eleves_en_sante = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="0"))
+    nbre_eleves_sante_fragile = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="1"))
+    nbre_eleves_malade = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="2"))
+    
+    nbre_eleves = len(eleves)
+    nbre_garcons = len(garcons)
+    nbre_filles = len(filles)
+
     cours = Cours.objects.filter(id_classe = id);
 
     first_cours = Cours.objects.filter(id_classe = id)[0];
 
     classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+
+    sous_etab = SousEtab.objects.filter(archived = "0").all()[0]
+    sous_etabs = SousEtab.objects.filter(archived = "0").all()
 
     paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
@@ -6787,7 +6801,6 @@ def classe(request,id, page=1,nbre_element_par_page=200):
         theme_class = theme_class_default
 
     return render(request, 'mainapp/pages/classe.html', locals())
-
 
 @csrf_exempt
 def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_element_par_page):

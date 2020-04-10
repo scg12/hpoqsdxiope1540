@@ -383,6 +383,10 @@ Handle on hover
 	  <script src="{% static 'js/jquery.scrollbar.min.js' %}"></script>
 
 	  <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+
+<!--  <script src="{% static 'assets/js/core/jquery.easypiechart.js' %}"></script> -->
+
+<!--  <script src="{% static 'assets/css/fontawesome-free/js/all.min.js' %}"></script> -->
 	  <script>
 	    $(document).ready(function() {
 	      $().ready(function() {
@@ -637,13 +641,12 @@ Handle on hover
 	      <nav id = "navbar-top" class="navbar navbar-expand-lg navbar-absolute navbar-transparent fixed-top" style = "height : 50px!important;padding-bottom: 5px!important; padding-top: 20px!important; color: #000!important">
 	        <div class="container-fluid" >
 	          <div class="navbar-wrapper" >
-					<div class="navbar-minimize">
-		              <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
-		                <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
-		                <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
-		             	
-		          	  </button>
-		            </div>
+				<div class="navbar-minimize">
+	              <button id="minimizeSidebar" class="btn btn-just-icon btn-white btn-fab btn-round">
+		              <i class="material-icons text_align-center visible-on-sidebar-regular">more_vert</i>
+		              <i class="material-icons design_bullet-list-67 visible-on-sidebar-mini">view_list</i>
+	          	  </button>
+	            </div>
 					<a class="navbar-brand" href="{% url 'mainapp:accueil' %}">Cursus</a>
 	          </div>
 	          <button id="minimizeSidebar" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
@@ -657,11 +660,13 @@ Handle on hover
 		            
 		            <ul class="navbar-nav">
 
-		              	<li class="nav-item">
+		                <li class="nav-item">
 		                	<a class="nav-link" href="{% url 'mainapp:accueil' %}">
 		                  		<i class="material-icons">home</i>  
 		                	</a>
+		                
 		                </li>
+		              	
 		              	<li class="nav-item">
 		               
 			                {% block language %}
@@ -684,49 +689,70 @@ Handle on hover
 
 		              	</li>
 
-		              	<!-- <li class="nav-item">
-		              	
-		              		<form class="navbar-form" style="position: relative;padding-left: 15px!important">
-		              					              
-		              					                <div class="dropdown">
-		              				                      <button class="btn btn-secondary btn-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i></button> .dropdown-menu
-		              				                      <div class="dropdown-menu dropdown-menu-right dropdown-menu-md stop-propagation" style="">
-		              				                        <div class="dropdown-arrow"></div>.custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpToday" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpToday"><span class="text-muted">2018 - 2019</label>
-		              				                        </div>/.custom-control
-		              				                        .custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpYesterday" name="dpFilter" data-start="2019/03/26" data-end="2019/03/26"> <label class="custom-control-label d-flex justify-content-between" for="dpYesterday"><span class="text-muted">2017 - 2018</span></label>
-		              				                        </div>/.custom-control
-		              				                        .custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpWeek" name="dpFilter" data-start="2019/03/21" data-end="2019/03/27" checked=""> <label class="custom-control-label d-flex justify-content-between" for="dpWeek"><span class="text-muted">2016 - 2017</span></label>
-		              				                        </div>/.custom-control
-		              				                        .custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpMonth" name="dpFilter" data-start="2019/03/01" data-end="2019/03/27"> <label class="custom-control-label d-flex justify-content-between" for="dpMonth"><span class="text-muted">2015 - 2016</span></label>
-		              				                        </div>/.custom-control
-		              				                        .custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpYear" name="dpFilter" data-start="2019/01/01" data-end="2019/12/31"> <label class="custom-control-label d-flex justify-content-between" for="dpYear"><span class="text-muted">2014 - 2015</span></label>
-		              				                        </div>/.custom-control
-		              				                        .custom-control
-		              				                        <div class="custom-control custom-radio">
-		              				                          <input type="radio" class="custom-control-input" id="dpCustom" name="dpFilter" data-start="2019/03/27" data-end="2019/03/27"> <label class="custom-control-label" for="dpCustom"><span class="text-muted">2013 - 2014</span></label>
-		              				                        </div>/.custom-control
-		              				                      </div>/.dropdown-menu
-		              				                    </div>
-		              	
-		              			            		</form>
-		              	
-		              	</li> -->
-		              	<!-- <li class="nav-item">
-		              		<a class="nav-link" href="{% url 'mainapp:accueil' %}">
-		              			                  		<i class="material-icons">home</i> Section francophone 
-		              			                	</a>
-		              			            		
-		              			            	</li>
+		              	<li class="nav-item year-item">
+		              		
+			                <div class="dropdown">
+		                      	<div  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="active-year1">{{ sous_etab }}</span> <i class="fa fa-fw fa-caret-down"></i>
+		                      	</div> 
+
+		                      	<div class="dropdown-menu stop-propagation" style="min-width: 5rem!important;">
+			                        <div class="dropdown-arrow"></div>
+			                        
+			                        {% for s_etab in sous_etabs %}
+				                      {% if s_etab != sous_etab %}
+				                        <div><label class="year1"><span>{{ s_etab }}</label></div>
+				                      {% endif %}
+				                    {% endfor %}
+			                        
+			                        
+			                        
+		                      	</div>
+
+		                    </div>
+							
+		              	</li>
+
+		              	<li class="nav-item year-item">
+		              		
+			                <div class="dropdown">
+		                      	<div  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="active-year">2019 - 2020</span> <i class="fa fa-fw fa-caret-down"></i>
+		                      	</div> 
+
+		                      	<div class="dropdown-menu stop-propagation" style="min-width: 5rem!important;">
+			                        <div class="dropdown-arrow"></div>
+
+			                        
+			                          <div><label class="year"><span >2018 - 2019</label></div>
+			                        
+			                        
+			                        
+			                          <div><label class="year"><span >2017 - 2018</span></label></div>
+			                        
+
+			                        
+			                          <div><label class="year"><span >2016 - 2017</span></label></div>
+			                        
+
+			                        
+			                          <div><label class="year"><span >2015 - 2016</span></label></div>
+			                        
+			                        
+			                          <div><label class="year"><span >2014 - 2015</span></label></div>
+			                        
+			                        
+			                          <div><label class="year"><span >2013 - 2014</span></label></div>
+			                        
+		                      </div>
+
+		                    </div>
+							
+		              	</li>
+		              	<!-- 
+		              	<li class="nav-item">
+	          				<a class="nav-link" href="{% url 'mainapp:accueil' %}">
+			                  	<i class="material-icons">home</i> Section francophone 
+			                </a>	
+	  			        </li>
 		              	 -->
 		            </ul>
 
@@ -737,11 +763,12 @@ Handle on hover
 	      <!-- End Navbar -->
 
 			<div class="main-content">
-		
+				
 
 		    	{% block content %}
 		    	{% endblock %}
-				
+
+				<div id="loader" class="loader_bleu"></div>
 
 				{% block menu_fixed %}		
 				{% endblock %}
@@ -968,7 +995,7 @@ jQuery(document).ready(function(){
 
             $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(data.theme_class);
 
-            $(".loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + data.theme_class);
+            $("#loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + data.theme_class);
 
             $("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
 
@@ -994,6 +1021,18 @@ jQuery(document).ready(function(){
 			$(this).removeClass("animated shake"); 
 
 		});
+
+
+		$("body").on("click", ".year", function(){
+
+			year = $(this).text(); 
+
+			$("#loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
+
+			$(".active-year").text(year); 
+
+		});
+
 
 	</script>
 

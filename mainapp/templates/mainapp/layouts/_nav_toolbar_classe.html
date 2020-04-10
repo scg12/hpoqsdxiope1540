@@ -1,0 +1,77 @@
+
+
+<div id="menu-fixed"  class="fixed-plugin">
+
+    <div class="dropdown show-dropdown">
+
+            <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fas fa-cog fa-2x"> </i>
+            </a>
+
+            <ul class="dropdown-menu etab">
+
+              <li class="header-title">Thèmes</li>
+
+              <li>
+                  {% include 'mainapp/layouts/_nav_menu_modifier_theme_couleur.html' %}
+              </li>
+              
+            </ul>           
+
+     </div>  
+
+      <div class="dropdown show-dropdown mt-0">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+           <i class="fas fa-chalkboard-teacher fa-2x"></i>
+        </a>
+        <ul class="dropdown-menu"> 
+          <li class="header-title"> Cours</li>
+          <li style="width: 200px;padding-right: 0px;">
+            <div><a href="{% url 'mainapp:liste_etablissements' %}" style="color: black;">Progression</a></div>
+            <div><a href="{% url 'mainapp:liste_etablissements' %}" style="color: black;">Cahier de texte</a></div>
+            <div><a href="{% url 'mainapp:liste_sous_etablissements' %}" style="color: black;">Présence</a></div>
+            <div><a href="{% url 'mainapp:liste_cycles' %}" style="color: black;">Emploi de temps</a></div>
+            <div><a href="{% url 'mainapp:liste_niveaux' %}" style="color: black;">Note</a></div>
+          </li>
+          
+        </ul>
+      </div>      
+
+      <div class="dropdown show-dropdown mt-2">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fas fa-user-graduate fa-2x"> </i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Eleves</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Discipline</a></div>
+                <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Devoir</a></div>
+                <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Parents</a></div>
+                
+              </li>
+              
+            </ul>
+      </div>
+
+      <div class="dropdown show-dropdown mt-2 mb-2">
+        <a href="#" data-toggle="dropdown" aria-expanded="true">
+              <i class="fas fa-warning fa-2x"> </i>
+            </a>
+            <ul class="dropdown-menu"> 
+              <li class="header-title"> Statistiques</li>
+              <li style="width: 200px;padding-right: 0px;">
+                <div><a href="{% url 'mainapp:liste_disciplines' %}" style="color: black;">stat1</a></div>
+                <div><a href="{% url 'mainapp:liste_condition_renvois' %}" style="color: black;">stat2</a></div>
+                <div><a href="{% url 'mainapp:liste_condition_succes' %}" style="color: black;">stat3</a></div>
+              </li>
+              
+            </ul>
+      </div>
+
+
+<!--  <i class="fas fa-user"></i> uses solid style
+
+  <i class="fal fa-user"></i> uses light style
+  brand icon
+  <i class="fab fa-github-square"></i> uses brands style -->
+</div>
