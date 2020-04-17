@@ -31,7 +31,6 @@
             <div><a href="{% url 'mainapp:liste_etablissements' %}" style="color: black;">Cahier de texte</a></div>
             <div><a href="{% url 'mainapp:liste_sous_etablissements' %}" style="color: black;">Présence</a></div>
             <div><a href="{% url 'mainapp:liste_cycles' %}" style="color: black;">Emploi de temps</a></div>
-            <div><a href="{% url 'mainapp:liste_niveaux' %}" style="color: black;">Note</a></div>
           </li>
           
         </ul>
@@ -47,6 +46,8 @@
                 <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Discipline</a></div>
                 <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Devoir</a></div>
                 <div><a href="{% url 'mainapp:liste_matieres' %}" style="color: black;">Parents</a></div>
+                <div><a href="{% url 'mainapp:liste_niveaux' %}" style="color: black;">Note</a></div>
+
                 
               </li>
               
@@ -55,7 +56,8 @@
 
       <div class="dropdown show-dropdown mt-2 mb-2">
         <a href="#" data-toggle="dropdown" aria-expanded="true">
-              <i class="fas fa-warning fa-2x"> </i>
+              <!-- <i class="fas fa-analytics fa-2x"> </i> -->
+              <i class="fas fa-chart-line fa-2x"> </i>
             </a>
             <ul class="dropdown-menu"> 
               <li class="header-title"> Statistiques</li>

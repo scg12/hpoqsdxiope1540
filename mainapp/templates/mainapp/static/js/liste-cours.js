@@ -37,6 +37,7 @@ $(document).ready(function(){
 
              nouvelle_ligne = '<tr><td colspan="10" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
              $("table tbody").append(nouvelle_ligne);
+
           }else{
 
 
@@ -57,11 +58,11 @@ $(document).ready(function(){
               sidebar_class = data.sidebar_class;
               theme_class = data.theme_class;
 
-      /* initialise debut et la fin des elements du tableau(resultat de la recherche) pour une meilleure pagination*/
+              /* initialise debut et la fin des elements du tableau(resultat de la recherche) pour une meilleure pagination*/
               debut = parseInt((numero_page_active-1) * nbre_element_par_page);
               fin = parseInt(numero_page_active * nbre_element_par_page);
 
-      /* gere l'affichage des elements de la derniere page*/
+              /* gere l'affichage des elements de la derniere page*/
               if (liste_page[liste_page.length-1] == numero_page_active){
                 debut = (numero_page_active-1)*nbre_element_par_page; 
                 fin = data.cours.length;
@@ -189,20 +190,21 @@ $(document).ready(function(){
                   $("#message").text(data.message_resultat).css('color',"red");
               }
 
-        }
+               /* mettre a jour le nouveau theme de l'utilisateur */
+              $(".sidebar").attr("data-color", data_color);
+              // $(".sidebar").addClass(sidebar_class);
+              $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
+              $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
+              $(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(theme_class);
+              
 
-      /* mettre a jour le nouveau theme de l'utilisateur */
-      $(".sidebar").attr("data-color", data_color);
-      // $(".sidebar").addClass(sidebar_class);
-      $(".btn").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
-      $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(theme_class);
-      $(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(theme_class);
-      
+          }
+   
       }
 
       function gererErreur(error) {
-      $("#message").text(error);
-      console.log(error);
+        $("#message").text(error);
+        console.log(error);
       }
 
 

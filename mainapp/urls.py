@@ -88,6 +88,8 @@ url(r'^recherche-type-paiement-dortoir/$', views.recherche_type_paiement_dortoir
 url(r'^recherche-type-paiement-facture/$', views.recherche_type_paiement_facture, name='recherche_type_paiement_facture'),
 url(r'^recherche-eleve/$', views.recherche_eleve, name='recherche_eleve'),
 
+url(r'^recherche-eleves-salle-de-classe/$', views.recherche_eleves_salle_de_classe, name='recherche_eleves_salle_de_classe'),
+
 url('creation-etablissement/', views.creation_etablissement, name="creation_etablissement"),
 url('creation-sous-etablissement/', views.creation_sous_etablissement, name="creation_sous_etablissement"),
 url('creation-etudiant/', views.creation_etudiant, name="creation_etudiant"),

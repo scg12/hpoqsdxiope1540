@@ -692,16 +692,16 @@ Handle on hover
 		              	<li class="nav-item year-item">
 		              		
 			                <div class="dropdown">
-		                      	<div  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="active-year1">{{ sous_etab }}</span> <i class="fa fa-fw fa-caret-down"></i>
+		                      	<div  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="active-sousetab" value ="{{ sous_etab.id }}"> {{ sous_etab }}</span> <i class="fa fa-fw fa-caret-down"></i>
 		                      	</div> 
 
 		                      	<div class="dropdown-menu stop-propagation" style="min-width: 5rem!important;">
 			                        <div class="dropdown-arrow"></div>
 			                        
 			                        {% for s_etab in sous_etabs %}
-				                      {% if s_etab != sous_etab %}
-				                        <div><label class="year1"><span>{{ s_etab }}</label></div>
-				                      {% endif %}
+				                      
+				                        <div><label class="sousetab"><span>{{ s_etab }}</label></div>
+				                      
 				                    {% endfor %}
 			                        
 			                        
@@ -924,6 +924,8 @@ jQuery(document).ready(function(){
 		$(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
         $(".cursus-btn-round").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
+        
+        $(".my-card-icon-classe").removeClass("orange vert violet bleu rose jaune turquoise").addClass("{{ theme_class }}");
 
 
 
@@ -1003,6 +1005,7 @@ jQuery(document).ready(function(){
         	$(".scroll-bar").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
         	
         	$(".cursus-btn-pagination").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+			$(".my-card-icon-classe").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
 
 	     }
 
@@ -1023,13 +1026,23 @@ jQuery(document).ready(function(){
 		});
 
 
-		$("body").on("click", ".year", function(){
+/*		$("body").on("click", ".year", function(){
 
 			year = $(this).text(); 
 
 			$("#loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
 
 			$(".active-year").text(year); 
+
+		});*/
+
+		$("body").on("click", ".sousetab", function(){
+
+			sousetab = $(this).text(); 
+
+			$("#loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + "{{ theme_class }}");
+
+			$(".active-sousetab").text(sousetab); 
 
 		});
 
