@@ -105,14 +105,14 @@
                         <table class="table ">
                             <thead class="">
                               <tr>
-                                <th scope="col" class="fix-col" >#</th>
+                                <th scope="col" class="fix-col0" >#</th>
                                 
                                 <th scope="col" class="code_matiere fix-col1">
                                     <span class="tri tri-asc">Code
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="nom_matiere">
+                                <th scope="col" class="nom_matiere fix-col2">
                                     <span class="tri tri-asc">Cours
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                      
@@ -155,10 +155,10 @@
                               
                                 {% for cours in page_active  %}
                                     <tr class="{{ cours.id }}²²{{ cours.code_matiere }}²²{{ cours.nom_matiere }}">
-                                      <th scope="row" class="detail-eleve-link-td fix-col">{{ forloop.counter }}</th>
+                                      <th scope="row" class="detail-eleve-link-td fix-col0">{{ forloop.counter }}</th>
                                      
                                       <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ cours.code_matiere }}</td>
-                                      <td class="detail-eleve-link-td" style="text-transform: uppercase;">{{ cours.nom_matiere }}</td>
+                                      <td class="detail-eleve-link-td fix-col2" style="text-transform: uppercase;">{{ cours.nom_matiere }}</td>
                                       <td class="detail-eleve-link-td" style="text-transform: capitalize;">
                                             {{ cours.nom_classe }}</td>
                                       <td class="detail-eleve-link-td">{{ cours.coef }}</td>

@@ -2,44 +2,76 @@
 /* Table scrollbar */
 
 .table-scroll {
-    margin-left: 180px;
+    margin-left: 190px;
     overflow-x: scroll;
-
+	/*padding: 0px;
+    margin: 0px;*/
 
     /* overflow-y: visible; */
     /* border-left: solid 1px rgb(75, 90, 102); */
    
 }
 
-.fix-col {
+.fix-col0 {
     /*border-left: solid 1px rgb(75, 90, 102);
     border-right: solid 1px rgb(75, 90, 102);*/
-    left: 20px;
+    left:20px;
     position: absolute;
-    width: 50px;
-
+    width: 45px;
+    text-align: center;
+    padding: 12px!important;
+    vertical-align: middle;
+	overflow-wrap: break-word;
 }
-.fix-col td:nth-child(even) {background: #f5f5f5} 
-.fix-col td:nth-child(odd) {background: #FFF}
+/* .fix-col td:nth-child(even) {background: #f5f5f5} 
+.fix-col td:nth-child(odd) {background: #FFF} */
 
+/* table {
+  table-layout: fixed;
+}
+table th, table {
+  overflow-wrap: break-word;
+} */
 .fix-col1 {
     /*border-left: solid 1px rgb(75, 90, 102);
     border-right: solid 1px rgb(75, 90, 102);*/
-    left: 70px;
+    left: 50px;
     position: absolute;
-    width: 130px;
+    width: 60px;
+    padding: 12px!important;
+	
+    text-align: center;
 
+    vertical-align: middle;
+    overflow-wrap: break-word;
+	
+}
+.fix-col2 {
+    /*border-left: solid 1px rgb(75, 90, 102);
+    border-right: solid 1px rgb(75, 90, 102);*/
+    left: 90px;
+    position: absolute;
+    width: 120px;
+    padding: 12px!important;
+    margin-bottom: 10px!important;
+    vertical-align: middle;
+    overflow-wrap: break-word;
+	
 }
 
 
 table thead th {
 	border-bottom: none!important;
+	padding: 12px!important;
+
 }
+
+
 
 /* fixed button add*/
 .fixed-btn-add {
     position: fixed;
-    top: 45%;
+    top: 55%;
     right: 40%; 
 }
 /* boutton rond */
@@ -165,4 +197,29 @@ cursor: pointer;
 	width: 15px;
 	height: 15px; 
 	border-radius: 50%
+}
+
+.rouge1{
+	background-color: #FE1B00;
+	/*background-color: #FF0000;*/
+}
+
+.vert1{
+	background-color: #00FF00;
+}
+
+.year{
+	padding: 0 0.7rem;
+	margin-bottom: 0rem!important;
+	
+
+}
+.year:hover{
+	background-color: #00FF00;
+
+}
+.year-item{
+	margin-left: 15px!important;
+	font-size: 18px;
+	font-weight: 400;
 }

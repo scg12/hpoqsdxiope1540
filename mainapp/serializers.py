@@ -63,7 +63,8 @@ class EleveSerializer(serializers.Serializer):
     # photo_url = serializers.CharField(max_length=200)
     annee_scolaire = serializers.CharField(max_length=100)
     redouble = serializers.CharField(max_length=2)
-    age = serializers.IntegerField()
+    etat_sante = serializers.CharField(max_length=2)
+    # age = serializers.IntegerField()
     # archived = serializers.CharField(max_length=2)
 
     def create(self, validated_data):
@@ -84,10 +85,11 @@ class EleveSerializer(serializers.Serializer):
         instance.tel_mere = validated_data.get('tel_mere', instance.tel_mere.lower())
         instance.email_pere = validated_data.get('email_pere', instance.email_pere.lower())
         instance.email_mere = validated_data.get('email_mere', instance.email_mere.lower())
-        # instance.photo_url = validated_data.get('photo_url', instance.photo_url.lower())
+        instance.photo_url = validated_data.get('photo_url', instance.photo_url.lower())
         instance.annee_scolaire = validated_data.get('annee_scolaire', instance.annee_scolaire.lower())
         instance.redouble = validated_data.get('redouble', instance.redouble.lower())
-        instance.age = validated_data.get('age', instance.age.lower())
+        instance.etat_sante = validated_data.get('etat_sante', instance.etat_sante.lower())
+        # instance.age = validated_data.get('age', instance.age.lower())
         # instance.archived = validated_data.get('archived', instance.archived.lower())
 
         instance.save()

@@ -4519,7 +4519,7 @@ def find_classe(recherche, trier_par):
             ).distinct()
 
         else:
-            print("*******recherche ",recherche)
+            
             classes = Classe.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
                 Q(nom_sousetab__icontains=recherche) |
@@ -4536,6 +4536,184 @@ def find_classe(recherche, trier_par):
     classes_serializers = ClasseSerializer(classes, many=True)
 
     return classes_serializers.data
+
+
+def recherche_eleves_salle_de_classe(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            salle_de_classe_id = donnees[4]
+
+            sousetab_id = donnees[5]
+
+            annee_scolaire = donnees[6]
+
+            
+            eleves = find_eleves_salle_de_classe(donnees_recherche,trier_par,salle_de_classe_id,sousetab_id,annee_scolaire)
+
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(classes)
+
+            paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            #gestion de la description textuelle de la pagination
+            nbre_item = len(eleves)
+
+            first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
+
+            if (nbre_item - first_item_page < nbre_element_par_page):
+                last_item_page = first_item_page + (nbre_item - first_item_page)
+            else:
+                last_item_page = int(page_active.number) * nbre_element_par_page
+
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "eleves": eleves,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+                "nbre_item" : nbre_item,
+                "first_item_page" : first_item_page,
+                "last_item_page" : last_item_page,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_eleves_salle_de_classe(recherche, trier_par, salle_de_classe_id, sousetab_id, annee_scolaire):
+
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            eleves = Cours.objects.filter(id_classe = salle_de_classe_id, id_sousetab=sousetab_id, annee_scolaire = annee_scolaire)[0].eleves.all().filter(Q(archived ="0")).order_by("nom")
+
+        else:
+            eleves = Cours.objects.filter(id_classe = salle_de_classe_id, id_sousetab=sousetab_id, annee_scolaire = annee_scolaire)[0].eleves.all().filter(Q(archived ="0")).order_by(trier_par)
+            
+    else:
+        if (trier_par == "non defini"):
+
+            eleves = Cours.objects.filter(id_classe = salle_de_classe_id, id_sousetab=sousetab_id, annee_scolaire = annee_scolaire)[0].eleves.all().filter(Q(archived ="0") &
+                (Q(matricule__icontains=recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(adresse__icontains=recherche) |
+                Q(sexe__icontains=recherche) |
+                Q(date_naissance__icontains=recherche) |
+                Q(lieu_naissance__icontains=recherche) |
+                Q(date_entree__icontains=recherche) |
+                Q(nom_pere__icontains=recherche) |
+                Q(prenom_pere__icontains=recherche) |
+                Q(nom_mere__icontains=recherche) |
+                Q(prenom_mere__icontains=recherche) |
+                Q(tel_pere__icontains=recherche) |
+                Q(email_pere__icontains=recherche) |
+                Q(tel_mere__icontains=recherche) |
+                Q(email_mere__icontains=recherche) |
+                Q(redouble__icontains=recherche)
+                )
+            ).distinct().order_by("nom")
+
+        else:
+           
+            eleves = Cours.objects.filter(id_classe = salle_de_classe_id, id_sousetab=sousetab_id, annee_scolaire = annee_scolaire)[0].eleves.all().filter(Q(archived ="0") &
+                (Q(matricule__icontains=recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(adresse__icontains=recherche) |
+                Q(sexe__icontains=recherche) |
+                Q(date_naissance__icontains=recherche) |
+                Q(lieu_naissance__icontains=recherche) |
+                Q(date_entree__icontains=recherche) |
+                Q(nom_pere__icontains=recherche) |
+                Q(prenom_pere__icontains=recherche) |
+                Q(nom_mere__icontains=recherche) |
+                Q(prenom_mere__icontains=recherche) |
+                Q(tel_pere__icontains=recherche) |
+                Q(email_pere__icontains=recherche) |
+                Q(tel_mere__icontains=recherche) |
+                Q(email_mere__icontains=recherche) |
+                Q(redouble__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+            
+
+    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
+    eleves_serializers = EleveSerializer(eleves, many=True)
+
+    return eleves_serializers.data
 
 def recherche_specialite(request):
     
@@ -7730,8 +7908,25 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
     classe = Classe.objects.filter(id=id)[0]
     eleves = Cours.objects.filter(id_classe = id)[0].eleves.all().order_by('nom')
     
+    garcons = Cours.objects.filter(id_classe = id)[0].eleves.all().filter(sexe="masculin")
+    filles = Cours.objects.filter(id_classe = id)[0].eleves.all().filter(sexe="feminin")
+
+    nbre_eleves_en_sante = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="0"))
+    nbre_eleves_sante_fragile = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="1"))
+    nbre_eleves_malade = len(Cours.objects.filter(id_classe = id)[0].eleves.all().filter(etat_sante="2"))
+    
+    nbre_eleves = len(eleves)
+    nbre_garcons = len(garcons)
+    nbre_filles = len(filles)
+
     cours = Cours.objects.filter(id_classe = id);
+
+    first_cours = Cours.objects.filter(id_classe = id)[0];
+
     classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+
+    sous_etab = SousEtab.objects.filter(archived = "0").all()[0]
+    sous_etabs = SousEtab.objects.filter(archived = "0").all()
 
     paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
