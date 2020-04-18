@@ -1,20 +1,13 @@
 
 /* Table scrollbar */
 
-.table-scroll {
+/* .table-scroll {
     margin-left: 190px;
     overflow-x: scroll;
-	/*padding: 0px;
-    margin: 0px;*/
-
-    /* overflow-y: visible; */
-    /* border-left: solid 1px rgb(75, 90, 102); */
    
 }
 
 .fix-col0 {
-    /*border-left: solid 1px rgb(75, 90, 102);
-    border-right: solid 1px rgb(75, 90, 102);*/
     left:20px;
     position: absolute;
     width: 45px;
@@ -23,18 +16,9 @@
     vertical-align: middle;
 	overflow-wrap: break-word;
 }
-/* .fix-col td:nth-child(even) {background: #f5f5f5} 
-.fix-col td:nth-child(odd) {background: #FFF} */
 
-/* table {
-  table-layout: fixed;
-}
-table th, table {
-  overflow-wrap: break-word;
-} */
 .fix-col1 {
-    /*border-left: solid 1px rgb(75, 90, 102);
-    border-right: solid 1px rgb(75, 90, 102);*/
+
     left: 50px;
     position: absolute;
     width: 60px;
@@ -47,8 +31,7 @@ table th, table {
 	
 }
 .fix-col2 {
-    /*border-left: solid 1px rgb(75, 90, 102);
-    border-right: solid 1px rgb(75, 90, 102);*/
+
     left: 90px;
     position: absolute;
     width: 120px;
@@ -57,7 +40,7 @@ table th, table {
     vertical-align: middle;
     overflow-wrap: break-word;
 	
-}
+} */
 
 
 table thead th {

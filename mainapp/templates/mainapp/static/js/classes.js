@@ -209,7 +209,7 @@ $(document).ready(function(){
         var eleve = $(this).parents("tr").attr('class');
         tab_element = eleve.split("²²");
 
-        class="²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}²²{{ lieu_naissance }}²²{{ date_entree }}²²{{ redouble }}
+         /*class="²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}²²{{ lieu_naissance }}²²{{ date_entree }}²²{{ redouble }}
         eleve_id = tab_element[0];
         eleve_nom = tab_element[1];
         eleve_prenom = tab_element[2];
@@ -219,13 +219,13 @@ $(document).ready(function(){
         eleve_date_entree = tab_element[6];
 
       
-        $(".nom_eleve").val(nom_eleve);
-        $(".nom_niveau").val(nom_niveau);
-        $(".nom_cycle").val(nom_cycle);
-        $(".nom_sousetab").val(nom_sousetab);
-        $(".nom_etab").val(nom_etab);
-        $(".specialite").val(specialite);
-        $("#id_modif").val(id);
+        $(".eleve_id").val(nom_eleve);
+        $(".eleve_nom").val(nom_niveau);
+        $(".eleve_prenom").val(nom_cycle);
+        $(".eleve_sexe").val(nom_sousetab);
+        $(".eleve_date_naissance").val(nom_etab);
+        $(".eleve_lieu_naissance").val(specialite);
+        $(".eleve_date_entree").val(id);
 
         $(".nom_eleve").attr("disabled", "True");
         $(".nom_niveau").attr("disabled", "True");
