@@ -113,7 +113,7 @@
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                                       
                                 </th>
-                                <th scope="col" class="nom_cycle">
+                                <th scope="col" class="nom_sousetab">
                                     <span class="tri tri-asc">Sous Etab
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
@@ -137,11 +137,11 @@
                             <tbody>
                                
                                     {% for cycl in cycles  %}
-                                    <tr class="{{ cycl.id }}²²{{ cycl.nom_cycle }}²²{{ cycl.nom_cycle }}²²{{ cycl.nom_etab }}">
+                                    <tr class="{{ cycl.id }}²²{{ cycl.nom_cycle }}²²{{ cycl.nom_sousetab }}²²{{ cycl.nom_etab }}">
                                       <th scope="row" class="detail-cycle-link-td fix-col">{{ forloop.counter }}</th>
                                      
                                       <td class="detail-cycle-link-td fix-col1" style="text-transform: uppercase;">{{ cycl.nom_cycle }}</td>
-                                      <td class="detail-cycle-link-td" style="text-transform: uppercase;">{{ cycl.nom_cycle }}</td>
+                                      <td class="detail-cycle-link-td" style="text-transform: uppercase;">{{ cycl.nom_sousetab }}</td>
                                       <td class="detail-cycle-link-td" style="text-transform: capitalize;">{{ cycl.nom_etab }}</td>
                                       <td class="td-actions text-right"> 
 <!--                                       {% if perms.mainapp.can_view_etudiant or perms.mainapp.view_etudiant %}                                     

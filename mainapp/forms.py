@@ -27,81 +27,113 @@ class EtudiantForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
     )
 
+class DateForm(forms.Form):
+    date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M'])
+
 class EleveForm(forms.Form):
     nom = forms.CharField(
-        label='Nom',
+        # label='Nom*',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group nom', 'style': 'text-transform:uppercase'}),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom', 'style': 'text-transform:uppercase', 'name' : 'nom'}),
     )
     prenom = forms.CharField(
-        label=_('Prénom'),
+        # label=_('Prénom*'),
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom', 'style': 'text-transform:capitalize', 'name' : 'prenom'}),
     )
-    sexe = forms.CharField(
-        label='Sexe',
-        max_length=5,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group sexe', 'style': 'text-transform:capitalize'}),
-    )
+#     gender = (
+#     ('masculin', 'Masculin'),
+#     ('feminin', 'Féminin'),
+# )
+#     sexe = forms.ChoiceField(
+#         label='Sexe*',
+#         widget=forms.Select(choices=gender,attrs={'class': 'form-control form-group sexe', 'name' : 'sexe'}),
+#         )
+    # sexe = forms.CharField(
+    #     label='Sexe*',
+    #     max_length=5,
+    #     required=False,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group sexe', 'style': 'text-transform:capitalize'}),
+    # )
     adresse = forms.CharField(
-        label='Adresse',
+        # label='Adresse*',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group adresse', 'style': 'text-transform:capitalize'}),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group adresse', 'style': 'text-transform:capitalize', 'name' : 'adresse'}),
     )
-    date_naissance = forms.CharField(
-        label='Date Naissance',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group date_naissance'}),
-    )
+    # date_naissance = forms.CharField(
+    #     # label='Date Naissance*',
+    #     max_length=100,
+    #     required=True,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group date_naissance', 'name' : 'date_naissance'}),
+    # )
+
+    # date_naissance = forms.DateField(
+    #     required=True
+       
+    # )
+
     lieu_naissance = forms.CharField(
-        label='Lieu Naissance',
+        # label='Lieu Naissance*',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group lieu_naissance'}),
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group lieu_naissance', 'name' : 'lieu_naissance'}),
     )
     date_entree = forms.CharField(
-        label='Date Entrée',
+        # label='Année Scolaire Entrée*',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group date_entree', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group date_entree', 'style': 'text-transform:capitalize', 'name' : 'date_entree'}),
     )
     nom_pere = forms.CharField(
-        label='Nom Père',
+        # label='Nom Père',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_pere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_pere', 'style': 'text-transform:capitalize', 'name' : 'nom_pere'}),
     )
     prenom_pere = forms.CharField(
-        label='Prénom Père',
+        # label='Prénom Père',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_pere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_pere', 'style': 'text-transform:capitalize', 'name' : 'prenom_pere'}),
     )
     nom_mere = forms.CharField(
-        label='Nom Mère',
+        # label='Nom Mère',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_mere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group nom_mere', 'style': 'text-transform:capitalize', 'name' : 'nom_mere'}),
     )
     prenom_mere = forms.CharField(
-        label='Prénom Mère',
+        # label='Prénom Mère',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_mere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group prenom_mere', 'style': 'text-transform:capitalize', 'name' : 'prenom_pere'}),
     )
     tel_pere = forms.CharField(
-        label='Téléphone Père',
+        # label='Téléphone Père',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_pere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_pere', 'style': 'text-transform:capitalize', 'name' : 'tel_pere'}),
     )
     tel_mere = forms.CharField(
-        label='Téléphone Mère',
+        # label='Téléphone Mère',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_mere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group tel_mere', 'style': 'text-transform:capitalize', 'name' : 'tel_mere'}),
     )
     email_pere = forms.CharField(
-        label='Email Père',
+        # label='Email Père',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group email_pere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group email_pere', 'style': 'text-transform:capitalize', 'name' : 'email_pere'}),
     )
     email_mere = forms.CharField(
-        label='Email Mère',
+        # label='Email Mère',
         max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group email_mere', 'style': 'text-transform:capitalize'}),
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control form-group email_mere', 'style': 'text-transform:capitalize', 'name' : 'email_mere'}),
     )
     photo = forms.ImageField(
         #label='', 
@@ -110,11 +142,21 @@ class EleveForm(forms.Form):
         #validators=[FileTypeValidator(allowed_types=[ 'image/jpeg','image/png'])],
         widget=forms.ClearableFileInput(attrs={ 'class': ' file-image','style':'display:none', 'name' : 'photo', 'id': 'file'}),
     )
-    redouble = forms.CharField(
-        label='Redouble',
-        max_length=2,
-        widget=forms.TextInput(attrs={'class': 'form-control form-group redouble', 'style': 'text-transform:capitalize'}),
-    )
+#     redouble = (
+#     ('non', 'Non'),
+#     ('oui', 'Oui'),
+# )
+#     redouble = forms.ChoiceField(
+#     label='Redouble*',
+#     widget=forms.Select(choices=redouble),
+
+#     )
+    # redouble = forms.CharField(
+    #     label='Redouble*',
+    #     max_length=2,
+    #     required=True,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group redouble', 'style': 'text-transform:capitalize'}),
+    # )
 
 class GroupForm(forms.ModelForm):
     class Meta:

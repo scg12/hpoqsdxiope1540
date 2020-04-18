@@ -1,14 +1,482 @@
 $(document).ready(function(){
+ 
+// var validator = $("#creation_eleve_form").validate(options);
+// var completed = false;
+// var firstNonBlankedValue = "";
+// var nbre_complet
+// $(".text-foo").each(function(){
+//     if($(this).length > 0){
+//         firstNonBlankedValue = $(this).val();
+//         return;
+//     }
+// });
+// console.log(firstNonBlankedValue);
+var nbre_ok = 0;
 
-/*    $("table tr .supprimer-eleve-link").click(function() {
-        alert("889812");
-        $('#supprimer-eleve-link2').modal('show');
-        $('#modal_supprimer_eleve2 .matricule2').text('show');
+$('.terminer').prop("disabled", true);
+
+
+// $("input[text]").keyup(function()
+ $("body").on("click", ".radio_classe", function() {
+ // $(":radio").on("click", function(){
+    continuer = false;
+
+    // $(":checkbox"). prop("checked", true);
+    // $(":checkbox"). prop("checked", false);
+
+    nb_checkbox_selected = $(":checkbox:checked").length;
+    nb_classe_selected = $(":radio:checked").length;
+    if (nb_checkbox_selected > 0)
+       continuer = true;
+    else if (nb_classe_selected > 0)
+       continuer = true;
+
+    var validator = $("#creation_eleve_form").validate({ ignore: "" });
+    // alert(validator.form()+"__"+continuer);
+    if (validator.form() && continuer) {
+        $('.terminer').removeAttr("disabled");
+        // alert("YOOO");
+    }
+    else
+       $('.terminer').prop("disabled", true);
+    });
+
+$( ":text" ).keyup(function(){
+  //  On s'assure qu'une classe est sélectionnée
+  continuer = false;
+  nb_checkbox_selected = $(":checkbox:checked").length;
+  nb_classe_selected = $(":radio:checked").length;
+  if (nb_checkbox_selected > 0)
+     continuer = true;
+  else if (nb_classe_selected > 0)
+     continuer = true;
+
+  var validator = $("#creation_eleve_form").validate({ ignore: "" });
+  // alert(validator.form()+"__"+continuer);
+  if (validator.form() && continuer) {
+      $('.terminer').removeAttr("disabled");
+      // alert("YOOO");
+  }
+  else
+     $('.terminer').prop("disabled", true);
+
+    // $("input").css("background-color", "pink");
+  // Si nbre_ok = 6 alors le formulaire est valide
+  
+  // name = $(this).attr("name");
+  // if (name == "nom" || name == "adresse" || name == "date_naissance" || name == "lieu_naissance" || name == "date_entree" || name == "redouble")
+  //    {
+  //     if($(this).length > 0){
+  //       nbre_ok ++;
+  //       alert(name+"  nbre_ok :"+nbre_ok+" val "+$(this).val());
+  //       }
+  //     else
+  //       nbre_ok--;
+
+  //     if (nbre_ok == 6)
+  //     {
+  //      alert("c'est ok"); 
+  //      $('.terminer').removeAttr("disabled");
+  //     }
+  //    else
+  //      $('.terminer').prop("disabled", true);
+  //    }
+
+
+
+  // $(":text").each(function(){
+  //   name = $(this).attr("name");
+  //   if (name == "nom" || name == "adresse" || name == "date_naissance" || name == "lieu_naissance" || name == "date_entree" || name == "redouble")
+  //    {
+  //     if($(this).length > 0){
+  //       nbre_ok ++; alert(name+"  nbre_ok :"+nbre_ok+" val "+$(this).val());
+  //       }
+  //    }    
+  //  });
     
-    });*/
-        //$('#modal_supprimer_eleve2').modal('show');
-       // $('#modal_supprimer_eleve2 .matricule2').text('show');
+});
 
+$("#datetimepicker").datetimepicker();
+
+// var is_nb_matformat_ok = $('#is_nb_matformat_ok').attr('class');
+//     // alert(is_nb_matformat_ok);
+//     if (is_nb_matformat_ok == "ok"){
+//       // $('.terminer').prop("disabled", false);
+//       // alert("Ok");
+//       $('.terminer').removeAttr("disabled")
+//     }
+//     else{
+//       // alert("disabled");
+//       $('.terminer').prop("disabled", true);
+//     }
+
+
+
+  $(".choix_etab").on("change", function(){
+  // On met la variable position à 1 pour indiquer que c'est etab qui a changé
+    etab = $('.choix_etab').val()
+    position = "1";
+    id_etab = etab.split("_")[1];
+    etab = etab.split("_")[0];
+    
+    var form = $(".load_specialites_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_etab + "²²~~" + etab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  $(":checkbox").on("click", function(){
+    // alert("yesss");
+    var checkBoxes = $(":checkbox[son]");
+        checkBoxes.prop("checked", checkBoxes.prop("checked"));
+        // alert($(":checkbox[son]:checked").length > 0);
+        if ($(":checkbox[son]:checked").length > 0) {
+         $(":radio[sa]").attr("disabled", true);
+         // alert($(":radio:disabled").length+" "+$(":radio:checked").length);
+
+        }
+        else {
+          checkBoxes.prop("disabled", checkBoxes.prop(false));
+          $(":radio[sa]").removeAttr("disabled");
+        }
+
+        //  On s'assure qu'une classe est sélectionnée
+        continuer = false;
+        nb_checkbox_selected = $(":checkbox:checked").length;
+        nb_classe_selected = $(":radio:checked").length;
+        if (nb_checkbox_selected > 0)
+           continuer = true;
+        else if (nb_classe_selected > 0)
+           continuer = true;
+
+    var validator = $("#creation_eleve_form").validate({ ignore: "" });
+    // if ($(":checkbox:checked").length <= 0 || $(":radio:checked").length <= 0) 
+    //    $('.terminer').prop("disabled", true);
+    // else if (validator.form() && $(":checkbox:checked").length > 0)
+    //     $('.terminer').removeAttr("disabled");
+     if ($(":checkbox:checked").length > 0){
+       if (validator.form() && $(":radio").length > 0)
+          $('.terminer').removeAttr("disabled");
+       }
+     else 
+       {
+        if ($(":radio:checked").length > 0 && validator.form())
+           $('.terminer').removeAttr("disabled");
+        else 
+           $('.terminer').prop("disabled", true);
+       }
+    });
+    //  $(":radio[sa]").on("click", function(){
+    // alert("ya");
+    // var checkBoxes = $(":radio[sa]");
+    //     if ($(":checkbox[son]:checked").length > 0) {
+    //      checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+    //      $(this).prop("checked", !checkBoxes.prop("checked"));
+    //     }
+    //     else {
+    //       checkBoxes.prop("disabled", checkBoxes.prop(false));
+    //       $(":radio[sa]").removeAttr("disabled");
+    //     }
+    // });
+
+  $(".choix_sousetab").on("change", function(){
+  // On met la variable position à 2 pour indiquer que c'est sousetab qui a changé
+    sousetab = $('.choix_sousetab').val()
+    position = "2";
+    id_sousetab = sousetab.split("_")[1];
+    sousetab = sousetab.split("_")[0];
+    
+    var form = $(".load_specialites_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_sousetab + "²²~~" + sousetab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  $(".choix_niveau").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    niveau = $('.choix_niveau').val()
+    position = "3";
+    id_niveau = niveau.split("_")[1];
+    niveau = niveau.split("_")[0];
+
+    var form = $(".load_specialites_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + niveau;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  $(".specialite").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    specialite = $('.specialite').val()
+    position = "4";
+    id_specialite = specialite.split("_")[1];
+    specialite = specialite.split("_")[0];
+
+    var form = $(".load_specialites_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_specialite + "²²~~" + specialite;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  function gererSucces2(data) {
+        // liste_classes = data.classes;
+        
+        
+        // alert("retour de python");
+        console.log(data);
+        choix = data.choix;
+
+        if (choix == "etab") {
+          liste_sousetabs = data.sousetabs;
+          liste_niveaux = data.niveaux;
+          nbre_sousetabs = liste_sousetabs.length;
+          nbre_niveaux = liste_niveaux.length;
+          liste_specialites = data.specialites;
+          nbre_specialites = liste_specialites.length;
+          liste_classes = data.classes;
+          nbre_classes = liste_classes.length;
+
+          $('.choix_sousetab').empty();
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('#liste_classes_niveaux').empty();
+          $('#liste_classes_niveaux').append(`Classes:&nbsp;&nbsp;&nbsp;`)
+           for (var i = 0; i < nbre_sousetabs; i++) {
+              nom_sousetab = liste_sousetabs[i].nom_sousetab                      
+              id = liste_sousetabs[i].id;
+              option = nom_sousetab+"_"+id;
+              $('.choix_sousetab').append(`<option value="${option}"> 
+                                         ${nom_sousetab} 
+                                    </option>`)
+              // alert(option);
+           }
+           option = "Aucune_"+0;
+           specialite = "Aucune"
+            id = 0;
+            $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+
+           for (var i = 0; i < nbre_niveaux; i++) {
+              nom_niveau = liste_niveaux[i].nom_niveau;                     
+              id = liste_niveaux[i].id;
+              option = nom_niveau+"_"+id;
+              $('.choix_niveau').append(`<option value="${option}"> 
+                                         ${nom_niveau} 
+                                    </option>`)
+           }
+
+            for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+           
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id+"_*";
+              // alert(option);
+            if ($(":checkbox[son]:checked").length > 0)
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe disabled  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+            else
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+
+           var validator = $("#creation_eleve_form").validate({ ignore: "" });
+            // alert($(":checkbox:checked").length+"_"+$(":radio").length+"_"+validator.form())
+            if ($(":radio").length > 0 && validator.form() && $(":checkbox:checked").length > 0)
+              $('.terminer').removeAttr("disabled");
+            else 
+              $('.terminer').prop("disabled", true);
+        } 
+        if (choix == "sousetab"){
+            liste_niveaux = data.niveaux;
+            nbre_niveaux = liste_niveaux.length;
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+            liste_specialites = data.specialites;
+            nbre_specialites = liste_specialites.length;
+
+            $('.choix_niveau').empty();
+            $('.specialite').empty();
+            $('#liste_classes_niveaux').empty();
+            // $('#choix_specialite').empty();
+            $('#liste_classes_niveaux').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+
+            for (var i = 0; i < nbre_niveaux; i++) {
+              nom_niveau = liste_niveaux[i].nom_niveau;                     
+              id = liste_niveaux[i].id;
+              option = nom_niveau+"_"+id;
+              $('.choix_niveau').append(`<option value="${option}"> 
+                                         ${nom_niveau} 
+                                    </option>`)
+           }
+           option = "Aucune_"+0;
+           specialite = "Aucune"
+            id = 0;
+            $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+            
+            for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id+"_*";
+              // alert(option);
+              if ($(":checkbox[son]:checked").length > 0)
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe disabled  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+            else
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+
+           var validator = $("#creation_eleve_form").validate({ ignore: "" });
+            // alert($(":checkbox:checked").length+"_"+$(":radio").length+"_"+validator.form())
+            if ($(":radio").length > 0 && validator.form() && $(":checkbox:checked").length > 0)
+              $('.terminer').removeAttr("disabled");
+            else 
+              $('.terminer').prop("disabled", true);
+          
+        }
+
+        if (choix == "niveau"){
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+            liste_specialites = data.specialites;
+            nbre_specialites = liste_specialites.length;
+
+            $('.specialite').empty();
+            $('#liste_classes_niveaux').empty();
+            $('#liste_classes_niveaux').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+            option = "Aucune_"+0;
+            specialite = "Aucune"
+            id = 0;
+            $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+
+           for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id+"_*";
+              // alert(option);
+              if ($(":checkbox[son]:checked").length > 0)
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe disabled  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+            else
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+
+           var validator = $("#creation_eleve_form").validate({ ignore: "" });
+            // alert($(":checkbox:checked").length+"_"+$(":radio").length+"_"+validator.form())
+            if ($(":radio").length > 0 && validator.form() && $(":checkbox:checked").length > 0)
+              $('.terminer').removeAttr("disabled");
+            else 
+              $('.terminer').prop("disabled", true);
+        }
+
+        if (choix == "specialite"){
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+
+            $('#liste_classes_niveaux').empty();
+            $('#liste_classes_niveaux').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id+"_*";
+              // alert(option);
+              if ($(":checkbox[son]:checked").length > 0)
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe disabled  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+            else
+              $('#liste_classes_niveaux').append(`<input type=radio name=classe_selected sa=1 class=radio_classe  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+
+           var validator = $("#creation_eleve_form").validate({ ignore: "" });
+            // alert($(":checkbox:checked").length+"_"+$(":radio").length+"_"+validator.form())
+            if ($(":radio").length > 0 && validator.form() && $(":checkbox:checked").length > 0)
+              $('.terminer').removeAttr("disabled");
+            else 
+              $('.terminer').prop("disabled", true);
+        }
+
+      }
+  function gererErreur2(error) {
+        $("#message").text(error);
+        console.log(error);
+      }
    $(".recherche").keyup(function(e) {
 
         e.stopImmediatePropagation(); 
@@ -227,40 +695,40 @@ $(document).ready(function(){
         
         $('#modal_ajouter_eleve').modal('show');
 
-        $(".matricule").val(matricule);
-        $(".nom").val(nom);
-        $(".prenom").val(prenom);
-        $(".sexe").val(sexe);
-        $(".redouble").val(redouble);
-        $(".date_naissance").val(date_naissance);
-        $(".lieu_naissance").val(lieu_naissance);
-        $(".date_entree").val(date_entree);
-        $(".nom_pere").val(nom_pere);
-        $(".prenom_mere").val(prenom_mere);
-        $(".nom_mere").val(nom_mere);
-        $(".prenom_mere").val(prenom_mere);
-        $(".tel_pere").val(tel_pere);
-        $(".tel_mere").val(tel_mere);
-        $(".email_pere").val(email_pere);
-        $(".email_mere").val(email_mere);
-        $("#id_modif").val(id);
+        // $(".matricule").val(matricule);
+        // $(".nom").val(nom);
+        // $(".prenom").val(prenom);
+        // $(".sexe").val(sexe);
+        // $(".redouble").val(redouble);
+        // $(".date_naissance").val(date_naissance);
+        // $(".lieu_naissance").val(lieu_naissance);
+        // $(".date_entree").val(date_entree);
+        // $(".nom_pere").val(nom_pere);
+        // $(".prenom_mere").val(prenom_mere);
+        // $(".nom_mere").val(nom_mere);
+        // $(".prenom_mere").val(prenom_mere);
+        // $(".tel_pere").val(tel_pere);
+        // $(".tel_mere").val(tel_mere);
+        // $(".email_pere").val(email_pere);
+        // $(".email_mere").val(email_mere);
+        // $("#id_modif").val(id);
 
-        $(".matricule").val("");
-        $(".nom").val("");
-        $(".prenom").val("");
-        $(".sexe").val("");
-        $(".redouble").val();
-        $(".date_naissance").val();
-        $(".lieu_naissance").val();
-        $(".date_entree").val();
-        $(".nom_pere").val();
-        $(".prenom_mere").val();
-        $(".nom_mere").val();
-        $(".prenom_mere").val();
-        $(".tel_pere").val();
-        $(".tel_mere").val();
-        $(".email_pere").val();
-        $(".email_mere").val();
+        // $(".matricule").val("");
+        // $(".nom").val("");
+        // $(".prenom").val("");
+        // $(".sexe").val("");
+        // $(".redouble").val();
+        // $(".date_naissance").val();
+        // $(".lieu_naissance").val();
+        // $(".date_entree").val();
+        // $(".nom_pere").val();
+        // $(".prenom_mere").val();
+        // $(".nom_mere").val();
+        // $(".prenom_mere").val();
+        // $(".tel_pere").val();
+        // $(".tel_mere").val();
+        // $(".email_pere").val();
+        // $(".email_mere").val();
 
     });
 
@@ -442,7 +910,7 @@ $(document).ready(function(){
     
     });
 
-    $("#nbre_element_par_page").change(function (e) {
+    $("#nbre_element_par_page").on("change", function (e) {
 
         e.stopImmediatePropagation(); 
         $("#message").text("");
