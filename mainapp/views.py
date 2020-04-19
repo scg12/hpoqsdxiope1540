@@ -1125,7 +1125,7 @@ def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_
     
     etablissement = Etab.objects.all().order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = EtablissementForm  
     paginator = Paginator(etablissement, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1167,7 +1167,7 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
     
     s_etablissements = SousEtab.objects.all().order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
     
     form = SousEtablissementForm  
     paginator = Paginator(s_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1208,7 +1208,7 @@ def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
     cycles = Cycle.objects.filter(archived = "0").order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = CycleForm  
     paginator = Paginator(cycles, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1249,7 +1249,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
     niveaux = Niveau.objects.filter(archived = "0").order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = NiveauForm  
     paginator = Paginator(niveaux, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1288,7 +1288,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    classes = Classe.objects.filter(archived = "0").order_by('nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('nom_classe')
     specialitess = Specialite.objects.values('specialite').filter(archived = "0").order_by('specialite').distinct()
 
     # liste_classes = "1_3eAll1_2_3eAll2_3_3eAll3_"
@@ -1420,6 +1420,8 @@ def liste_classe_specialites(request, page=1, nbre_element_par_page=pagination_n
     #     print(clss)
     #     print(inds)
     # classes = Classe.objects.filter(archived = "0").order_by('-specialite')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+
     etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
     sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
     niveaux = []
@@ -1841,7 +1843,7 @@ def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_p
     
     cours = Cours.objects.all().order_by('code_matiere')
     
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
     
     form = CoursForm  
     paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -7725,7 +7727,7 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
 
     first_cours = Cours.objects.filter(id_classe = id)[0];
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     sous_etab = SousEtab.objects.filter(archived = "0").all()[0]
     sous_etabs = SousEtab.objects.filter(archived = "0").all()
