@@ -1246,8 +1246,9 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
-    eleves = Eleve.objects.all().order_by('-id')
-    print("Count Eleve: ", eleves.count())
+    # eleves = Eleve.objects.all().order_by('-id')[:10]
+    eleves = Eleve.objects.filter().order_by('-id')
+    # print("Count Eleve: ", eleves.count())
     etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
     sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
     niveaux = []
@@ -1256,8 +1257,6 @@ def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_
     cycles = []
     specialites = Specialite.objects.values('specialite').filter(~Q(nom_niveau=""),archived = "0")
     
-    # specialites = [spe[0].lower() for spe in specialites]
-    # [print(s) for s in specialites]
     if etabs.count() > 0:
         id_sousetab0 = sousetabs[0]['id']
         # cycles = Cycle.objects.values('id','nom_cycle').filter(archived = "0",id_sousetab = id_sousetab0)

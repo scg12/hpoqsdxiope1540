@@ -209,7 +209,7 @@ $(document).ready(function(){
         var eleve = $(this).parents("tr").attr('class');
         tab_element = eleve.split("²²");
 
-        class="²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}²²{{ lieu_naissance }}²²{{ date_entree }}²²{{ redouble }}
+        /*class="²²{{ eleve.sexe }}²²{{ eleve.date_naissance }}²²{{ lieu_naissance }}²²{{ date_entree }}²²{{ redouble }}
         eleve_id = tab_element[0];
         eleve_nom = tab_element[1];
         eleve_prenom = tab_element[2];

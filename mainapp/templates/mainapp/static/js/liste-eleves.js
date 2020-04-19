@@ -858,7 +858,10 @@ $("#datetimepicker").datetimepicker();
         $(".email_mere").removeAttr("disabled");
 
     });
+    $(".changer-eleve-classe-link").click(function() {
+        $('#modal_changer_classe_eleve').modal('show');
 
+    });
 
 
     $(".supprimer-eleve-link").click(function() {

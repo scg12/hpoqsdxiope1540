@@ -121,6 +121,14 @@
                               </button>
                             {% endif %}
                         </div>
+                        <!-- <div>
+                            {% if perms.mainapp.can_add_eleve or perms.mainapp.add_eleve %}
+                              <button type="button" rel="tooltip" class="cursus-btn-round ajouter-eleve-link" data-toggle="modal" data-target="#modal_ajouter_eleve">
+                                  <i class="material-icons text_align-center">person_add</i>
+                              </button>
+                            {% endif %}
+                        </div> -->
+
           
                   <div class="table-responsive">
                         <div class="table-scroll">
@@ -245,7 +253,7 @@
                                         <button rel="tooltip" class="btn modifier-eleve-link">
                                             <i class="material-icons">edit</i>
                                         </button>
-                                        <button rel="tooltip" class="btn changer-classe-eleve-link">
+                                        <button rel="tooltip" class="btn changer-eleve-classe-link">
                                             <i class="material-icons">edit</i>
                                         </button>
                                         {% endif %}
@@ -325,10 +333,139 @@
               </div>
             </div>
           </div>
+<!-- dialog box modifier eleve  -->
+<div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body card-primary">
+                    <div class="wizard-container">
+                  <h3 class=" text-center">
+                    Modification Apprenant
+                  </h3>
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
 
+                <div class=" text-center">
+                    
+                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_eleve' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <div class="text-center">
+                        <button type="submit" class="btn">Modifier</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div>
+
+<!-- dialog box changer classe eleve  -->
+<div class="modal fade" id="modal_changer_classe_eleve" tabindex="-1" role="">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body card-primary">
+                    <div class="wizard-container">
+                  <h3 class=" text-center">
+                    Changer Classe Eleve
+                  </h3>
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+                    
+                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_eleve' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <div class="text-center">
+                        <button type="submit" class="btn">Changer</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div>
+
+  <!-- Suppression-Dialog box -->
+<div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body card-primary">
+                    <div class="wizard-container">
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+
+                  <form method="post"  class="suppression_eleve" action="{% url 'mainapp:suppression_eleve' %} ">
+                    <p class="h4 text-center">SUPPRIMER ELEVE</p>
+                      {% csrf_token %}
+                        <input type="hidden" name="id_supp" id="id_supp">
+
+                        <div class="form-group">
+                          <label class="">Eleve : </label>
+                          <label class="nom_eleve text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Sous Etab : </label>
+                          <label class="nom_eleve text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">etablissement : </label>
+                          <label class="nom_etab text-primary"></label>
+                        </div>
+                        
+                        <div class="card-body">Voulez vous vraiment supprimer?</div>
+                        <div class="text-center">
+                          <button type="submit" class="btn">OUI</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                        </div>
+
+                  </form>
+
+                 </div>
+              </div>
+            </div>
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div>
 
   <!-- Detail-Dialog box -->
-<div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
+<div class="modal fade" id="modal_detail_elevep" tabindex="-1" role="">
     <div class="modal-dialog" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
@@ -675,85 +812,6 @@
                   
               </div>
    
-        </div>
-    </div>
-</div>
-
-
-
-  <!-- dialog box modifier eleve  -->
-<div class="modal fade" id="modal_modifier_eleve" tabindex="-1" role="">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content card card-nav-tabs">
-            <div class=" card-nav-tabs card-header-primary card-header-icon">
-              <div class="card-icon"><i class="material-icons">library_books</i></div>          
-            </div>
-
-            <div class="modal-body ">
-              <div class="card-body">
-                <p class="h4 text-center">MODIFIER ELEVE</p>
-                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_eleve' %}">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-
-                      <input type="hidden" name="id_modif" id="id_modif">
-                      <div class="text-center">
-                        <button type="submit" class="btn">Modifier</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-                        
-                      </div>
-                    </form>
-              </div>
-            </div>
-                    
-        </div>
-    </div>
-</div>
-
-
-
-  <!-- Suppression-Dialog box -->
-<div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content card card-nav-tabs">
-            <div class=" card-nav-tabs card-header-primary card-header-icon">
-              <div class="card-icon"><i class="material-icons">library_books</i></div>          
-            </div>
-            <div class="modal-body ">
-                <div class="card-body card-primary">
-
-                  <form method="post"  class="suppression_eleve" action="{% url 'mainapp:suppression_eleve' %} ">
-                    <p class="h4 text-center">SUPPRIMER ELEVE</p>
-                      {% csrf_token %}
-                        <input type="hidden" name="id_supp" id="id_supp">
-
-                        <div class="form-group">
-                          <label class="">Eleve : </label>
-                          <label class="nom_eleve text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">Sous Etab : </label>
-                          <label class="nom_eleve text-primary"></label>
-                        </div>
-
-                        <div class="form-group">
-                          <label class="">etablissement : </label>
-                          <label class="nom_etab text-primary"></label>
-                        </div>
-                        
-                        <div class="card-body">Voulez vous vraiment supprimer?</div>
-                        <div class="text-center">
-                          <button type="submit" class="btn">OUI</button>
-                          <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
-                        </div>
-
-                  </form>
-
-                </div>
-                
-            </div>
-               
         </div>
     </div>
 </div>
