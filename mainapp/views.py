@@ -151,99 +151,262 @@ def creation_eleve(request):
 
         return render(request, 'mainapp/pages/creation-eleve.html',{'form':EleveForm})
     elif request.method == 'POST':
-        form = EleveForm(request.POST)
-        if form.is_valid():            
-            # matricule = form.cleaned_data['matricule']
-            matlast = Eleve.objects.filter().order_by('-id').values_list('matricule')[0]
-            # matlast = "HT19A032"
-            sousEtab = SousEtab.objects.filter()[0]
+        sousetabs = []
+        niveaux = []
+        classes = []
+        specialites = []
+        choix =""
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+            print("Les donnees: ", donnees)
+            # donnees = position + "²²~~" + id_etab + "²²~~" + etab;
+            position = donnees[0]
+            param2 = int(donnees[1])
+            param3 = donnees[2]
+            print("PYTHON: ",position,param2, param3)
+            # cycles = _load_specialites_ajax(donnees_recherche,trier_par)
 
-            matformat = sousEtab.format_matricule
-            mat_fixedindex = int(sousEtab.mat_fixedindex)
-            mat_yearindex = int(sousEtab.mat_yearindex)
-            mat_varyindex = int(sousEtab.mat_varyindex)
-            first_matricule = sousEtab.first_matricule
-
-            position = [x for x in range(mat_varyindex)]
-            
-            matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast[0]))
-            # matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
-
-            # exists_mat_nb = Etudiant.objects.filter(matricule=matlast[0]).count()
-            exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
-            
-            while exists_mat_nb > 0:
-                matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matricule))
-                exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
-                print("On Boucle ...")
-
-            # print("Exists Mat: ", exists_mat)
-            print("NEW MAT: ", matricule)
-            nom = form.cleaned_data['nom']
-            prenom = form.cleaned_data['prenom']
-            sexe = form.cleaned_data['sexe']
-            redouble = form.cleaned_data['redouble']
-            date_naissance = form.cleaned_data['date_naissance']
-            lieu_naissance = form.cleaned_data['lieu_naissance']
-            date_entree = form.cleaned_data['date_entree']
-            nom_pere = form.cleaned_data['nom_pere']
-            prenom_pere = form.cleaned_data['prenom_pere']
-            nom_mere = form.cleaned_data['nom_mere']
-            prenom_mere = form.cleaned_data['prenom_mere']
-            tel_pere = form.cleaned_data['tel_pere']
-            tel_mere = form.cleaned_data['tel_mere']
-            email_pere = form.cleaned_data['email_pere']
-            email_mere = form.cleaned_data['email_mere']
-            sexe = form.cleaned_data['sexe']
-
-            photo_webcam = request.POST.get("webcam_photo", False)
-
-
-            photo = request.FILES.get('photo', "/photos/profil.jpg")
-
-            eleve = Eleve(
-            matricule = matricule, 
-            nom = nom,
-            prenom = prenom,
-            sexe = sexe,
-            redouble = redouble,
-            date_naissance = date_naissance,
-            lieu_naissance = lieu_naissance,
-            date_entree =  date_entree,
-            nom_pere = nom_pere,
-            prenom_pere = prenom_pere, 
-            nom_mere = nom_mere,
-            prenom_mere = prenom_mere,
-            tel_pere = tel_pere,
-            tel_mere = tel_mere,
-            email_pere = email_pere,
-            email_mere = email_mere,
-            annee_scolaire = "2019-2020"
-            )
-            eleve.save()
-
-            if (photo_webcam != ""):
-                forma, imgstr = photo_webcam.split(';base64,')
-                print("format", forma)
-                ext = forma.split('/')[-1]
-
-                photo_raw = b64decode(imgstr)
-                photo_content = ContentFile(photo_raw)
-                photo = photo_content
-
-                file_name = "myphoto." + ext
-                eleve.photo.save(file_name, photo_content, save=True) # image is User's model field
+            # L'etab a changé on cherche les sousetabs associés
+            if position == "1":
+                param2 = 1
+                choix = "etab"
+                # sousetabs = SousEtab.objects.values_list('id','nom_sousetab').filter(id_etab = param2)
+                sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(id_etab = param2)
+                id_sousetab0 = sousetabs[0]['id']
+                cycles = Cycle.objects.values('id', 'nom_cycle').filter(id_sousetab = id_sousetab0)
+                id_cycle0 = cycles[0]['id']
+                niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_sousetab = id_cycle0)
+                id_niveau0 = niveaux[0]['id']
+                specialites = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = id_niveau0)            
+                classes = Classe.objects.values('id', 'nom_classe','code').filter(archived = "0",id_niveau = id_niveau0)
+                # print("VALUES_LIST", sousetabs[0][1])
+                # print("VALUES", sousetabs2[0]['nom_sousetab'])
+            # Le sousetab a changé on cherche les niveaux et spécialités associés
+            if position == "2":
+                choix = "sousetab"
+                niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_sousetab = param2)
+                id_niveau0 = niveaux[0]['id']
+                specialites = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = id_niveau0)            
+                classes = Classe.objects.values('id', 'nom_classe','code').filter(archived = "0", id_niveau = id_niveau0, specialite= "")
+                # specialites = Specialite.objects.values('specialite').filter(archived = "0", id_sousetab = param2).order_by('specialite').distinct()
+                print("LES SPECS:", specialites.count())
+            # Le niveau a changé
+            if position == "3":
+                print("PARAM2: ",param2)
+                choix = "niveau"
+                nb_niv_spe = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = param2).count()                        
+                specialites = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = param2)                        
+                # if nb_niv_spe > 0:
+                #     spe = specialites[0]['specialite']
+                #     print("SPEEE: ", spe)
+                #     classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = spe)
+                # else:
+                classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite= "" )
+                [print(cl) for cl in classes]
+            # La spécialité a changé
+            if position == "4":
+                choix = "specialite"
+                # id_niv = Specialite.objects.values('id').filter(archived = "0", id_niveau = param2).count()
+                print("PARAM2: ",param2, "PARAM3:",param3)
+                classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
+                print("# classes: ", classes.count())
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
             else:
-                eleve.photo = photo
-            eleve.save()
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
 
-            eleve.photo_url = eleve.photo.url
-            ext = eleve.photo.name.split(".")
-            ext = ext[len(ext)-1]
-            # photo_repertoire + str(instance.matricule)+ '_' + instance.nom + '_' + instance.prenom + '.' + ext
+            data = {
+                "choix":choix,
+                "sousetabs": sousetabs,
+                "niveaux": niveaux,
+                "classes": classes,
+                "specialites": specialites,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
 
-            eleve.photo.name = photo_repertoire + matricule+ '_' + nom + '_' + prenom +'.' + ext
-            eleve.save()
+           
+            return JSONResponse(data)
+        else:
+            form = EleveForm(request.POST)
+            # Pr savoir si c'est a cursus de choisir la classe ou pas
+            choix_classe = request.POST.get('choix_classe', 0)
+            classe_selected =""
+            classe = ""
+            id_classe = ""
+            # L'utilisateur à deja choisi une classe
+            if choix_classe == 0:
+                classe_selected = request.POST['classe_selected']
+                print(classe_selected)
+                classe, id_classe, etoile = classe_selected.split('_')
+                id_classe = int(id_classe)
+                # print("classe selected radio: ",classe, id_classe)
+            else:
+                print("choix classe checkbox: ",choix_classe)
+
+
+            # classe_selected = request.POST['classe_selected']
+            # print("Selected class: ", classe_selected)
+            print(form.errors)
+            if form.is_valid():            
+                # matricule = form.cleaned_data['matricule']
+                matlast = Eleve.objects.filter().order_by('-id').values_list('matricule')[0]
+                # matlast = "HT19A032"
+                sousEtab = SousEtab.objects.filter()[0]
+
+                matformat = sousEtab.format_matricule
+                mat_fixedindex = int(sousEtab.mat_fixedindex)
+                mat_yearindex = int(sousEtab.mat_yearindex)
+                mat_varyindex = int(sousEtab.mat_varyindex)
+                first_matricule = sousEtab.first_matricule
+
+                position = [x for x in range(mat_varyindex)]
+                
+                matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast[0]))
+                # matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matlast))
+
+                # exists_mat_nb = Etudiant.objects.filter(matricule=matlast[0]).count()
+                exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
+                
+                while exists_mat_nb > 0:
+                    matricule =''.join(getNextMatt(matformat,position,mat_fixedindex,mat_yearindex,mat_varyindex,matricule))
+                    exists_mat_nb = Eleve.objects.filter(matricule__icontains=matricule).count()
+                    print("On Boucle ...")
+
+                # print("Exists Mat: ", exists_mat)
+                print("NEW MAT: ", matricule)
+                nom = form.cleaned_data['nom']
+                prenom = form.cleaned_data['prenom']
+                sexe = request.POST['sexe']
+                date_naissance = request.POST['date_naissance']
+                lieu_naissance = form.cleaned_data['lieu_naissance']
+                date_entree = form.cleaned_data['date_entree']
+                nom_pere = form.cleaned_data['nom_pere']
+                prenom_pere = form.cleaned_data['prenom_pere']
+                nom_mere = form.cleaned_data['nom_mere']
+                prenom_mere = form.cleaned_data['prenom_mere']
+                tel_pere = form.cleaned_data['tel_pere']
+                tel_mere = form.cleaned_data['tel_mere']
+                email_pere = form.cleaned_data['email_pere']
+                email_mere = form.cleaned_data['email_mere']
+                redouble = request.POST['redouble']
+
+                etab, id_etab = request.POST['choix_etab'].split('_')
+                sousetab, id_sousetab = request.POST['choix_sousetab'].split('_')
+                # niveau, id_niveau = request.POST['choix_niveau'].split('_')
+                specialite, id_niveau = request.POST['specialite'].split('_')
+                id_etab = int(id_etab)
+                id_sousetab = int(id_sousetab)
+                id_niveau = int(id_niveau)
+                # id_spe = int(id_spe)
+                # print("ID_NIV et ID_SPE", id_niveau)
+                print("sexe: ", nom,"date naiss: ", date_naissance)
+
+                photo_webcam = request.POST.get("webcam_photo", False)
+                photo = request.FILES.get('photo', "/photos/profil.jpg")
+
+                eleve = Eleve(
+                matricule = matricule, 
+                nom = nom,
+                prenom = prenom,
+                sexe = sexe,
+                redouble = redouble,
+                date_naissance = date_naissance,
+                lieu_naissance = lieu_naissance,
+                date_entree =  date_entree,
+                nom_pere = nom_pere,
+                prenom_pere = prenom_pere, 
+                nom_mere = nom_mere,
+                prenom_mere = prenom_mere,
+                tel_pere = tel_pere,
+                tel_mere = tel_mere,
+                email_pere = email_pere,
+                email_mere = email_mere,
+                annee_scolaire = "2019-2020"
+                )
+                eleve.save()
+
+
+                if (photo_webcam != ""):
+                    forma, imgstr = photo_webcam.split(';base64,')
+                    print("format", forma)
+                    ext = forma.split('/')[-1]
+
+                    photo_raw = b64decode(imgstr)
+                    photo_content = ContentFile(photo_raw)
+                    photo = photo_content
+
+                    file_name = "myphoto." + ext
+                    eleve.photo.save(file_name, photo_content, save=True) # image is User's model field
+                else:
+                    eleve.photo = photo
+                eleve.save()
+
+
+                eleve.photo_url = eleve.photo.url
+                ext = eleve.photo.name.split(".")
+                ext = ext[len(ext)-1]
+
+                eleve.photo.name = photo_repertoire + str(eleve.matricule)+ '_' + nom + '_' + prenom + '.' + ext
+                eleve.save()
+                ANNEE_SCOLAIRE = "2019-2020"
+                # print("PreAjout de ",eleve.matricule, eleve.nom ," en ", classe)
+                # Checkbox non cliqué c'est a cursus de choisir
+                if choix_classe != 0:
+                    liste_classes = Specialite.objects.values("liste_classes").filter(specialite__iexact = specialite, id_niveau = id_niveau)[0]['liste_classes']
+                    print("liste classes ", liste_classes)
+                    # [0:][::2] recupere les elts pairs de la liste pr les impair ciest [1:][::2]
+                    liste_ids = liste_classes.split('_')
+                    liste_ids = liste_ids[0:][::2]
+                    nbre_ = len(liste_ids) - 1
+                    liste_ids.pop(nbre_)
+                    print(liste_ids)
+                    best_classe_id = 0
+                    nbre_eleve_classe = 0
+
+                    for id in liste_ids:
+                        cl = Classe.objects.filter(pk=int(id),annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                    .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                    .eleves
+                        if best_classe_id == 0:
+                            best_classe_id = int(id)
+                            nbre_eleve_classe = cl.count()
+                            print("deb nbre el cl et id", nbre_eleve_classe, best_classe_id)
+                        elif cl.count() < nbre_eleve_classe:
+                             best_classe_id = int(id)
+                             nbre_eleve_classe = cl.count()
+                             print("nbre el cl et id", nbre_eleve_classe, best_classe_id)
+
+                    Classe.objects.filter(pk=best_classe_id,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                    .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                    .eleves.add(eleve)
+                    print("Eleve créé en classe_id: ",best_classe_id )
+
+
+                    # classes, id_classe = [],[]
+                    # for c in 
+                    # classe, id_classe = liste_classes.split('_')
+                else:
+                    print("hello")
+                    print("Ajout de ",eleve.matricule, eleve.nom ," en ", classe)
+                    Classe.objects.filter(pk=id_classe,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                    .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                    .eleves.add(eleve)
 
 
             return redirect('mainapp:liste_eleves')
@@ -1083,7 +1246,40 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     
-    eleves = Eleve.objects.all().order_by('-id')
+    # eleves = Eleve.objects.all().order_by('-id')[:10]
+    eleves = Eleve.objects.filter().order_by('-id')
+    # print("Count Eleve: ", eleves.count())
+    etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
+    sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
+    niveaux = []
+    classes_init = []
+    classes = []
+    cycles = []
+    specialites = Specialite.objects.values('specialite').filter(~Q(nom_niveau=""),archived = "0")
+    
+    if etabs.count() > 0:
+        id_sousetab0 = sousetabs[0]['id']
+        # cycles = Cycle.objects.values('id','nom_cycle').filter(archived = "0",id_sousetab = id_sousetab0)
+        niveaux = Niveau.objects.values('id','nom_niveau').filter(archived = "0",id_sousetab = id_sousetab0)
+        if niveaux.count() > 0:
+            # spe_vide = dict(
+            #                 id_niveau = 0,
+            #                 specialite = "Aucune"
+            #         )
+            id_niveau0 = niveaux[0]['id']
+            # specialitess = Specialite.objects.values('id','specialite').filter(archived = "0").order_by('specialite').distinct()
+            specialitess = Specialite.objects.values('id_niveau','specialite').filter(archived = "0", id_niveau= id_niveau0)
+            # spec0 = specialitess[0]['specialite']
+            # print("spec0 ", spec0, "SPECS: ", specialitess.count()," IDNIV: ", id_niveau0)
+            # if specialitess.count() > 0:
+            #     classes_init = Classe.objects.values('id','nom_classe','code').filter(archived = "0",specialite__iexact = spec0, id_niveau = id_niveau0)
+            #     if Classe.objects.values('id','nom_classe','code').filter(archived = "0",specialite = "", id_niveau = id_niveau0).count() > 0:
+            #         # specialitess.append(spe_vide)
+            #         # specialitess = dict(specialitess, **spe_vide)
+            # else:
+            classes_init = Classe.objects.values('id','nom_classe','code').filter(archived = "0", id_niveau = id_niveau0, specialite = "")
+                # specialitess.append(spe_vide)
+                # specialitess = dict(specialitess, **spe_vide)
 
     form = EleveForm  
     paginator = Paginator(eleves, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -7338,7 +7534,7 @@ def verrouiller(request):
     return render(request, "mainapp/pages/deverrouiller.html", locals())
 
 def liste_groupes(request):
-
+    # A upgrade
     perms = ['view','change','add']
     # Just to test append
     perms.append('add')
@@ -7364,13 +7560,14 @@ def liste_groupes(request):
         name = form.cleaned_data['name']
         new_group = Group()
         new_group.name=name
-        new_group.id= id_max+1
+        # new_group.id= id_max+1
         new_group.save()
         #Group.objects.create(name=name)
         print(name)
     # Quoiqu'il arrive, on affiche la page du formulaire.
-
+    group_list = Group.objects.all().order_by('-id')
     return render(request,'mainapp/pages/liste-groupes.html',locals())
+
 
 def group_users_list(group):
     ''' Cette fonction permet de renvoyer tous les users d'un group
