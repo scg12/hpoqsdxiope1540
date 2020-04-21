@@ -861,6 +861,41 @@ $("#datetimepicker").datetimepicker();
     $(".changer-eleve-classe-link").click(function() {
         $('#modal_changer_classe_eleve').modal('show');
 
+         var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+        // sexe = tab_element[0];
+        // prenom = tab_element[1];
+        // nom = tab_element[2];
+        // id = tab_element[3];
+        id = tab_element[0];
+        matricule = tab_element[1];
+        nom = tab_element[2];
+        prenom = tab_element[3];
+        sexe = tab_element[4];
+        $(".info_changement_apprenant").empty();
+        /*append(`<input type=checkbox name="${option}" value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)*/
+        
+        if (sexe == "masculin")
+          {
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenant <br><i><b style="color:blue;">${matricule} ${nom} ${prenom}</b></i> <br>Pour la classe de:`);
+
+          }
+        else
+          { 
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenante <br><i><b style="color:blue;">${matricule} ${nom} ${prenom}</b></i> <br>Pour la classe de:`);
+        }
+
+        $(".nom").val(nom);
+        $(".matricule").val(matricule);
+        $(".prenom").val(prenom);
+        $(".sexe").val(sexe);
+        $("#id_modif").val(id);
+
+        $(".matricule").removeAttr("disabled");
+        $(".nom").removeAttr("disabled");
+        $(".prenom").removeAttr("disabled");
+        $(".sexe").removeAttr("disabled");
     });
 
 

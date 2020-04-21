@@ -1255,8 +1255,11 @@ def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_
     classes_init = []
     classes = []
     cycles = []
+    specialitess = []
     specialites = Specialite.objects.values('specialite').filter(~Q(nom_niveau=""),archived = "0")
     
+
+
     if etabs.count() > 0:
         id_sousetab0 = sousetabs[0]['id']
         # cycles = Cycle.objects.values('id','nom_cycle').filter(archived = "0",id_sousetab = id_sousetab0)

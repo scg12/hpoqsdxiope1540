@@ -1,85 +1,85 @@
 <div class="myDashboard-classe" style="background-color: none; position: fixed; top: 14%; left: 22%; width: 75%; height: 100%; z-index: 3;" hidden>	
 	    
+	   <!-- 
+	   			<div class="row " style="left: 50px;">
+	   				{% for classe in classes  %}
+	   		        	
+	   		        	{% if classe.id_niveau == 1 %}
+	                           <div class="text-center classe-elt bleu" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a>	 
+	   						</div>
 	   
-			<div class="row " style="left: 50px;">
-				{% for classe in classes  %}
-		        	
-		        	{% if classe.id_niveau == 1 %}
-                        <div class="text-center classe-elt bleu" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a>	 
-						</div>
-
-                    {% elif classe.id_niveau == 2 %}
-                        <div class="text-center classe-elt vert" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a>	 
-						</div>
-
-                    {% elif classe.id_niveau == 3 %}
-                        <div class="text-center classe-elt violet" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a>	 
-						</div>
-
-					{% elif classe.id_niveau == 4 %}
-                        <div class="text-center classe-elt rose" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a>	 
-						</div>
-
-					{% elif classe.id_niveau == 5 %}
-                        <div class="text-center classe-elt or" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a> 
-						</div>
-					
-					{% elif classe.id_niveau == 6 %}
-                        <div class="text-center classe-elt rouge" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a> 
-						</div>
-					
-					{% elif classe.id_niveau == 7 %}
-                        <div class="text-center classe-elt marron" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a> 
-						</div>
-					{% elif classe.id_niveau == 8 %}
-                        <div class="text-center classe-elt turquoise" style="display: inline">
-                        	<a href="{% url 'mainapp:classe' classe.id %}">
-                        		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
-									<span class="text-right dashboard-item-title">{{ classe }}</span>
-								</div>
-                        	</a>
-						</div>
-                    {% endif %}
-						
-				{% endfor %}
-					
-			</div>
-      
+	                       {% elif classe.id_niveau == 2 %}
+	                           <div class="text-center classe-elt vert" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a>	 
+	   						</div>
+	   
+	                       {% elif classe.id_niveau == 3 %}
+	                           <div class="text-center classe-elt violet" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a>	 
+	   						</div>
+	   
+	   					{% elif classe.id_niveau == 4 %}
+	                           <div class="text-center classe-elt rose" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a>	 
+	   						</div>
+	   
+	   					{% elif classe.id_niveau == 5 %}
+	                           <div class="text-center classe-elt or" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a> 
+	   						</div>
+	   					
+	   					{% elif classe.id_niveau == 6 %}
+	                           <div class="text-center classe-elt rouge" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a> 
+	   						</div>
+	   					
+	   					{% elif classe.id_niveau == 7 %}
+	                           <div class="text-center classe-elt marron" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a> 
+	   						</div>
+	   					{% elif classe.id_niveau == 8 %}
+	                           <div class="text-center classe-elt turquoise" style="display: inline">
+	                           	<a href="{% url 'mainapp:classe' classe.id %}">
+	                           		<div class="{{ classe.id }}²²{{ classe.nom_classe }}">
+	   									<span class="text-right dashboard-item-title">{{ classe }}</span>
+	   								</div>
+	                           	</a>
+	   						</div>
+	                       {% endif %}
+	   						
+	   				{% endfor %}
+	   					
+	   			</div>
+	          -->
 		
 </div>
         

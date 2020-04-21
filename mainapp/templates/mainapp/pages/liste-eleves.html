@@ -412,7 +412,7 @@
 
 <!-- dialog box changer classe eleve  -->
 <div class="modal fade" id="modal_changer_classe_eleve" tabindex="-1" role="">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-md" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
               <div class="card-icon"><i class="material-icons">library_books</i></div>          
@@ -427,16 +427,64 @@
 
                 <div class=" text-center">
                     
-                   <form method="post" class="modifier_eleve" action="{% url 'mainapp:modification_eleve' %}">
-                    {% csrf_token %}
-                    {{ form.as_p }}
+                   <form action="{% url 'mainapp:load_specialites_ajax' %}"  class="load_specialites_ajax" method="POST">
+                        {% csrf_token %}
+                        <h6 class="info_changement_apprenant">Changement de classe de l'apprenant pour la classe de : </h6>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                Etab:
+                                <select class="choix_etab" name="choix_etab">
+                                  {% for etab in etabs %}
+                                    <option value="{{ etab.nom_etab }}_{{etab.id}}">{{ etab.nom_etab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Sous Etab:
+                                <select class="choix_sousetab" name="choix_sousetab" data-size="7">
+                                  {% for setab in sousetabs %}
+                                    <option value="{{ setab.nom_sousetab }}_{{setab.id}}">{{ setab.nom_sousetab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Niveau:
+                                <select name="choix_niveau" style="width:200px;" class="choix_niveau">
+                                  {% for niv in niveaux %}
+                                    <option value="{{ niv.nom_niveau }}_{{niv.id}}">{{ niv.nom_niveau }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Spécialité:
+                                <select name="specialite" style="width:200px;" class="specialite">
+                                  <option value="Aucune_0">Aucune
+                                  {% for spe in specialitess %}
+                                    <option value="{{ spe.specialite }}_{{spe.id_niveau}}">{{ spe.specialite }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group" id="liste_classes_niveaux">
+                                Classes:&nbsp;&nbsp;&nbsp;
+                                 {% for classe in classes_init %}
+                                    <input type="radio" class="radio_classe" sa="1"  disabled name="classe_selected" value="{{classe.nom_classe}}_{{classe.id}}">&nbsp;{{classe.nom_classe}}&nbsp;&nbsp;
+                                {% endfor %}
+                              </div>
+                        </div>
 
-                      <input type="hidden" name="id_modif" id="id_modif">
-                      <div class="text-center">
-                        <button type="submit" class="btn">Changer</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-                        
-                      </div>
+                        <label id="message"></label>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Effectuer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
                     </form>
                 </div>
               </div>
@@ -451,7 +499,7 @@
 
   <!-- Suppression-Dialog box -->
 <div class="modal fade" id="modal_supprimer_eleve" tabindex="-1" role="">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-md" role="document">
         <div class="modal-content card card-nav-tabs">
             <div class=" card-nav-tabs card-header-primary card-header-icon">
               <div class="card-icon"><i class="material-icons">library_books</i></div>          
