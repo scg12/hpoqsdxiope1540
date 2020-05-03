@@ -1822,6 +1822,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     classesAll = Classe.objects.filter(archived = "0").order_by('nom_classe')
+    classes = Classe.objects.filter(archived = "0").order_by('nom_classe')
     specialitess = Specialite.objects.values('specialite').filter(archived = "0").order_by('specialite').distinct()
 
     # liste_classes = "1_3eAll1_2_3eAll2_3_3eAll3_"

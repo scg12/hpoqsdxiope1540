@@ -497,101 +497,86 @@ table thead th {
 
 
         <!-- Detail-Dialog box -->
-      <div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
-          <div class="modal-dialog" role="document">
-              <div class="modal-content card card-nav-tabs">
-                  <div class=" card-nav-tabs card-header-primary card-header-icon">
-                    <div class="card-icon"><i class="material-icons">library_books</i></div>          
-                  </div>
+<!-- <div class="modal fade" id="modal_detail_eleve" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
 
-                  <div class="modal-body ">
-                      <div class="card-body card-primary">
-                        <p class="h4 text-center">DETAIL eleve</p>
-                        <form method="post"  class="detail_eleve" action=" ">
-                            {% csrf_token %}
-                            {{ form.as_p }}
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+                  <p class="h4 text-center">DETAIL eleve</p>
+                  <form method="post"  class="detail_eleve" action=" ">
+                      {% csrf_token %}
+                      {{ form.as_p }}
 
-                              <div class="text-center">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
-                             </div>
+                        <div class="text-center">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                       </div>
 
-                        </form>
+                  </form>
 
-                      </div>
-                      
-                  </div>
-                     
-              </div>
-          </div>
-      </div>
-      
-      <!--Modal: Login with Avatar Form-->
-<div class="modal fade" id="modalLoginAvatar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog cascading-modal modal-avatar modal-lg" role="document">
-    <!--Content-->
-<!--     <div class="modal-content">
-
-  Header
-  <div class="modal-header">
-    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20%281%29.jpg" alt="avatar" class="rounded-circle img-responsive">
-  </div>
-  Body
-  <div class="modal-body text-center mb-1">
-
-    <h5 class="mt-1 mb-2">Maria Doe</h5>
-
-    <div class="md-form ml-0 mr-0">
-      <input type="password" type="text" id="form29" class="form-control form-control-sm validate ml-0">
-      <label data-error="wrong" data-success="right" for="form29" class="ml-0">Enter password</label>
+                </div>
+                
+            </div>
+               
+        </div>
     </div>
-
-    <div class="text-center mt-4">
-      <button class="btn btn-cyan mt-1">Login <i class="fas fa-sign-in ml-1"></i></button>
-    </div>
-  </div>
-
 </div> -->
-    <div class="modal-content">
+      
+      <!--Modal: Detail-Dialog box with tab-->
+<div class="modal fade" id="modal_detail_eleve" >
+  <div class="modal-dialog cascading-modal modal-lg" role="document" style="background:#efefe9">
 
-       <div class="modal-body">
-             <section style="background:#efefe9;">
-              <div class="container">
-                  <h6 class="section-title h1">Tabs</h6>
-                  <div class="row">
-                    <div class="col-xs-12 ">
-                      <nav>
-                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                          <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true"><i class="material-icons">home</i>Home                    
-                          </a>
-                          <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-                          <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
-                          <a class="nav-item nav-link" id="nav-about-tab" data-toggle="tab" href="#nav-about" role="tab" aria-controls="nav-about" aria-selected="false">About</a>
-                        </div>
-                      </nav>
-                      <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
-                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                          0Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
-                        </div>
-                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                          1Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
-                        </div>
-                        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                          2Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
-                        </div>
-                        <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
-                          3Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
-                        </div>
+    <div class="modal-content">
+      <div class="modal-body ">
+          <!--         <h6 class="section-title h3">Tabs</h6> -->
+            <div class="container">
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <nav style="background-color: #EEEEEE" class="">
+                      <div class="nav nav-tabs nav-fill" data-tabs="tabs">
+                        
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#infos"><i class="fas fa-user-graduate fa-2x" style="color: #4CAF50"></i><span class="ml-3">Eleve</span></a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#orange"><i class="fas fa-books fa-2x" style="color: #FF9800"></i><span class="ml-3">Cours</span></a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#yellow"><i class="fas fa-user fa-2x" style="color: #506CE9"></i><span class="ml-3">Parents</span></a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#green"><i class="fas fa-users-class fa-2x" style="color: #9C27B0"></i><span class="ml-3">Notes</span></a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#blue"><i class="fas fa-chart-line fa-2x" style="color: #00BCD4"></i><span class="ml-3">Stat</span></a>
+              
                       </div>
-                    
+                    </nav>
+
+                    <div class="tab-content py-3 px-3 px-sm-0">
+                        <div class="tab-pane active" id="infos">
+                            <h1>Info Eleve</h1>
+                            <p>red red red red red red</p>Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
+                        <div class="tab-pane" id="orange">
+                            <h1>Assiduité</h1>
+                            <p>orange orange orange orange orange</p>Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
+                        <div class="tab-pane" id="yellow">
+                            <h1>Parents</h1>
+                            <p>yellow yellow yellow yellow yellow</p>Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
+                        <div class="tab-pane" id="green">
+                            <h1>Notes et Devoirs</h1>
+                            <p>green green green green green</p>Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
+                        <div class="tab-pane" id="blue">
+                            <h1>Statistiques</h1>
+                            <p>blue blue blue blue blue</p>Et et consectetur ipsum labore excepteur est proident excepteur ad velit occaecat qui minim occaecat veniam. Fugiat veniam incididunt anim aliqua enim pariatur veniam sunt est aute sit dolor anim. Velit non irure adipisicing aliqua ullamco irure incididunt irure non esse consectetur nostrud minim non minim occaecat. Amet duis do nisi duis veniam non est eiusmod tempor incididunt tempor dolor ipsum in qui sit. Exercitation mollit sit culpa nisi culpa non adipisicing reprehenderit do dolore. Duis reprehenderit occaecat anim ullamco ad duis occaecat ex.
+                        </div>
                     </div>
                   </div>
-                </div>
-    </section>
-       </div>
-          
 
+                </div>
+            </div>
+
+      </div>
     </div>
+
     <!--/.Content-->
   </div>
 </div>
@@ -631,8 +616,6 @@ table thead th {
               </div>
           </div>
       </div>
-
-
         <!-- markup -->
         <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
             <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
@@ -697,6 +680,12 @@ table thead th {
           lineCap: 'circle',
           animate: 3500,
       });
+    });
+    
+    $('#nav-tab a').on('click', function (e) {
+      e.preventDefault();alert("echo");
+      $("tab-pane").removeClass("show");
+      $(this).tab('show');
     });
 
   </script>
