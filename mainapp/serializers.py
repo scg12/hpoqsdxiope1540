@@ -60,10 +60,18 @@ class EleveSerializer(serializers.Serializer):
     tel_mere = serializers.CharField(max_length=100)
     email_pere = serializers.CharField(max_length=100)
     email_mere = serializers.CharField(max_length=100)
-    # photo_url = serializers.CharField(max_length=200)
+    photo_url = serializers.CharField(max_length=200)
     annee_scolaire = serializers.CharField(max_length=100)
     redouble = serializers.CharField(max_length=2)
     etat_sante = serializers.CharField(max_length=2)
+    classe_actuelle = serializers.CharField(max_length=100)
+    id_classe_actuelle = serializers.IntegerField()
+    bourse = serializers.FloatField()
+    est_en_regle = serializers.CharField(max_length=2)
+    compte = serializers.FloatField()
+    excedent = serializers.FloatField()
+
+
     # age = serializers.IntegerField()
     # archived = serializers.CharField(max_length=2)
 
@@ -76,7 +84,7 @@ class EleveSerializer(serializers.Serializer):
         instance.prenom = validated_data.get('prenom', instance.prenom.lower())
         instance.date_naissance = validated_data.get('date_naissance', instance.date_naissance.lower())
         instance.lieu_naissance = validated_data.get('lieu_naissance', instance.lieu_naissance.lower())
-        instance.date_entree = validated_data.get('date_entree', instance.date_entree.lower())
+        instance.date_entree = validated_data.get('date_entree', instance.dateS_entree.lower())
         instance.nom_pere = validated_data.get('nom_pere', instance.nom_pere.lower())
         instance.prenom_pere = validated_data.get('prenom_pere', instance.prenom_pere.lower())
         instance.nom_mere = validated_data.get('nom_mere', instance.nom_mere.lower())
@@ -89,6 +97,12 @@ class EleveSerializer(serializers.Serializer):
         instance.annee_scolaire = validated_data.get('annee_scolaire', instance.annee_scolaire.lower())
         instance.redouble = validated_data.get('redouble', instance.redouble.lower())
         instance.etat_sante = validated_data.get('etat_sante', instance.etat_sante.lower())
+        instance.classe_actuelle = validated_data.get('classe_actuelle', instance.classe_actuelle.lower())
+        instance.id_classe_actuelle = validated_data.get('id_classe_actuelle', instance.id_classe_actuelle.lower())
+        instance.bourse = validated_data.get('bourse', instance.bourse.lower())
+        instance.est_en_regle = validated_data.get('est_en_regle', instance.est_en_regle.lower())
+        instance.compte = validated_data.get('compte', instance.compte.lower())
+        instance.excedent = validated_data.get('excedent', instance.excedent.lower())
         # instance.age = validated_data.get('age', instance.age.lower())
         # instance.archived = validated_data.get('archived', instance.archived.lower())
 
@@ -410,6 +424,9 @@ class TypePayementEleveSerializer(serializers.Serializer):
     date_fin = serializers.CharField(max_length=20)
     entree_sortie_caisee = serializers.CharField(max_length=20)
     montant = serializers.FloatField()
+    ordre_paiement = serializers.FloatField()
+    liste_classes = serializers.CharField(max_length=500)
+    liste_classes_afficher = serializers.CharField(max_length=500)
     # classe = serializers.CharField(max_length=150)
 
     def create(self, validated_data):
@@ -421,6 +438,9 @@ class TypePayementEleveSerializer(serializers.Serializer):
         instance.date_fin = validated_data.get('date_fin', instance.date_fin.lower())
         instance.entree_sortie_caisee = validated_data.get('entree_sortie_caisee', instance.entree_sortie_caisee.lower())
         instance.montant = validated_data.get('montant', instance.montant.lower())
+        instance.ordre_paiement = validated_data.get('ordre_paiement', instance.ordre_paiement.lower())
+        instance.liste_classes_afficher = validated_data.get('liste_classes_afficher', instance.liste_classes_afficher.lower())
+        instance.liste_classes = validated_data.get('liste_classes', instance.liste_classes.lower())
         # instance.classe = validated_data.get('classe', instance.classe.lower())
 
 class TypePayementPersAdministratifSerializer(serializers.Serializer):

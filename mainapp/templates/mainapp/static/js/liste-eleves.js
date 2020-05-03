@@ -12,8 +12,13 @@ $(document).ready(function(){
 // });
 // console.log(firstNonBlankedValue);
 var nbre_ok = 0;
+var nom_eleve = "";
+var prenom_eleve = "";
+var classe_actuelle_eleve = "";
+var classe_actuelle_eleve_avant_changement = "";
 
 $('.terminer').prop("disabled", true);
+$('.effectuer').prop("disabled", true);
 
 
 // $("input[text]").keyup(function()
@@ -98,44 +103,14 @@ $( ":text" ).keyup(function(){
 
 $("#datetimepicker").datetimepicker();
 
-// var is_nb_matformat_ok = $('#is_nb_matformat_ok').attr('class');
-//     // alert(is_nb_matformat_ok);
-//     if (is_nb_matformat_ok == "ok"){
-//       // $('.terminer').prop("disabled", false);
-//       // alert("Ok");
-//       $('.terminer').removeAttr("disabled")
-//     }
-//     else{
-//       // alert("disabled");
-//       $('.terminer').prop("disabled", true);
-//     }
+ $("body").on("click", ".radio_classe2", function(){
+  if ($(".radio_classe2:checked").length > 0)
+    $(".effectuer").removeAttr("disabled");
+  else
+    $(".effectuer").attr("disabled", true);
+});
 
-
-
-  $(".choix_etab").on("change", function(){
-  // On met la variable position à 1 pour indiquer que c'est etab qui a changé
-    etab = $('.choix_etab').val()
-    position = "1";
-    id_etab = etab.split("_")[1];
-    etab = etab.split("_")[0];
-    
-    var form = $(".load_specialites_ajax");
-        var url_action = form.attr("action");
-        var donnees = position + "²²~~" + id_etab + "²²~~" + etab;
-
-         $.ajax({
-             method: 'POST',
-             url: url_action,
-             data: {
-               form_data : donnees,
-               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
-             },
-             success: gererSucces2,
-             error: gererErreur2,
-         });
-    });
-
-  $(":checkbox").on("click", function(){
+$(":checkbox").on("click", function(){
     // alert("yesss");
     var checkBoxes = $(":checkbox[son]");
         checkBoxes.prop("checked", checkBoxes.prop("checked"));
@@ -176,18 +151,31 @@ $("#datetimepicker").datetimepicker();
            $('.terminer').prop("disabled", true);
        }
     });
-    //  $(":radio[sa]").on("click", function(){
-    // alert("ya");
-    // var checkBoxes = $(":radio[sa]");
-    //     if ($(":checkbox[son]:checked").length > 0) {
-    //      checkBoxes.prop("checked", !checkBoxes.prop("checked"));
-    //      $(this).prop("checked", !checkBoxes.prop("checked"));
-    //     }
-    //     else {
-    //       checkBoxes.prop("disabled", checkBoxes.prop(false));
-    //       $(":radio[sa]").removeAttr("disabled");
-    //     }
-    // });
+
+
+  $(".choix_etab").on("change", function(){
+  // On met la variable position à 1 pour indiquer que c'est etab qui a changé
+
+    etab = $('.choix_etab').val()
+    position = "1";
+    id_etab = etab.split("_")[1];
+    etab = etab.split("_")[0];
+    
+    var form = $(".load_specialites_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_etab + "²²~~" + etab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
 
   $(".choix_sousetab").on("change", function(){
   // On met la variable position à 2 pour indiquer que c'est sousetab qui a changé
@@ -237,14 +225,39 @@ $("#datetimepicker").datetimepicker();
 
   $(".specialite").on("change", function(){
   // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
-    specialite = $('.specialite').val()
+    specialite = $('.specialite').val();
+    id_niveau = $('.choix_niveau').val().split("_")[1];
     position = "4";
-    id_specialite = specialite.split("_")[1];
+    // id_specialite = specialite.split("_")[1];
     specialite = specialite.split("_")[0];
 
     var form = $(".load_specialites_ajax");
         var url_action = form.attr("action");
-        var donnees = position + "²²~~" + id_specialite + "²²~~" + specialite;
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + specialite;
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+  // copie des evt sur etab sousetab niveau specialite
+
+  $(".choix_etab2").on("change", function(){
+  // On met la variable position à 1 pour indiquer que c'est etab qui a changé
+    $(".effectuer").attr("disabled", true);
+    etab = $('.choix_etab2').val()
+    position = "1*";
+    id_etab = etab.split("_")[1];
+    etab = etab.split("_")[0];
+    
+    var form = $(".load_specialites_ajax2");
+        var url_action = "/mainapp/creation-eleve/";
+        var donnees = position + "²²~~" + id_etab + "²²~~" + etab;
 
          $.ajax({
              method: 'POST',
@@ -258,13 +271,138 @@ $("#datetimepicker").datetimepicker();
          });
     });
 
+  $(".choix_sousetab2").on("change", function(){
+  // On met la variable position à 2 pour indiquer que c'est sousetab qui a changé
+   $(".effectuer").attr("disabled", true);
+    sousetab = $('.choix_sousetab2').val()
+    position = "2*";
+    id_sousetab = sousetab.split("_")[1];
+    sousetab = sousetab.split("_")[0];
+    
+    var form = $(".load_specialites_ajax2");
+        // var url_action = form.attr("action");alert(url_action);
+        var url_action = "/mainapp/creation-eleve/";
+        var donnees = position + "²²~~" + id_sousetab + "²²~~" + sousetab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  $(".choix_niveau2").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    $(".effectuer").attr("disabled", true);
+    niveau = $('.choix_niveau2').val()
+    position = "3*";
+    id_niveau = niveau.split("_")[1];
+    niveau = niveau.split("_")[0];
+
+    var form = $(".load_specialites_ajax2");
+        var url_action = "/mainapp/creation-eleve/";
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + niveau;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+  $(".specialite2").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    $(".effectuer").attr("disabled", true);
+    specialite = $('.specialite2').val();
+    id_niveau = $('.choix_niveau2').val().split("_")[1];
+    position = "4*";
+    // id_specialite = specialite.split("_")[1];
+    specialite = specialite.split("_")[0];
+
+    var form = $(".load_specialites_ajax2");
+        var url_action = "/mainapp/creation-eleve/";
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + specialite;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+
   function gererSucces2(data) {
-        // liste_classes = data.classes;
+    // alert("retour de python");
+    console.log(data);
+    choix = data.choix;
+      // Info pr le paiement eleve de retour
+        /*if (choix == "paiement_eleve"){
+           montant_a_payer = parseFloat($(".montant_a_payer").text());
+           compte = parseFloat(data.compte);
+           bourse = parseFloat(data.bourse);
+           excedent = parseFloat(data.excedent);
+           total = 0;
+           en_regle = "non"
+           if(compte >= montant_a_payer){
+              reste_a_payer = 0;
+              total = compte;
+              en_regle = "oui"
+            }
+           else{
+              total = compte + bourse + excedent;
+              reste_a_payer = montant_a_payer - total; 
+           }
+           $(".la_bourse").empty();
+           $(".l_excedent").empty();
+           $(".deja_paye").empty();
+           $(".le_reste_a_payer").empty();
+           $(".la_bourse").append(`<b> ${bourse} </b>`);
+           $(".l_excedent").append(`<b> ${excedent} </b>`);
+           $(".le_reste_a_payer").append(`<b> ${reste_a_payer} </b>`);
+           $(".deja_paye").append(`<b style="color: green;"> ${compte} </b>`);
+
+          $("#classe_courante").val($("#classe_recherchee").val());
+          tranches_paiements = $(".tranches_paiements").text();
+          
+
+          $(".le_montant_a_payer").empty();
+          $(".le_montant_a_payer").append(`<b>${montant_a_payer}</b>`);
+          // $("#tbody_tranches").empty();
+
+          tranches = tranches_paiements.split("*²*");
+          nb_tranches = tranches.length - 1;
+          nouvelle_ligne = "";
+          for (var i = 0; i < nb_tranches; i++) {
+            tranche = tranches[i].split("²²");
+            montant_tranche = parseFloat(tranche[2]);
+            if (total < 0) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">0</td></tr>`;
+            else if (total >= montant_tranche) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: green;">${montant_tranche}</td></tr>`;
+            else {
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">${total}</td></tr>`;
+            }
+            total -= montant_tranche;
+          }
+            $("#tbody_tranches").append(nouvelle_ligne);
+           
+        }*/
         
-        
-        // alert("retour de python");
-        console.log(data);
-        choix = data.choix;
 
         if (choix == "etab") {
           liste_sousetabs = data.sousetabs;
@@ -336,6 +474,7 @@ $("#datetimepicker").datetimepicker();
             else 
               $('.terminer').prop("disabled", true);
         } 
+
         if (choix == "sousetab"){
             liste_niveaux = data.niveaux;
             nbre_niveaux = liste_niveaux.length;
@@ -472,12 +611,223 @@ $("#datetimepicker").datetimepicker();
               $('.terminer').prop("disabled", true);
         }
 
+        if (choix == "etab2") {
+          liste_sousetabs = data.sousetabs;
+          liste_niveaux = data.niveaux;
+          nbre_sousetabs = liste_sousetabs.length;
+          nbre_niveaux = liste_niveaux.length;
+          liste_specialites = data.specialites;
+          nbre_specialites = liste_specialites.length;
+          liste_classes = data.classes;
+          nbre_classes = liste_classes.length;
+
+          $('.choix_sousetab2').empty();
+          $('.choix_niveau2').empty();
+          $('.specialit2').empty();
+          $('#liste_classes_niveaux2').empty();
+          $('#liste_classes_niveaux2').append(`Classes:&nbsp;&nbsp;&nbsp;`)
+           for (var i = 0; i < nbre_sousetabs; i++) {
+              nom_sousetab = liste_sousetabs[i].nom_sousetab                      
+              id = liste_sousetabs[i].id;
+              option = nom_sousetab+"_"+id;
+              
+                $('.choix_sousetab2').append(`<option value="${option}"> 
+                                         ${nom_sousetab} 
+                                    </option>`);
+              // alert(option);
+           }
+           option = "Aucune_"+0;
+           specialite = "Aucune"
+            id = 0;
+            $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+
+           for (var i = 0; i < nbre_niveaux; i++) {
+              nom_niveau = liste_niveaux[i].nom_niveau;                     
+              id = liste_niveaux[i].id;
+              option = nom_niveau+"_"+id;
+              $('.choix_niveau2').append(`<option value="${option}"> 
+                                         ${nom_niveau} 
+                                    </option>`)
+           }
+
+            for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+           
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+              // alert(option);
+            if (option.toUpperCase() != classe_actuelle_eleve_avant_changement.toUpperCase())
+              $('#liste_classes_niveaux2').append(`<input type=radio name=classe_selected2 sa=1 class=radio_classe2  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`);
+
+           }
+
+        }
+
+        
+
+          if (choix == "sousetab2"){
+            liste_niveaux = data.niveaux;
+            nbre_niveaux = liste_niveaux.length;
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+            liste_specialites = data.specialites;
+            nbre_specialites = liste_specialites.length;
+
+            $('.choix_niveau2').empty();
+            $('.specialite2').empty();
+            $('#liste_classes_niveaux2').empty();
+            // $('#choix_specialite').empty();
+            $('#liste_classes_niveaux2').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+
+            for (var i = 0; i < nbre_niveaux; i++) {
+              nom_niveau = liste_niveaux[i].nom_niveau;                     
+              id = liste_niveaux[i].id;
+              option = nom_niveau+"_"+id;
+              $('.choix_niveau2').append(`<option value="${option}"> 
+                                         ${nom_niveau} 
+                                    </option>`)
+           }
+           option = "Aucune_"+0;
+           specialite = "Aucune"
+            id = 0;
+            $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+            
+            for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+              // alert(option);
+            if (option.toUpperCase() != classe_actuelle_eleve_avant_changement.toUpperCase())
+              $('#liste_classes_niveaux2').append(`<input type=radio name=classe_selected2 sa=1 class=radio_classe2  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+        }
+
+        
+
+        if (choix == "niveau2"){
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+            liste_specialites = data.specialites;
+            nbre_specialites = liste_specialites.length;
+
+            $('.specialite2').empty();
+            $('#liste_classes_niveaux2').empty();
+            $('#liste_classes_niveaux2').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+            option = "Aucune_"+0;
+            specialite = "Aucune"
+            id = 0;
+            $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+
+           for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite;                     
+              id = liste_specialites[i].id_niveau;
+              option = specialite+"_"+id;
+              $('.specialite2').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`)
+           }
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+            if (option.toUpperCase() != classe_actuelle_eleve_avant_changement.toUpperCase())
+              $('#liste_classes_niveaux2').append(`<input type=radio name=classe_selected2 sa=1 class=radio_classe2  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)
+
+           }
+
+        }
+
+        
+
+        if (choix == "specialite2"){
+            liste_classes = data.classes;
+            nbre_classes = liste_classes.length;
+
+            $('#liste_classes_niveaux2').empty();
+            $('#liste_classes_niveaux2').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe;                     
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+
+            if (option.toUpperCase() != classe_actuelle_eleve_avant_changement.toUpperCase())
+              $('#liste_classes_niveaux2').append(`<input type=radio name=classe_selected2 sa=1 class=radio_classe2  value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`);
+
+           }
+        }
+
       }
   function gererErreur2(error) {
         $("#message").text(error);
         console.log(error);
       }
-   $(".recherche").keyup(function(e) {
+
+
+      // Lorsqu'on veut voir les paiements d'une autre classe
+$("body").on("change", "#classe_recherchee", function() {
+      if (classe_actuelle_eleve_avant_changement != ""){
+         $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").removeAttr('hidden');
+        $(".radio_"+classe_actuelle_eleve_avant_changement).removeAttr('hidden');
+      }
+       
+        classe_actuelle_eleve_avant_changement = $("#classe_recherchee").val();
+        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+
+        $("#message").text("");
+        var recherche = $("#recherche").val().trim();
+        var nbre_element_par_page = $("#nbre_element_par_page").val();
+        var numero_page = " "
+
+        var form = $(".recherche_eleve");
+        var url_action = form.attr("action");
+        var classe_recherchee = $("#classe_recherchee").val();
+        var trier_par = "non defini";
+
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee ;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces,
+             error: gererErreur,
+         });
+});
+
+$(".recherche").keyup(function(e) {
 
         e.stopImmediatePropagation(); 
 
@@ -491,7 +841,8 @@ $("#datetimepicker").datetimepicker();
 
         var trier_par = "non defini";
 
-        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par;
+        var classe_recherchee = $("#classe_recherchee").val();
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee;
 
          $.ajax({
              method: 'POST',
@@ -506,19 +857,20 @@ $("#datetimepicker").datetimepicker();
 
     });
 
+
       function gererSucces(data){
         console.log(data);
-
+          
           if(data.permissions.indexOf("eleve") == -1){
-            $("table tbody tr").remove();
+            $("table #tbody tr").remove();
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
-             $("table tbody").append(nouvelle_ligne);
+             $("table #tbody").append(nouvelle_ligne);
           }else{
 
 
 
-            $("table tbody tr").remove();
+            $("table #tbody tr").remove();
             //$("table thead").remove();
               //alert("1");
 
@@ -554,6 +906,7 @@ $("#datetimepicker").datetimepicker();
                       prenom = liste_eleves[i].prenom                      
                       sexe = liste_eleves[i].sexe;
                       redouble = liste_eleves[i].redouble;
+                      photo_url = liste_eleves[i].photo_url;
                       date_naissance = liste_eleves[i].date_naissance;
                       lieu_naissance = liste_eleves[i].lieu_naissance;
                       date_entree = liste_eleves[i].date_entree;
@@ -565,12 +918,35 @@ $("#datetimepicker").datetimepicker();
                       tel_mere = liste_eleves[i].tel_mere;
                       email_pere = liste_eleves[i].email_pere;
                       email_mere = liste_eleves[i].email_mere;
-                      // alert(sexe, prenom, nom, id);
-                        nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule +'²²'+ nom+ '²²'+ prenom +'²²'+ sexe +'²²'+ redouble +'²²'+ date_naissance +'²²'+ lieu_naissance +'²²'+ date_entree +'²²'+ nom_pere +'²²'+ prenom_pere +'²²'+ nom_mere +'²²'+ prenom_mere +'²²'+ tel_pere +'²²'+ tel_mere +'²²'+ email_pere +'²²'+ email_mere +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-eleve-link-td fix-col1">'+ matricule + '</td><td style="text-transform: capitalize;" class="detail-eleve-link-td">' + nom + '</td><td class="detail-eleve-link-td">'+ prenom + '</td><td class="detail-eleve-link-td">'+ sexe + '</td><td class="detail-eleve-link-td">'+ redouble + '</td><td class="detail-eleve-link-td">'+ date_naissance + '</td><td class="detail-eleve-link-td">'+ lieu_naissance + '</td><td class="detail-eleve-link-td">'+ date_entree + '</td><td class="detail-eleve-link-td">'+ nom_pere + '</td><td class="detail-eleve-link-td">'+ prenom_pere + '</td><td class="detail-eleve-link-td">'+ nom_mere + '</td><td class="detail-eleve-link-td">'+ prenom_mere + '</td><td class="detail-eleve-link-td">'+ tel_pere + '</td><td class="detail-eleve-link-td">'+ tel_mere + '</td><td class="detail-eleve-link-td">'+ email_pere + '</td><td class="detail-eleve-link-td">'+ email_mere +'</td><td class="td-actions text-right">';
+                      id_classe_actuelle = liste_eleves[i].id_classe_actuelle;
+                      classe_actuelle = liste_eleves[i].classe_actuelle;
+                      bourse = liste_eleves[i].bourse;
+                      est_en_regle = liste_eleves[i].est_en_regle;
+                      compte = liste_eleves[i].compte;
+                      excedent = liste_eleves[i].excedent;
+                      
+                      if (est_en_regle == 1)
+                      {
+                        nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule +'²²'+ nom+ '²²'+ prenom +'²²'+ sexe +'²²'+ redouble +'²²'+ date_naissance +'²²'+ lieu_naissance +'²²'+ date_entree +'²²'+ nom_pere +'²²'+ prenom_pere +'²²'+ nom_mere +'²²'+ prenom_mere +'²²'+ tel_pere +'²²'+ tel_mere +'²²'+ email_pere +'²²'+ email_mere+'²²'+ id_classe_actuelle +'²²'+ classe_actuelle +'²²'+photo_url+'²²'+ bourse+'²²'+ est_en_regle+'²²'+ compte+'²²'+ excedent +"'>" + '<th scope="row" class="fix-col0">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-eleve-link-td fix-col1"><span style="color:green;">'+ matricule + '</span></td><td style="text-transform: capitalize;" class="detail-eleve-link-td fix-col2">' + nom + '</td><td class="detail-eleve-link-td">'+ prenom + '</td><td class="detail-eleve-link-td">'+ sexe + '</td><td class="detail-eleve-link-td">'+ redouble + '</td><td class="detail-eleve-link-td">'+ date_naissance + '</td><td class="detail-eleve-link-td">'+ lieu_naissance + '</td><td class="detail-eleve-link-td">'+ classe_actuelle +'</td><td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="detail-eleve-link-td btn" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    change_classe ='&nbsp;<button type="button" rel="tooltip" class="changer-eleve-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    paiement_eleve ='&nbsp;<button type="button" rel="tooltip" class="paiement-eleve-link-ajax btn"><i class="far fa-sack-dollar fa-x"> </i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-eleve-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                      }
+                      else{
+                                nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule +'²²'+ nom+ '²²'+ prenom +'²²'+ sexe +'²²'+ redouble +'²²'+ date_naissance +'²²'+ lieu_naissance +'²²'+ date_entree +'²²'+ nom_pere +'²²'+ prenom_pere +'²²'+ nom_mere +'²²'+ prenom_mere +'²²'+ tel_pere +'²²'+ tel_mere +'²²'+ email_pere +'²²'+ email_mere+'²²'+ id_classe_actuelle +'²²'+ classe_actuelle +'²²'+photo_url+'²²'+ bourse+'²²'+ est_en_regle+'²²'+ compte+'²²'+ excedent +"'>" + '<th scope="row" class="fix-col0">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-eleve-link-td fix-col1">'+ matricule + '</td><td style="text-transform: capitalize;" class="detail-eleve-link-td fix-col2">' + nom + '</td><td class="detail-eleve-link-td">'+ prenom + '</td><td class="detail-eleve-link-td">'+ sexe + '</td><td class="detail-eleve-link-td">'+ redouble + '</td><td class="detail-eleve-link-td">'+ date_naissance + '</td><td class="detail-eleve-link-td">'+ lieu_naissance + '</td><td class="detail-eleve-link-td">'+ classe_actuelle +'</td><td class="td-actions text-right">';
+                    view = '<button type="button" rel="tooltip" class="detail-eleve-link-td btn" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
+                    change ='&nbsp;<button type="button" rel="tooltip" class="modifier-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    change_classe ='&nbsp;<button type="button" rel="tooltip" class="changer-eleve-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    paiement_eleve ='&nbsp;<button type="button" rel="tooltip" class="paiement-eleve-link-ajax btn"><i class="far fa-sack-dollar fa-x"> </i></button>';
+                    del = '&nbsp;<button rel="tooltip" class="supprimer-eleve-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
+                    
+                      }
+
+                        
                     
                    
                     //$("table tbody button:last").addClass("supprimer-eleve-link");
@@ -582,6 +958,8 @@ $("#datetimepicker").datetimepicker();
                         } */                     
                         if(data.permissions[index_model + 2] ==1 ){
                           nouvelle_ligne += change;
+                          nouvelle_ligne += change_classe;
+                          nouvelle_ligne += paiement_eleve;
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
                         if(data.permissions[index_model + 3] ==0 ){
@@ -591,7 +969,8 @@ $("#datetimepicker").datetimepicker();
                           nouvelle_ligne += del;
                         }
 
-                        $("table tbody").append(nouvelle_ligne);
+                        // $("table tbody").append(nouvelle_ligne);
+                        $("#tbody").append(nouvelle_ligne);
                       
                     
                     
@@ -713,22 +1092,22 @@ $("#datetimepicker").datetimepicker();
         // $(".email_mere").val(email_mere);
         // $("#id_modif").val(id);
 
-        // $(".matricule").val("");
-        // $(".nom").val("");
-        // $(".prenom").val("");
-        // $(".sexe").val("");
-        // $(".redouble").val();
-        // $(".date_naissance").val();
-        // $(".lieu_naissance").val();
-        // $(".date_entree").val();
-        // $(".nom_pere").val();
-        // $(".prenom_mere").val();
-        // $(".nom_mere").val();
-        // $(".prenom_mere").val();
-        // $(".tel_pere").val();
-        // $(".tel_mere").val();
-        // $(".email_pere").val();
-        // $(".email_mere").val();
+        $(".matricule").val("");
+        $(".nom").val("");
+        $(".prenom").val("");
+        $(".sexe").val("");
+        $(".redouble").val();
+        $(".date_naissance").val();
+        $(".lieu_naissance").val();
+        $(".date_entree").val();
+        $(".nom_pere").val();
+        $(".prenom_mere").val();
+        $(".nom_mere").val();
+        $(".prenom_mere").val();
+        $(".tel_pere").val();
+        $(".tel_mere").val();
+        $(".email_pere").val();
+        $(".email_mere").val();
 
     });
 
@@ -756,6 +1135,12 @@ $("#datetimepicker").datetimepicker();
         tel_mere = tab_element[14];
         email_pere = tab_element[15];
         email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
       
         $(".matricule").val(matricule);
         $(".nom").val(nom);
@@ -773,6 +1158,9 @@ $("#datetimepicker").datetimepicker();
         $(".tel_mere").val(tel_mere);
         $(".email_pere").val(email_pere);
         $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
+
         $("#id_modif").val(id);
 
         $(".matricule").attr("disabled", "True");
@@ -791,6 +1179,7 @@ $("#datetimepicker").datetimepicker();
         $(".tel_mere").attr("disabled", "True");
         $(".email_pere").attr("disabled", "True");
         $(".email_mere").attr("disabled", "True");
+
 
     });
 
@@ -821,6 +1210,12 @@ $("#datetimepicker").datetimepicker();
         tel_mere = tab_element[14];
         email_pere = tab_element[15];
         email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
 
         $(".nom").val(nom);
         $(".matricule").val(matricule);
@@ -838,6 +1233,8 @@ $("#datetimepicker").datetimepicker();
         $(".tel_mere").val(tel_mere);
         $(".email_pere").val(email_pere);
         $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
         $("#id_modif").val(id);
 
         $(".matricule").removeAttr("disabled");
@@ -861,41 +1258,256 @@ $("#datetimepicker").datetimepicker();
     $(".changer-eleve-classe-link").click(function() {
         $('#modal_changer_classe_eleve').modal('show');
 
-         var classe = $(this).parents("tr").attr('class');
+        var classe = $(this).parents("tr").attr('class');
         tab_element = classe.split("²²");
-        // sexe = tab_element[0];
-        // prenom = tab_element[1];
-        // nom = tab_element[2];
-        // id = tab_element[3];
+
         id = tab_element[0];
         matricule = tab_element[1];
         nom = tab_element[2];
         prenom = tab_element[3];
         sexe = tab_element[4];
+        redouble = tab_element[5];
+        date_naissance = tab_element[6];
+        lieu_naissance = tab_element[7];
+        date_entree = tab_element[8];
+        nom_pere = tab_element[9];
+        prenom_pere = tab_element[10];
+        nom_mere = tab_element[11];
+        prenom_mere = tab_element[12];
+        tel_pere = tab_element[13];
+        tel_mere = tab_element[14];
+        email_pere = tab_element[15];
+        email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
+        classe_actuelle_eleve_avant_changement = classe_actuelle+"_"+id_classe_actuelle;
+
+        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
         $(".info_changement_apprenant").empty();
         /*append(`<input type=checkbox name="${option}" value="${option}"> 
                                          ${nom_classe}&nbsp;&nbsp;&nbsp;`)*/
         
         if (sexe == "masculin")
           {
-            $(".info_changement_apprenant").append(`Changement de classe de l'apprenant <br><i><b style="color:blue;">${matricule} ${nom} ${prenom}</b></i> <br>Pour la classe de:`);
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenant <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i> <br>Pour la classe de:`);
 
           }
         else
           { 
-            $(".info_changement_apprenant").append(`Changement de classe de l'apprenante <br><i><b style="color:blue;">${matricule} ${nom} ${prenom}</b></i> <br>Pour la classe de:`);
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenante <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i> <br>Pour la classe de:`);
         }
 
         $(".nom").val(nom);
         $(".matricule").val(matricule);
         $(".prenom").val(prenom);
         $(".sexe").val(sexe);
+        $(".redouble").val(redouble);
+        $(".date_naissance").val(date_naissance);
+        $(".lieu_naissance").val(lieu_naissance);
+        $(".date_entree").val(date_entree);
+        $(".nom_pere").val(nom_pere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".nom_mere").val(nom_mere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".tel_pere").val(tel_pere);
+        $(".tel_mere").val(tel_mere);
+        $(".email_pere").val(email_pere);
+        $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
+        $(".info_apprenant").val(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        // alert(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
         $("#id_modif").val(id);
 
         $(".matricule").removeAttr("disabled");
         $(".nom").removeAttr("disabled");
         $(".prenom").removeAttr("disabled");
         $(".sexe").removeAttr("disabled");
+        $(".redouble").removeAttr("disabled");
+        $(".date_naissance").removeAttr("disabled");
+        $(".lieu_naissance").removeAttr("disabled");
+        $(".date_entree").removeAttr("disabled");
+        $(".nom_pere").removeAttr("disabled");
+        $(".prenom_mere").removeAttr("disabled");
+        $(".nom_mere").removeAttr("disabled");
+        $(".prenom_mere").removeAttr("disabled");
+        $(".tel_pere").removeAttr("disabled");
+        $(".tel_mere").removeAttr("disabled");
+        $(".email_pere").removeAttr("disabled");
+        $(".email_mere").removeAttr("disabled");
+    });
+
+
+    $(".paiement-eleve-link").click(function() {
+     
+        var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+        matricule = tab_element[1];
+        nom_eleve = tab_element[2];
+        prenom_eleve = tab_element[3];
+        classe_actuelle_eleve = tab_element[18];
+        bourse = tab_element[20];
+        est_en_regle = tab_element[21];
+        compte = tab_element[22];
+        excedent = tab_element[23];
+           
+         $(".apprenant_info").text(classe_actuelle_eleve+" : "+matricule+" "+nom_eleve+" "+prenom_eleve);   
+         $(".la_bourse").empty();
+         $(".l_excedent").empty();
+         $(".deja_paye").empty();
+         $(".le_reste_a_payer").empty();
+         $(".la_bourse").append(`<b> 0 </b>`);
+         $(".l_excedent").append(`<b> 0 </b>`);
+         $(".le_reste_a_payer").append(`<b> 0 </b>`);
+         $(".deja_paye").append(`<b> 0 </b>`);
+         $(".le_montant_a_payer").empty();
+        $(".le_montant_a_payer").append(`<b> 0 </b>`);
+        $("#tbody_tranches").empty();
+        $('#modal_paiement_eleve').modal('show');
+
+           montant_a_payer = parseFloat($(".montant_a_payer").text());
+           $("#montant_a_payer2").val(montant_a_payer);
+           $("#info_eleve").val(compte+"_"+bourse+"_"+excedent+"_"+matricule);
+
+           compte = parseFloat(compte);
+           bourse = parseFloat(bourse);
+           excedent = parseFloat(excedent);
+           total = 0;
+           en_regle = "non"
+           // alert($("#montant_a_payer2").val());
+           // alert(montant_a_payer);
+
+           if(compte >= montant_a_payer){
+              reste_a_payer = 0;
+              total = compte;
+              en_regle = "oui"
+            }
+           else{
+              total = compte + bourse + excedent;
+              reste_a_payer = montant_a_payer - total; 
+           }
+           $(".la_bourse").empty();
+           $(".l_excedent").empty();
+           $(".deja_paye").empty();
+           $(".le_reste_a_payer").empty();
+           $(".la_bourse").append(`<b> ${bourse} </b>`);
+           $(".l_excedent").append(`<b> ${excedent} </b>`);
+           $(".le_reste_a_payer").append(`<b> ${reste_a_payer} </b>`);
+           $(".deja_paye").append(`<b style="color: green;"> ${compte} </b>`);
+
+          $("#classe_courante").val($("#classe_recherchee").val());
+          tranches_paiements = $(".tranches_paiements").text();
+          
+
+          $(".le_montant_a_payer").empty();
+          $(".le_montant_a_payer").append(`<b>${montant_a_payer}</b>`);
+          // $("#tbody_tranches").empty();
+
+          tranches = tranches_paiements.split("*²*");
+          nb_tranches = tranches.length - 1;
+          nouvelle_ligne = "";
+          for (var i = 0; i < nb_tranches; i++) {
+            tranche = tranches[i].split("²²");
+            montant_tranche = parseFloat(tranche[2]);
+            if (total < 0) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">0</td></tr>`;
+            else if (total >= montant_tranche) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: green;">${montant_tranche}</td></tr>`;
+            else {
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">${total}</td></tr>`;
+            }
+            total -= montant_tranche;
+          }
+            $("#tbody_tranches").append(nouvelle_ligne);
+    });
+
+
+    $("body").on("click", ".paiement-eleve-link-ajax", function() {
+
+       var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+        matricule = tab_element[1];
+        nom_eleve = tab_element[2];
+        prenom_eleve = tab_element[3];
+        classe_actuelle_eleve = tab_element[18];
+        bourse = tab_element[20];
+        est_en_regle = tab_element[21];
+        compte = tab_element[22];
+        excedent = tab_element[23];
+           
+         $(".apprenant_info").text(classe_actuelle_eleve+" : "+matricule+" "+nom_eleve+" "+prenom_eleve);   
+         $(".la_bourse").empty();
+         $(".l_excedent").empty();
+         $(".deja_paye").empty();
+         $(".le_reste_a_payer").empty();
+         $(".la_bourse").append(`<b> 0 </b>`);
+         $(".l_excedent").append(`<b> 0 </b>`);
+         $(".le_reste_a_payer").append(`<b> 0 </b>`);
+         $(".deja_paye").append(`<b> 0 </b>`);
+         $(".le_montant_a_payer").empty();
+        $(".le_montant_a_payer").append(`<b> 0 </b>`);
+        $("#tbody_tranches").empty();
+        $('#modal_paiement_eleve').modal('show');
+
+           montant_a_payer = parseFloat($(".montant_a_payer").text());
+           $("#montant_a_payer2").val(montant_a_payer);
+           $("#info_eleve").val(String(compte)+"_"+String(bourse)+"_"+String(excedent)+"_"+matricule);
+
+           compte = parseFloat(compte);
+           bourse = parseFloat(bourse);
+           excedent = parseFloat(excedent);
+           total = 0;
+           en_regle = "non"
+           // alert($("#montant_a_payer2").val());
+           // alert(montant_a_payer);
+
+           if(compte >= montant_a_payer){
+              reste_a_payer = 0;
+              total = compte;
+              en_regle = "oui"
+            }
+           else{
+              total = compte + bourse + excedent;
+              reste_a_payer = montant_a_payer - total; 
+           }
+           $(".la_bourse").empty();
+           $(".l_excedent").empty();
+           $(".deja_paye").empty();
+           $(".le_reste_a_payer").empty();
+           $(".la_bourse").append(`<b> ${bourse} </b>`);
+           $(".l_excedent").append(`<b> ${excedent} </b>`);
+           $(".le_reste_a_payer").append(`<b> ${reste_a_payer} </b>`);
+           $(".deja_paye").append(`<b style="color: green;"> ${compte} </b>`);
+
+          $("#classe_courante").val($("#classe_recherchee").val());
+          tranches_paiements = $(".tranches_paiements").text();
+          
+
+          $(".le_montant_a_payer").empty();
+          $(".le_montant_a_payer").append(`<b>${montant_a_payer}</b>`);
+          // $("#tbody_tranches").empty();
+
+          tranches = tranches_paiements.split("*²*");
+          nb_tranches = tranches.length - 1;
+          nouvelle_ligne = "";
+          for (var i = 0; i < nb_tranches; i++) {
+            tranche = tranches[i].split("²²");
+            montant_tranche = parseFloat(tranche[2]);
+            if (total < 0) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">0</td></tr>`;
+            else if (total >= montant_tranche) 
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: green;">${montant_tranche}</td></tr>`;
+            else {
+              nouvelle_ligne += `<tr><td>${tranche[1]} : ${tranche[2]}</td><td style="color: red;">${total}</td></tr>`;
+            }
+            total -= montant_tranche;
+          }
+            $("#tbody_tranches").append(nouvelle_ligne);
     });
 
 
@@ -926,6 +1538,12 @@ $("#datetimepicker").datetimepicker();
       tel_mere = tab_element[14];
       email_pere = tab_element[15];
       email_mere = tab_element[16];
+      id_classe_actuelle = tab_element[17];
+      classe_actuelle = tab_element[18];
+      bourse = tab_element[19];
+      est_en_regle = tab_element[20];
+      compte = tab_element[21];
+      excedent = tab_element[22];
       
       $("#id_supp").val(id);
       $("#modal_supprimer_eleve .matricule").text(matricule);
@@ -944,6 +1562,9 @@ $("#datetimepicker").datetimepicker();
       $("#modal_supprimer_eleve .tel_mere").text(tel_mere);
       $("#modal_supprimer_eleve .email_pere").text(email_pere);
       $("#modal_supprimer_eleve .email_mere").text(email_mere);
+      $("#modal_supprimer_eleve .id_classe_actuelle").text(id_classe_actuelle);
+      $("#modal_supprimer_eleve .classe_actuelle").text(classe_actuelle);
+
 
     
     });
@@ -977,8 +1598,8 @@ $("#datetimepicker").datetimepicker();
 
 
         });
-
-        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par;
+        var classe_recherchee = $("#classe_recherchee").val();
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee;
 
          $.ajax({
              method: 'POST',
@@ -1016,6 +1637,12 @@ $("#datetimepicker").datetimepicker();
           tel_mere = tab_element[14];
           email_pere = tab_element[15];
           email_mere = tab_element[16];
+          id_classe_actuelle = tab_element[17];
+          classe_actuelle = tab_element[18];
+          bourse = tab_element[19];
+          est_en_regle = tab_element[20];
+          compte = tab_element[21];
+          excedent = tab_element[22];
           
           $("#id_supp").val(id);
           $("#modal_supprimer_eleve .matricule").text(matricule);
@@ -1034,6 +1661,8 @@ $("#datetimepicker").datetimepicker();
           $("#modal_supprimer_eleve .tel_mere").text(tel_mere);
           $("#modal_supprimer_eleve .email_pere").text(email_pere);
           $("#modal_supprimer_eleve .email_mere").text(email_mere);
+          $("#modal_supprimer_eleve .id_classe_actuelle").text(id_classe_actuelle);
+          $("#modal_supprimer_eleve .classe_actuelle").text(classe_actuelle);
 
     });
 
@@ -1061,6 +1690,12 @@ $("#datetimepicker").datetimepicker();
         tel_mere = tab_element[14];
         email_pere = tab_element[15];
         email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
 
         $(".matricule").val(matricule);
         $(".nom").val(nom);
@@ -1078,6 +1713,8 @@ $("#datetimepicker").datetimepicker();
         $(".tel_mere").val(tel_mere);
         $(".email_pere").val(email_pere);
         $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
         $("#id_modif").val(id);
 
         $(".matricule").removeAttr("disabled");
@@ -1099,6 +1736,95 @@ $("#datetimepicker").datetimepicker();
 
     });
 
+    $("body").on("click", ".changer-eleve-classe-link-ajax", function() {
+        
+        $('#modal_changer_classe_eleve').modal('show');
+
+        var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+
+        id = tab_element[0];
+        matricule = tab_element[1];
+        nom = tab_element[2];
+        prenom = tab_element[3];
+        sexe = tab_element[4];
+        redouble = tab_element[5];
+        date_naissance = tab_element[6];
+        lieu_naissance = tab_element[7];
+        date_entree = tab_element[8];
+        nom_pere = tab_element[9];
+        prenom_pere = tab_element[10];
+        nom_mere = tab_element[11];
+        prenom_mere = tab_element[12];
+        tel_pere = tab_element[13];
+        tel_mere = tab_element[14];
+        email_pere = tab_element[15];
+        email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
+        classe_actuelle_eleve_avant_changement = classe_actuelle+"_"+id_classe_actuelle;
+        label = ""
+        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        
+        $(".info_changement_apprenant").empty();
+        /*append(`<input type=checkbox name="${option}" value="${option}"> 
+                                         ${nom_classe}&nbsp;&nbsp;&nbsp;`)*/
+        
+        if (sexe == "masculin")
+          {
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenant <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i> <br>Pour la classe de:`);
+
+          }
+        else
+          { 
+            $(".info_changement_apprenant").append(`Changement de classe de l'apprenante <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i> <br>Pour la classe de:`);
+        }
+
+        $(".nom").val(nom);
+        $(".matricule").val(matricule);
+        $(".prenom").val(prenom);
+        $(".sexe").val(sexe);
+        $(".redouble").val(redouble);
+        $(".date_naissance").val(date_naissance);
+        $(".lieu_naissance").val(lieu_naissance);
+        $(".date_entree").val(date_entree);
+        $(".nom_pere").val(nom_pere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".nom_mere").val(nom_mere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".tel_pere").val(tel_pere);
+        $(".tel_mere").val(tel_mere);
+        $(".email_pere").val(email_pere);
+        $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
+        $(".info_apprenant").val(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        // alert(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        $("#id_modif").val(id);
+
+        $(".matricule").removeAttr("disabled");
+        $(".nom").removeAttr("disabled");
+        $(".prenom").removeAttr("disabled");
+        $(".sexe").removeAttr("disabled");
+        $(".redouble").removeAttr("disabled");
+        $(".date_naissance").removeAttr("disabled");
+        $(".lieu_naissance").removeAttr("disabled");
+        $(".date_entree").removeAttr("disabled");
+        $(".nom_pere").removeAttr("disabled");
+        $(".prenom_mere").removeAttr("disabled");
+        $(".nom_mere").removeAttr("disabled");
+        $(".prenom_mere").removeAttr("disabled");
+        $(".tel_pere").removeAttr("disabled");
+        $(".tel_mere").removeAttr("disabled");
+        $(".email_pere").removeAttr("disabled");
+        $(".email_mere").removeAttr("disabled");
+
+    });
 
       
   /*  $("body").on("click", ".detail-eleve-link-ajax", function() {
@@ -1183,7 +1909,8 @@ $("#datetimepicker").datetimepicker();
           });
  
 
-          var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par;
+        var classe_recherchee = $("#classe_recherchee").val();
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee;
 
            $.ajax({
                method: 'POST',
@@ -1221,7 +1948,8 @@ $("#datetimepicker").datetimepicker();
         $(this).attr("class", trier_par + " tri tri-desc");
 
       
-        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par;
+        var classe_recherchee = $("#classe_recherchee").val();
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee;
 
          $.ajax({
              method: 'POST',
@@ -1262,7 +1990,8 @@ $("#datetimepicker").datetimepicker();
         // tri decroissant 
         trier_par = "-" + trier_par;
       
-        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par ;
+        var classe_recherchee = $("#classe_recherchee").val();
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee;
 
          $.ajax({
              method: 'POST',

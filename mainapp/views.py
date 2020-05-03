@@ -44,6 +44,9 @@ from django.core.files.base import ContentFile
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 
+import numbers
+
+
 # definition des constantes
 pagination_nbre_element_par_page = 50
 photo_repertoire = "/photos/"
@@ -55,6 +58,7 @@ theme_class_default = "bleu"
 
 #chemin vers le fichier excel
 chemin_fichier_excel = "mainapp/templates/mainapp/static/upload/"
+ANNEE_SCOLAIRE = "2019-2020"
 
 
 class JSONResponse(HttpResponse):
@@ -86,6 +90,55 @@ def dashboard(request):
 
     
     return render(request, 'mainapp/pages/dashboard.html', locals())
+
+def changement_classe_eleve(request):
+    # id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe
+
+    print("Changement de classe")
+    classe, id_classe = request.POST['classe_selected2'].split('_')
+    id_classe = int(id_classe)
+    print("Cls Id: ", classe, id_classe)
+    id_eleve, matricule, nom, prenom, sexe, id_classe_actuelle, classe_actuelle = request.POST['info_apprenant'].split('_')
+    id_eleve = int(id_eleve)
+    # id_classe_actuelle = int(id_classe_actuelle)
+    eleve = Eleve.objects.get(archived = "0", pk = id_eleve)
+
+    # print("id_eleve mat, nom, prenom, sexe, id_classe_actuelle, classe_actuelle: ", id_eleve, matricule, nom, prenom, sexe, id_classe_actuelle, classe_actuelle)
+    # el2 = Eleve.objects.values('id_classe_actuelle','classe_actuelle').get(pk = id_eleve)
+    # print(el2['id_classe_actuelle'], el2['classe_actuelle'])
+    # # On ne verifiera plus nb_eleve_classe à la prochaine migartion
+    # nb_eleve_classe = Classe.objects.filter(pk=id_classe_actuelle,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+    #                                 .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+    #                                 .eleves.count()
+    # if nb_eleve_classe > 0:
+
+    # L'élève est déja dans la classe si is_eleve_in_classe = 1
+    is_eleve_in_classe = Classe.objects.filter(pk=id_classe,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                    .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                    .eleves.filter(pk = id_eleve).count()
+    if is_eleve_in_classe == 0:                                
+        Classe.objects.filter(pk=id_classe_actuelle,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                        .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                        .eleves.remove(eleve)
+
+        classe_changee = str(id_classe_actuelle)+"_"+classe_actuelle+"_"
+        liste_classes_changees  = eleve.liste_classes_changees
+        # if classe_changee not in liste_classes_changees:
+        liste_classes_changees += classe_changee
+        print(classe_changee, liste_classes_changees)
+
+        print("is_eleve_in_classe == 0")
+        eleve.id_classe_actuelle = id_classe
+        eleve.classe_actuelle = classe
+        eleve.liste_classes_changees = liste_classes_changees
+        eleve.save()
+        eleve = Eleve.objects.get(archived = "0", pk = id_eleve)
+
+        Classe.objects.filter(pk=id_classe,annee_scolaire=ANNEE_SCOLAIRE)[0]\
+                                    .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
+                                    .eleves.add(eleve)
+    # print("Eleve.count et liste_classes_changees: ", is_eleve_in_classe, eleve.liste_classes_changees)
+    return redirect('mainapp:liste_eleves')
 
 def creation_etudiant(request):
 
@@ -145,6 +198,277 @@ def creation_etudiant(request):
 
             return redirect('mainapp:liste_etudiants')
 
+def paiement_eleve(request):
+    
+    if request.method == 'POST':
+        excedent = 18000
+        bourse = 22000
+        compte = 0
+        # Par défaut l'eleve n'est pas en regle
+        est_en_regle = "0"
+
+        classe_courante = request.POST.get('classe_courante', None)
+        montant_a_payer = float(request.POST['montant_a_payer2'].replace(",","."))
+        crediter = float(request.POST['crediter'].replace(",","."))
+        print("IN ",request.POST['info_eleve'])
+        compte, bourse, excedent, matricule = request.POST['info_eleve'].split("_")
+        compte, bourse, excedent = compte.replace(",","."), bourse.replace(",","."), excedent.replace(",",".")
+        compte, bourse, excedent = float(compte), float(bourse), float(excedent)
+
+        total = compte + crediter + bourse + excedent
+
+        if total >= montant_a_payer:
+            excedent = total - montant_a_payer
+            bourse = 0
+            compte = montant_a_payer
+            est_en_regle = "1"
+        else:
+            excedent = 0
+            bourse = 0
+            compte = total
+            est_en_regle = "0"
+        Eleve.objects.filter(matricule__iexact = matricule).update(compte = compte, bourse = bourse, excedent = excedent, est_en_regle = est_en_regle)
+
+        print("compte, bourse, excedent, matricule: ",compte)
+
+        request.session['classe_courante'] = classe_courante
+
+    return redirect('mainapp:liste_eleves' )
+
+def creation_type_paiement_eleve(request):
+    print("****************creation_type_paiement_eleve")
+    if request.method == 'GET':
+        return render(request, 'mainapp/pages/creation-type-paiement-eleve.html',{'form':TypePayementEleveForm})
+    elif request.method == 'POST':
+        sousetabs = []
+        cycles = []
+        niveaux = []
+        classes = []
+        specialites = []
+        choix =""
+
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+            print("Les donnees: ", donnees)
+            position = donnees[0]
+            param2 = donnees[1] if donnees[1] == "all" else int(donnees[1])
+            param3 = donnees[2]
+            # param4 represente l'id du parent et peut etre all ou un id
+            param4 = donnees[3]
+            print("PYTHON: ",position,param2, param3,param4)
+
+            # L'etab a changé on cherche les sousetabs associés
+            if position == "1":
+                param2 = 1
+                choix = "etab"
+                sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(id_etab = param2)
+                
+            # Le sousetab a changé on cherche les niveaux et spécialités associés
+            if position == "2":
+                choix = "sousetab"
+                
+                cycles = Cycle.objects.values('id', 'nom_cycle').filter(id_sousetab = param2)
+                # print("cycles count: ", cycles.count())
+                print("cycles", cycles)
+
+            
+            # Le cycle a changé
+            if position == "3":
+                print("PARAM2: ",param2)
+                choix = "cycle"
+                # if param3 == "tous":
+                #     print("cycle tous: ", param4)
+                #     niveaux = Niveau.objects.values('id', 'nom_niveau').filter(archived = "0", id_cycle = int(param4))
+                # else:
+                niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_cycle = param2)
+
+            # Le niveau a changé
+            if position == "4":
+                print("PARAM2: ",param2)
+                choix = "niveau"
+                # if param3 == "tous":
+                #     print("tous niveau")
+                #     specialites = Specialite.objects.values('id', 'specialite').filter(archived = "0", id_niveau = int(param4))
+                # else:
+                specialites = Specialite.objects.values('id', 'specialite').filter(archived = "0", id_niveau = param2)
+                classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2)
+
+            # La spécialité a changé
+            if position == "5":
+                choix = "specialite"
+                print("PARAM2: ",param2, "PARAM3:",param3)
+                if param3 == "aucune":
+                    print("DANS AUCUNE")
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = "")
+                elif param3 == "tous":
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2)
+                else:
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
+                print("# classes: ", classes.count())
+
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+            data = {
+                "choix":choix,
+                "sousetabs": sousetabs,
+                "cycles": cycles,
+                "niveaux": niveaux,
+                "classes": classes,
+                "specialites": specialites,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data)
+
+        else:
+            print("On va save en bd")
+            liste_classes = ""
+            liste_classes_afficher = ""
+            indicateur_liste_classes = ""
+            etabb = Etab.objects.values_list('id','nom_etab').all()[0]
+            nom_etab = etabb[1]
+            id_etab = etabb[0]
+            choix_sousetab, id_sousetab = request.POST['choix_sousetab'].split("_")
+            if choix_sousetab == "tous":
+                classes = Classe.objects.values_list('id','nom_classe').all()
+                for c in classes:
+                    liste_classes += str(c[0])+"_"+c[1]+"_"
+                liste_classes_afficher = nom_etab
+                indicateur_liste_classes = "etab_"+ nom_etab +"_"+ str(id_etab)
+                print("Liste_classes: ",liste_classes )
+            else:              
+                id_sousetab = int(id_sousetab)
+                choix_cycle, id_cycle = request.POST.get('choix_cycle').split("_")
+                if choix_cycle =="tous":
+                    classes = Classe.objects.values_list('id','nom_classe').filter(id_sousetab = id_sousetab)
+                    for c in classes:
+                        liste_classes += str(c[0])+"_"+c[1]+"_"
+                    nom_sousetab = SousEtab.objects.values_list('nom_sousetab').filter(pk = id_sousetab)[0][0]
+                    liste_classes_afficher = nom_sousetab
+                    indicateur_liste_classes = "sousetab_" + nom_sousetab +"_"+ str(id_sousetab)
+                    print("Liste_classes: ",liste_classes)
+                else:
+                    id_cycle = int(id_cycle)
+                    choix_niveau, id_niveau = request.POST.get('choix_niveau').split("_")
+                    if choix_niveau =="tous":
+                        classes = Classe.objects.values_list('id','nom_classe').filter(id_cycle = id_cycle)
+                        for c in classes:
+                            liste_classes += str(c[0])+"_"+c[1]+"_"
+                        nom_cycle = Cycle.objects.values_list('nom_cycle').filter(pk = id_cycle)[0][0]
+                        liste_classes_afficher = nom_cycle
+                        indicateur_liste_classes = "cycle_" + nom_cycle +"_"+ str(id_cycle)
+                        print("Liste_classes: ",liste_classes)
+                    else:
+                        id_niveau = int(id_niveau)
+                        specialite, id_specialite = request.POST.get('specialite').split("_")
+                        choix_classes = request.POST.getlist('choix_classes')
+                        if specialite =="tous":
+                            if len(choix_classes) == 0:
+                                classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau)
+                                nom_niveau = Niveau.objects.values_list('nom_niveau').filter(pk = id_niveau)[0][0]
+                                liste_classes_afficher = nom_niveau
+                                indicateur_liste_classes = "niveau_" + nom_niveau +"_"+ str(id_niveau)
+                                for c in classes:
+                                    liste_classes += str(c[0])+"_"+c[1]+"_"
+                            else:
+                                classes = []
+                                for cl in choix_classes:
+                                    classe, id_classe = cl.split("_")
+                                    id_classe = int(id_classe)
+                                    classes += Classe.objects.values_list('id','nom_classe').filter(pk = id_classe)
+                                indicateur_liste_classes = "classe"
+                                for c in classes:
+                                    liste_classes += str(c[0])+"_"+c[1]+"_"
+                                    if indicateur_liste_classes == "classe":
+                                        liste_classes_afficher += c[1]+", "
+                        else:
+                            
+                            if len(choix_classes) == 0:
+                                if specialite == "aucune":
+                                    classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau, specialite = "")
+                                    print("aucune: ", classes.count())
+                                    indicateur_liste_classes = "specialite_"+ specialite+ "_" + id_specialite
+                                    liste_classes_afficher = nom_niveau+" "+specialite
+                                else:
+                                    classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau, specialite__iexact = specialite)
+                                    indicateur_liste_classes = "specialite_" + specialite + "_" + id_specialite
+                                    liste_classes_afficher = nom_niveau+" "+specialite
+                                for c in classes:
+                                    liste_classes += str(c[0])+"_"+c[1]+"_"
+                            else:
+                                indicateur_liste_classes = "classe"
+                                classes = []
+                                for cl in choix_classes:
+                                    classe, id_classe = cl.split("_")
+                                    id_classe = int(id_classe)
+                                    classes += Classe.objects.values_list('id','nom_classe').filter(pk = id_classe)
+                                for c in classes:
+                                    liste_classes += str(c[0])+"_"+c[1]+"_"
+                                    liste_classes_afficher += c[1]+", "
+
+                                
+                                print("Liste_classes: ",liste_classes)
+                                
+
+            type_paiement_eleve = TypePayementEleve()
+            type_paiement_eleve.liste_classes = liste_classes
+            type_paiement_eleve.liste_classes_afficher = liste_classes_afficher
+            type_paiement_eleve.indicateur_liste_classes = indicateur_liste_classes
+
+            form = TypePayementEleveForm(request.POST)
+            entree_sortie_caisee = request.POST['entree_sortie_caisee']
+            # print(form.errors)
+            # if form.is_valid():
+            # libelle = form.cleaned_data['libelle']
+            libelle = request.POST.get('libelle', None)
+            montant = request.POST.get('montant', None)
+            if montant == "":
+                montant = 0
+            # print("popoli ",isinstance(montant, numbers.Number))
+            # if montant is empty:
+            # montant = 0
+            # if isinstance(montant, numbers.Number) == False:
+            #     montant = 0
+            # print("---montant: ", montant)
+            
+            # montant = form.cleaned_data['montant'] if form.cleaned_data['montant'] != None else 0
+                
+            if entree_sortie_caisee == "e":
+                montant = form.cleaned_data['montant']
+                ordre_paiement = form.cleaned_data['ordre_paiement']
+                date_deb = request.POST['date_deb'].strip().split(" ")[0]
+                date_fin = request.POST['date_fin'].strip().split(" ")[0]
+                type_paiement_eleve.date_deb = date_deb
+                type_paiement_eleve.date_fin = date_fin
+                type_paiement_eleve.ordre_paiement = ordre_paiement
+
+           
+            type_paiement_eleve.montant = montant
+            type_paiement_eleve.libelle = libelle
+            type_paiement_eleve.entree_sortie_caisee = entree_sortie_caisee
+            type_paiement_eleve.save()
+            print("*type_paiement_eleve ", type_paiement_eleve)
+            return redirect('mainapp:liste_types_paiements_eleve')
+
 def creation_eleve(request):
 
     if request.method == 'GET':
@@ -168,9 +492,9 @@ def creation_eleve(request):
             # cycles = _load_specialites_ajax(donnees_recherche,trier_par)
 
             # L'etab a changé on cherche les sousetabs associés
-            if position == "1":
+            if position == "1" or position == "1*":
                 param2 = 1
-                choix = "etab"
+                choix = "etab" if position == "1" else "etab2"
                 # sousetabs = SousEtab.objects.values_list('id','nom_sousetab').filter(id_etab = param2)
                 sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(id_etab = param2)
                 id_sousetab0 = sousetabs[0]['id']
@@ -183,8 +507,8 @@ def creation_eleve(request):
                 # print("VALUES_LIST", sousetabs[0][1])
                 # print("VALUES", sousetabs2[0]['nom_sousetab'])
             # Le sousetab a changé on cherche les niveaux et spécialités associés
-            if position == "2":
-                choix = "sousetab"
+            if position == "2" or position == "2*":
+                choix = "sousetab" if position == "2" else "sousetab2"
                 niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_sousetab = param2)
                 id_niveau0 = niveaux[0]['id']
                 specialites = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = id_niveau0)            
@@ -192,9 +516,9 @@ def creation_eleve(request):
                 # specialites = Specialite.objects.values('specialite').filter(archived = "0", id_sousetab = param2).order_by('specialite').distinct()
                 print("LES SPECS:", specialites.count())
             # Le niveau a changé
-            if position == "3":
+            if position == "3" or position == "3*":
                 print("PARAM2: ",param2)
-                choix = "niveau"
+                choix = "niveau" if position == "3" else "niveau2"
                 nb_niv_spe = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = param2).count()                        
                 specialites = Specialite.objects.values('id_niveau', 'specialite').filter(archived = "0", id_niveau = param2)                        
                 # if nb_niv_spe > 0:
@@ -205,11 +529,15 @@ def creation_eleve(request):
                 classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite= "" )
                 [print(cl) for cl in classes]
             # La spécialité a changé
-            if position == "4":
-                choix = "specialite"
+            if position == "4" or position == "4*":
+                choix = "specialite" if position == "4" else "specialite2"
                 # id_niv = Specialite.objects.values('id').filter(archived = "0", id_niveau = param2).count()
                 print("PARAM2: ",param2, "PARAM3:",param3)
-                classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
+                if param3 == "Aucune":
+                    print("DANS AUCUNE")
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = "")
+                else:
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
                 print("# classes: ", classes.count())
             #gerer les preferences utilisateur en terme de theme et couleur
             if (request.user.id != None):
@@ -227,7 +555,7 @@ def creation_eleve(request):
                 data_color = data_color_default
                 sidebar_class = sidebar_class_default
                 theme_class = theme_class_default
-
+            print("LE CHOIX ...",choix)
             data = {
                 "choix":choix,
                 "sousetabs": sousetabs,
@@ -1015,32 +1343,6 @@ def creation_type_paiement_facture(request):
 
         return redirect('mainapp:liste_types_paiements_facture')
 
-def creation_type_paiement_eleve(request):
-
-    if request.method == 'GET':
-
-        return render(request, 'mainapp/pages/creation-type-paiement-eleve.html',{'form':TypePayementEleveForm})
-    elif request.method == 'POST':
-        form = TypePayementEleveForm(request.POST)
-        if form.is_valid():
-            libelle = form.cleaned_data['libelle']
-            date_deb = form.cleaned_data['date_deb']
-            date_fin = form.cleaned_data['date_fin']
-            entree_sortie_caisee = form.cleaned_data['entree_sortie_caisee']
-            montant = float(form.cleaned_data['montant'])
-
-            print(date_fin," ",libelle," ",montant)
-
-            type_paiement_eleve = TypePayementEleve()
-            type_paiement_eleve.libelle = libelle
-            type_paiement_eleve.date_deb = date_deb
-            type_paiement_eleve.date_fin = date_fin
-            type_paiement_eleve.entree_sortie_caisee = entree_sortie_caisee
-            type_paiement_eleve.montant = montant
-            type_paiement_eleve.save()
-
-        return redirect('mainapp:liste_types_paiements_eleve')
-
 def creation_type_paiement_pers_administratif(request):
 
     if request.method == 'GET':
@@ -1245,10 +1547,39 @@ def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_eleme
 
 def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
+    # On enlevera ~Q(~id=1) à la prochaine migration
+    # classe_recherchees = Classe.objects.values('id','nom_classe').filter(~Q(id=1), archived = "0")
+    classe_recherchees = Classe.objects.values('id','nom_classe').filter(archived = "0")
+    # classe_courante = request.POST.get('classe_courante', None)
+    classe_courante = request.session.get('classe_courante', None)
+
+    montant_a_payer = 0
     
-    # eleves = Eleve.objects.all().order_by('-id')[:10]
-    eleves = Eleve.objects.filter().order_by('-id')
-    # print("Count Eleve: ", eleves.count())
+    if classe_courante == None:
+        id_classe_courante = classe_recherchees[0]['id']
+        classe = str(id_classe_courante)+"_"+classe_recherchees[0]['nom_classe']+"_"
+    else:
+        classe_courante, id_classe_courante = classe_courante.split('_')
+        classe = id_classe_courante+"_"+classe_courante+"_"
+        id_classe_courante = int(id_classe_courante)
+        del request.session['classe_courante']
+        request.session.modified = True
+    # print("id_classe_courante------ ",id_classe_courante)
+
+    tranches = TypePayementEleve.objects.values('id','libelle','montant','ordre_paiement').filter(liste_classes__icontains = classe).order_by('ordre_paiement')
+    tranches_paiements = ""
+    for t in tranches:
+        montant_a_payer += t['montant']
+        tranches_paiements += str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"²²"+str(t['ordre_paiement'])+"*²*"
+
+    # tranches_paiements = [tranches_paiements+str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"²²"+str(t['ordre_paiement']) for t in tranches ]
+    # print("montant, tranches_paiements",montant_a_payer, tranches_paiements)
+    # tpe = TypePayementEleve()
+    # TypePayementEleve.objects.filter()
+    #         type_paiement_eleve.liste_classes = liste_classes
+    #         type_paiement_eleve.liste_classes_afficher = liste_classes_afficher
+    #         type_paiement_eleve.indicateur_liste_classes = indicateur_liste_classes
+    
     etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
     sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
     niveaux = []
@@ -1258,8 +1589,11 @@ def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_
     specialitess = []
     specialites = Specialite.objects.values('specialite').filter(~Q(nom_niveau=""),archived = "0")
     
-
-
+    # eleves = Eleve.objects.all().order_by('-id')[:10]
+    eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe_courante\
+            ).order_by('matricule')
+    
+    print("classe_", id_classe_courante)
     if etabs.count() > 0:
         id_sousetab0 = sousetabs[0]['id']
         # cycles = Cycle.objects.values('id','nom_cycle').filter(archived = "0",id_sousetab = id_sousetab0)
@@ -1324,7 +1658,7 @@ def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_
     
     etablissement = Etab.objects.all().order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = EtablissementForm  
     paginator = Paginator(etablissement, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1366,7 +1700,7 @@ def liste_sous_etablissements(request, page=1, nbre_element_par_page=pagination_
     
     s_etablissements = SousEtab.objects.all().order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
     
     form = SousEtablissementForm  
     paginator = Paginator(s_etablissements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1407,7 +1741,7 @@ def liste_cycles(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
     cycles = Cycle.objects.filter(archived = "0").order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = CycleForm  
     paginator = Paginator(cycles, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1448,7 +1782,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
     niveaux = Niveau.objects.filter(archived = "0").order_by('-id')
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     form = NiveauForm  
     paginator = Paginator(niveaux, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -1487,7 +1821,7 @@ def liste_niveaux(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    classes = Classe.objects.filter(archived = "0").order_by('nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('nom_classe')
     specialitess = Specialite.objects.values('specialite').filter(archived = "0").order_by('specialite').distinct()
 
     # liste_classes = "1_3eAll1_2_3eAll2_3_3eAll3_"
@@ -1496,7 +1830,7 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 
     form = ClasseForm  
-    paginator = Paginator(classes, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+    paginator = Paginator(classesAll, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
 
     try:
         # La définition de nos URL autorise comme argument « page » uniquement 
@@ -1511,7 +1845,7 @@ def liste_classes(request, page=1, nbre_element_par_page=pagination_nbre_element
 
 
     #gestion de la description textuelle de la pagination
-    nbre_item = len(classes)
+    nbre_item = len(classesAll)
 
     first_item_page = (int(page_active.number)-1) * nbre_element_par_page + 1
 
@@ -1619,6 +1953,8 @@ def liste_classe_specialites(request, page=1, nbre_element_par_page=pagination_n
     #     print(clss)
     #     print(inds)
     # classes = Classe.objects.filter(archived = "0").order_by('-specialite')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+
     etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
     sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
     niveaux = []
@@ -1878,8 +2214,53 @@ def liste_disciplines(request, page=1, nbre_element_par_page=pagination_nbre_ele
 
 def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+    paiements = TypePayementEleve.objects.filter(archived = "0", entree_sortie_caisee = "e").order_by('ordre_paiement')
+    etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
+    sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
+    # classe_recherchees = Classe.objects.values('id','nom_classe').filter(archived = "0")
+    type_paiements_eleves = TypePayementEleve.objects.values('liste_classes_afficher', 'indicateur_liste_classes', 'liste_classes').filter(archived = "0", entree_sortie_caisee = "e")
+    # c_r: classe_recherchees, c_r_a: classe_recherchees_afficher
+    c_r = []
+    c_r_a = []
+    type_paiements_eleves_afficher, type_paiements_eleves_ = [], []
+    passee = False
+    for tpe in type_paiements_eleves:
+        passee = True
+        taille = len(tpe['indicateur_liste_classes'].split("_"))
+        # taille == 1 si c'est une classe
+        # print("***taille tpe['indicateur_liste_classes']:", taille,tpe['indicateur_liste_classes'])
+        if taille == 1:
+            # ici on veut fabriquer les pairs du genre: 6eA_1, 6eB_2
+            liste_classes = tpe['liste_classes'].split("_")
+            # print("* avant liste_classes",liste_classes)
+            pair = liste_classes[0:][::2]
+            impair = liste_classes[1:][::2]
+            # print("#pair",pair)
+            # print("#impair",impair)
+            liste_classes = []
+            i = 0
+            for j in impair:
+                liste_classes.append(j+"_"+pair[i])
+                i += 1
+            # print("##liste_classes",liste_classes)
+            i = 0
+            for c in liste_classes:
+                if c not in c_r:
+                    c_r_a.append(c.split('_')[0])
+                    c_r.append(c)
+                i += 1
+        elif tpe['indicateur_liste_classes'] not in c_r:
+            print("tpe['indicateur_liste_classes']",tpe['indicateur_liste_classes'])
+            c_r_a.append(tpe['liste_classes_afficher'] )
+            c_r.append(tpe['indicateur_liste_classes'])
+    if passee == True:
+        zipped_lists = zip(c_r_a, c_r)
+        sorted_pairs = sorted(zipped_lists)
 
+        tuples = zip(*sorted_pairs)
+        type_paiements_eleves_afficher, type_paiements_eleves_ = [ list(tuple) for tuple in  tuples]
+        # print(type_paiements_eleves_afficher)
+        # print(type_paiements_eleves_)
 
     form = TypePayementEleveForm  
     paginator = Paginator(paiements, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -2040,7 +2421,7 @@ def liste_cours(request, page=1, nbre_element_par_page=pagination_nbre_element_p
     
     cours = Cours.objects.all().order_by('code_matiere')
     
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
     
     form = CoursForm  
     paginator = Paginator(cours, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
@@ -2788,7 +3169,8 @@ def suppression_type_paiement_eleve(request):
 
     id = int(request.POST['id_supp'])
     print("id = ", id)    
-    TypePayementEleve.objects.filter(pk=id).update(archived="1")
+    TypePayementEleve.objects.filter(pk=id).delete()
+    # TypePayementEleve.objects.filter(pk=id).update(archived="1")
 
     return redirect('mainapp:liste_types_paiements_eleve')
 
@@ -3823,6 +4205,9 @@ def recherche_eleve(request):
             donnees = request.POST['form_data']
             donnees = donnees.split("²²~~")
 
+            # tailles_donnees = 5 si on veut voir les payements pour une classe
+            tailles_donnees = len(donnees)
+
             donnees_recherche = donnees[0]
             page = donnees[1]
 
@@ -3830,9 +4215,10 @@ def recherche_eleve(request):
 
             trier_par = donnees[3]
 
-            
-            eleves = find_eleve(donnees_recherche,trier_par)
-
+            # if tailles_donnees == 4:
+            #     eleves = find_eleve(donnees_recherche,trier_par,"1")
+            # else:
+            eleves = find_eleve(donnees_recherche,trier_par,donnees[4])
 
             if (nbre_element_par_page == -1):
                 nbre_element_par_page = len(eleves)
@@ -3911,19 +4297,22 @@ def recherche_eleve(request):
            
             return JSONResponse(data) 
 
-def find_eleve(recherche, trier_par):
+def find_eleve(recherche, trier_par, classe_recherchee):
     
+    classe, id_classe = classe_recherchee.split("_")
+    id_classe = int(id_classe)
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            eleves = Eleve.objects.order_by('-id')
+            eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe).order_by('-id')
         else:
-            eleves = Eleve.objects.order_by(trier_par)
+            eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe).order_by(trier_par)
 
     else:
         if (trier_par == "non defini"):
             # Q(archived ="0") &
             eleves = Eleve.objects.filter(Q(archived ="0") &
-                (Q(matricule__icontains=recherche) |
+                (Q(id_classe_actuelle = id_classe) |
+                Q(matricule__icontains=recherche) |
                 Q(nom__icontains=recherche) |
                 Q(prenom__icontains=recherche) |
                 Q(sexe__icontains=recherche)|
@@ -3938,13 +4327,15 @@ def find_eleve(recherche, trier_par):
                 Q(tel_pere__icontains=recherche)|
                 Q(tel_mere__icontains=recherche)|
                 Q(email_pere__icontains=recherche)|
+                Q(classe_actuelle__icontains=recherche)|
                 Q(email_mere__icontains=recherche))
             ).distinct()
 
         else:
 
             eleves = Eleve.objects.filter(Q(archived ="0") &
-                (Q(matricule__icontains=recherche) |
+                (Q(id_classe_actuelle = id_classe) |
+                Q(matricule__icontains=recherche) |
                 Q(nom__icontains=recherche) |
                 Q(prenom__icontains=recherche) |
                 Q(sexe__icontains=recherche)|
@@ -3959,8 +4350,22 @@ def find_eleve(recherche, trier_par):
                 Q(tel_pere__icontains=recherche)|
                 Q(tel_mere__icontains=recherche)|
                 Q(email_pere__icontains=recherche)|
+                Q(classe_actuelle__icontains=recherche)|
                 Q(email_mere__icontains=recherche))
             ).distinct().order_by(trier_par)
+    # else:
+    #     classe, id_classe = classe_recherchee.split("_")
+    #     if classe == "tous":
+    #          eleves = Eleve.objects.filter(archived ="0")
+    #     else:
+    #         matricule = "matricule"
+    #         classe_recherchee = id_classe+"_"+classe+"_"
+    #         id_classe = int(id_classe)
+
+    #         eleves = Eleve.objects.filter(Q(archived ="0") &
+    #                     (Q(id_classe_actuelle = id_classe)
+    #                     )
+    #                 ).order_by(matricule)
 
     eleves_serializers = EleveSerializer(eleves, many=True)
 
@@ -5873,6 +6278,9 @@ def recherche_type_paiement_eleve(request):
         if(request.is_ajax()):
             donnees = request.POST['form_data']
             donnees = donnees.split("²²~~")
+            # print("taille des données: ", len(donnees))
+            # tailles_donnees = 5 si on veut voir les payements pour une classe
+            tailles_donnees = len(donnees)
 
             donnees_recherche = donnees[0]
             page = donnees[1]
@@ -5881,8 +6289,11 @@ def recherche_type_paiement_eleve(request):
 
             trier_par = donnees[3]
 
-            
-            paiements = find_type_paiement_eleve(donnees_recherche,trier_par)
+            if tailles_donnees == 4:
+                paiements = find_type_paiement_eleve(donnees_recherche,trier_par,"1")
+            else:
+                paiements = find_type_paiement_eleve(donnees_recherche,trier_par,donnees[4])
+
 
             
             if (nbre_element_par_page == -1):
@@ -5962,40 +6373,64 @@ def recherche_type_paiement_eleve(request):
            
             return JSONResponse(data) 
 
-def find_type_paiement_eleve(recherche, trier_par):
+def find_type_paiement_eleve(recherche, trier_par, classe_recherchee):
 
-    if recherche == "" or not recherche:
-        if (trier_par == "non defini"):
-            paiements = TypePayementEleve.objects.filter(archived = "0").order_by('-id')
+    if classe_recherchee == "1":
+        if recherche == "" or not recherche:
+            if (trier_par == "non defini"):
+                paiements = TypePayementEleve.objects.filter(archived = "0", entree_sortie_caisee = "e").order_by('-id')
+            else:
+                paiements = TypePayementEleve.objects.filter(archived = "0", entree_sortie_caisee = "e").order_by(trier_par)
+
         else:
-            paiements = TypePayementEleve.objects.filter(archived = "0").order_by(trier_par)
+            if (trier_par == "non defini"):
 
+                paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                    (Q(entree_sortie_caisee="e") |
+                    Q(libelle__icontains=recherche) |
+                    Q(date_deb__icontains=recherche) |
+                    Q(date_fin__icontains=recherche) |
+                    Q(liste_classes_afficher__icontains=recherche) |
+                    Q(entree_sortie_caisee__icontains=recherche) |
+                    Q(montant__icontains=recherche) 
+                    )
+                ).distinct()
+
+            else:
+                print("*******recherche ",recherche)
+                paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                    (Q(entree_sortie_caisee="e") |
+                    Q(libelle__icontains=recherche) |
+                    Q(date_deb__icontains=recherche) |
+                    Q(date_fin__icontains=recherche) |
+                    Q(liste_classes_afficher__icontains=recherche) |
+                    Q(entree_sortie_caisee__icontains=recherche) |
+                    Q(montant__icontains=recherche)
+                    )
+                ).distinct().order_by(trier_par)
     else:
-        if (trier_par == "non defini"):
-
-            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
-                (Q(libelle__icontains=recherche) |
-                Q(date_deb__icontains=recherche) |
-                Q(date_fin__icontains=recherche) |
-                Q(entree_sortie_caisee__icontains=recherche) |
-                Q(montant__icontains=recherche) 
-                )
-            ).distinct()
-
+        info = classe_recherchee.split("_")
+        print("classe_recherchee: ", classe_recherchee)
+        if len(info) == 2:
+            print("len == 2")
+            if info[0] == "tous":
+                paiements = TypePayementEleve.objects.filter(archived ="0", entree_sortie_caisee = "e")
+            else:
+                classe_recherchee = info[1]+"_"+info[0]+"_"
+                paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                        (Q(entree_sortie_caisee="e")|
+                        Q(liste_classes__icontains=classe_recherchee)
+                        )
+                    ).order_by('ordre_paiement')
         else:
-            print("*******recherche ",recherche)
+            liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes__iexact = classe_recherchee)[0]['liste_classes']
             paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
-                (Q(libelle__icontains=recherche) |
-                Q(date_deb__icontains=recherche) |
-                Q(date_fin__icontains=recherche) |
-                Q(entree_sortie_caisee__icontains=recherche) |
-                Q(montant__icontains=recherche)
-                )
-            ).distinct().order_by(trier_par)
+                        (Q(entree_sortie_caisee="e")|
+                        Q(indicateur_liste_classes__icontains=classe_recherchee)|
+                        Q(liste_classes__icontains=liste_classes)
+                        )
+                    ).order_by('ordre_paiement')
 
-            
-
-    # cycles_serializers = EtabCyclesSerializer(cycles, many=True)
     paiements_serializers = TypePayementEleveSerializer(paiements, many=True)
 
     return paiements_serializers.data
@@ -7925,7 +8360,7 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
 
     first_cours = Cours.objects.filter(id_classe = id)[0];
 
-    classes = Classe.objects.filter(archived = "0").order_by('-nom_classe')
+    classesAll = Classe.objects.filter(archived = "0").order_by('-nom_classe')
 
     sous_etab = SousEtab.objects.filter(archived = "0").all()[0]
     sous_etabs = SousEtab.objects.filter(archived = "0").all()
@@ -8747,17 +9182,19 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                     if pd.isnull(df2[df2.columns[1]].values[indc])== False:
                                         enseignant.prenom = df2[df2.columns[1]].values[indc]
                                     if pd.isnull(df2[df2.columns[2]].values[indc])== False:
-                                        enseignant.date_entree = df2[df2.columns[2]].values[indc]
+                                        enseignant.sexe = df2[df2.columns[2]].values[indc]
                                     if pd.isnull(df2[df2.columns[3]].values[indc])== False:
-                                        enseignant.tel1 = df2[df2.columns[3]].values[indc]
+                                        enseignant.date_entree = df2[df2.columns[3]].values[indc]
                                     if pd.isnull(df2[df2.columns[4]].values[indc])== False:
-                                        enseignant.email = df2[df2.columns[4]].values[indc]
+                                        enseignant.tel1 = df2[df2.columns[4]].values[indc]
                                     if pd.isnull(df2[df2.columns[5]].values[indc])== False:
-                                        enseignant.mapiere_specialisation1 = df2[df2.columns[5]].values[indc]
+                                        enseignant.email = df2[df2.columns[5]].values[indc]
                                     if pd.isnull(df2[df2.columns[6]].values[indc])== False:
-                                        enseignant.mapiere_specialisation2 = df2[df2.columns[6]].values[indc]
+                                        enseignant.mapiere_specialisation1 = df2[df2.columns[6]].values[indc]
                                     if pd.isnull(df2[df2.columns[7]].values[indc])== False:
-                                        enseignant.mapiere_specialisation3 = df2[df2.columns[7]].values[indc]
+                                        enseignant.mapiere_specialisation2 = df2[df2.columns[7]].values[indc]
+                                    if pd.isnull(df2[df2.columns[8]].values[indc])== False:
+                                        enseignant.mapiere_specialisation3 = df2[df2.columns[8]].values[indc]
                                 nb_lign -= 1
                                 indc += 1
                                 if cross == 1:
@@ -8774,7 +9211,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                 if xl.sheet_names[cpt_sheet2] == indice+"_"+list_classe[nc]:
                                     print("Classe: ", list_classe[nc], " en cours d'analyse ...")
                                     df2 = pd.read_excel(location, sheet_name=xl.sheet_names[cpt_sheet2])
-                                    # print(df2.columns)
+                                    id_classe_actuelle = Classe.objects.values('id').filter(nom_classe__iexact = list_classe[nc])[0]['id']
                                     nb_lign = len(df2[df2.columns[0]])
                                     indc = 0
                                     cross = 0
@@ -8786,34 +9223,38 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                             print(df2[df2.columns[0]].values[indc])
                                             cross = 1
                                             eleve = Eleve()
+                                            eleve.classe_actuelle = list_classe[nc]
+                                            eleve.id_classe_actuelle = id_classe_actuelle
                                             eleve.nom = df2[df2.columns[0]].values[indc]
                                             if pd.isnull(df2[df2.columns[1]].values[indc])== False:
                                                 eleve.prenom = df2[df2.columns[1]].values[indc]
                                             if pd.isnull(df2[df2.columns[2]].values[indc])== False:
-                                                eleve.date_naissance = str(Timestamp(df2[df2.columns[2]].values[indc])).split(" ")[0]
+                                                eleve.sexe = df2[df2.columns[2]].values[indc]
                                             if pd.isnull(df2[df2.columns[3]].values[indc])== False:
-                                                eleve.lieu_naissance = df2[df2.columns[3]].values[indc]
+                                                eleve.date_naissance = str(Timestamp(df2[df2.columns[3]].values[indc])).split(" ")[0]
                                             if pd.isnull(df2[df2.columns[4]].values[indc])== False:
-                                                eleve.date_entree = df2[df2.columns[4]].values[indc]
+                                                eleve.lieu_naissance = df2[df2.columns[4]].values[indc]
                                             if pd.isnull(df2[df2.columns[5]].values[indc])== False:
-                                                eleve.redouble = df2[df2.columns[5]].values[indc]
+                                                eleve.date_entree = df2[df2.columns[5]].values[indc]
                                             if pd.isnull(df2[df2.columns[6]].values[indc])== False:
-                                                eleve.nom_pere = df2[df2.columns[6]].values[indc]
+                                                eleve.redouble = df2[df2.columns[6]].values[indc]
                                             if pd.isnull(df2[df2.columns[7]].values[indc])== False:
-                                                eleve.email_pere = df2[df2.columns[7]].values[indc]
+                                                eleve.nom_pere = df2[df2.columns[7]].values[indc]
                                             if pd.isnull(df2[df2.columns[8]].values[indc])== False:
-                                                eleve.tel_pere = df2[df2.columns[8]].values[indc]
+                                                eleve.email_pere = df2[df2.columns[8]].values[indc]
                                             if pd.isnull(df2[df2.columns[9]].values[indc])== False:
-                                                eleve.nom_mere = df2[df2.columns[9]].values[indc]
+                                                eleve.tel_pere = df2[df2.columns[9]].values[indc]
                                             if pd.isnull(df2[df2.columns[10]].values[indc])== False:
-                                                eleve.email_mere = df2[df2.columns[10]].values[indc]
+                                                eleve.nom_mere = df2[df2.columns[10]].values[indc]
                                             if pd.isnull(df2[df2.columns[11]].values[indc])== False:
-                                                eleve.tel_mere = df2[df2.columns[11]].values[indc]
+                                                eleve.email_mere = df2[df2.columns[11]].values[indc]
+                                            if pd.isnull(df2[df2.columns[12]].values[indc])== False:
+                                                eleve.tel_mere = df2[df2.columns[12]].values[indc]
                                             
-                                            if(indc % 2 ==0):
-                                                eleve.sexe = "masculin"
-                                            else:
-                                                eleve.sexe = "feminin"
+                                            # if(indc % 2 ==0):
+                                            #     eleve.sexe = "masculin"
+                                            # else:
+                                            #     eleve.sexe = "feminin"
 
                                             if(indc % 3 ==0):
                                                 eleve.etat_sante = "0"

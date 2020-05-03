@@ -1,9 +1,318 @@
 $(document).ready(function(){
+$("#datetimepicker1").datetimepicker();
+$("#datetimepicker2").datetimepicker();
 
+$("body").on("change", ".entree_sortie_caisee2", function() {
+
+  if ($(this).val() == "s"){
+    $(".montant").removeAttr('required');
+    $(".ordre_paiement").removeAttr('required');
+    // $(".date_deb").removeAttr('required');
+    // $(".date_fin").removeAttr('required');
+    // $(".date_ordre_paiement").prop("hidden", true);
+    $(".montant_label").text("Montant");
+  }
+  else{
+    $(".montant").prop("required", true);
+    // $(".date_ordre_paiement").removeAttr('hidden');
+    // $(".date_deb").prop("required", true);
+    // $(".date_fin").prop("required", true);
+    $(".ordre_paiement").prop("required", true);
+    $(".montant_label").text("Montant*");
+  }
+});
+
+$(".choix_etab").on("change", function(){
+  // On met la variable position à 1 pour indiquer que c'est etab qui a changé
+
+    etab = $('.choix_etab').val()
+    position = "1";
+    id_etab = etab.split("_")[1];
+    etab = etab.split("_")[0];
+
+    var form = $(".load_type_payement_eleve_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_etab + "²²~~" + etab + "²²~~" + id_etab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    });
+
+$(".choix_sousetab").on("change", function(){
+  // On met la variable position à 2 pour indiquer que c'est sousetab qui a changé
+    sousetab = $('.choix_sousetab').val();
+    id_etab = $('.choix_etab').val().split("_")[1];
+    position = "2";
+    id_sousetab = sousetab.split("_")[1];
+    sousetab = sousetab.split("_")[0];
+    if (id_sousetab == "all"){
+       $('.choix_cycle').empty();
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+    }else{
+          var form = $(".load_type_payement_eleve_ajax");
+          var url_action = form.attr("action");
+          var donnees = position + "²²~~" + id_sousetab + "²²~~" + sousetab + "²²~~" + id_etab;
+
+           $.ajax({
+               method: 'POST',
+               url: url_action,
+               data: {
+                 form_data : donnees,
+                 csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+               },
+               success: gererSucces2,
+               error: gererErreur2,
+           });
+     }
+    
+    });
+  $(".choix_cycle").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est cycle qui a changé
+    cycle = $('.choix_cycle').val();
+    id_sousetab = $('.choix_cycle').val().split("_")[1];
+    position = "3";
+    id_cycle = cycle.split("_")[1];
+    cycle = cycle.split("_")[0];
+
+    if (id_cycle == "all"){
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+    }else{
+
+        var form = $(".load_type_payement_eleve_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_cycle + "²²~~" + cycle + "²²~~" + id_sousetab;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    }
+    });
+    $(".choix_niveau").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    niveau = $('.choix_niveau').val();
+    id_cycle = $('.choix_niveau').val().split("_")[1];
+    position = "4";
+    id_niveau = niveau.split("_")[1];
+    niveau = niveau.split("_")[0];
+
+    if (id_niveau == "all"){
+          $('.specialite').empty();
+          $('#liste_classes_niveaux').empty();
+          $('.choix_classes').empty();
+    }else{
+        var form = $(".load_type_payement_eleve_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + niveau + "²²~~" + id_cycle;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    }
+    });
+
+  $(".specialite").on("change", function(){
+  // On met la variable position à 3 pour indiquer que c'est niveau qui a changé
+    specialite = $('.specialite').val();
+    id_niveau = $('.choix_niveau').val().split("_")[1];
+    position = "5";
+    // id_specialite = specialite.split("_")[1];
+    specialite = specialite.split("_")[0];
+
+ /*if (specialite == "tous"){
+          $('#liste_classes_niveaux').empty();
+          $('#liste_classes_niveaux').append(`Classes:&nbsp;&nbsp;&nbsp;`);
+          $('#liste_classes_niveaux').append(`<select name="choix_classes" style="width:200px;" class="choix_classes" size="4" multiple>
+                                 </select>`);
+    }else{*/
+        var form = $(".load_type_payement_eleve_ajax");
+        var url_action = form.attr("action");
+        var donnees = position + "²²~~" + id_niveau + "²²~~" + specialite + "²²~~" + id_niveau;
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+    // }
+
+    });
+
+function gererSucces2(data) {
+  console.log(data);
+  choix = data.choix;
+
+  if (choix == "etab") {
+          liste_sousetabs = data.sousetabs;
+          nbre_sousetabs = liste_sousetabs.length;
+          
+
+          $('.choix_sousetab').empty();
+          $('.choix_cycle').empty();
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+          
+          $('.choix_sousetab').append(`<option value=tous_all>Tous`)
+           for (var i = 0; i < nbre_sousetabs; i++) {
+              nom_sousetab = liste_sousetabs[i].nom_sousetab                      
+              id = liste_sousetabs[i].id;
+              option = nom_sousetab+"_"+id;
+              $('.choix_sousetab').append(`<option value="${option}"> 
+                                         ${nom_sousetab} 
+                                    </option>`);
+           }
+      }
+  if (choix == "sousetab") {
+          liste_cycles = data.cycles;
+          nbre_cycles = liste_cycles.length;
+          
+          $('.choix_cycle').empty();
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+          $('.choix_cycle').append(`<option value=tous_all>Tous`)
+           for (var i = 0; i < nbre_cycles; i++) {
+              nom_cycle = liste_cycles[i].nom_cycle                      
+              id = liste_cycles[i].id;
+              option = nom_cycle+"_"+id;
+              $('.choix_cycle').append(`<option value="${option}"> 
+                                         ${nom_cycle} 
+                                    </option>`);
+           }
+     }
+  if (choix == "cycle") {
+          liste_niveaux = data.niveaux;
+          nbre_niveaux = liste_niveaux.length;
+          
+          $('.choix_niveau').empty();
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+          $('.choix_niveau').append(`<option value=tous_all>Tous`)
+           for (var i = 0; i < nbre_niveaux; i++) {
+              nom_niveau = liste_niveaux[i].nom_niveau                      
+              id = liste_niveaux[i].id;
+              option = nom_niveau+"_"+id;
+              $('.choix_niveau').append(`<option value="${option}"> 
+                                         ${nom_niveau} 
+                                    </option>`);
+           }
+     }
+  if (choix == "niveau") {
+          liste_specialites = data.specialites;
+          nbre_specialites = liste_specialites.length;
+
+          liste_classes = data.classes;
+          nbre_classes = liste_classes.length;
+          
+          $('.specialite').empty();
+          $('.choix_classes').empty();
+          if (nbre_specialites != 0)
+            $('.specialite').append(`<option value=tous_all>Toutes`);
+          $('.specialite').append(`<option value=aucune_aucune>Sans spécialité`);
+           for (var i = 0; i < nbre_specialites; i++) {
+              specialite = liste_specialites[i].specialite                      
+              id = liste_specialites[i].id;
+              option = specialite+"_"+id;
+              $('.specialite').append(`<option value="${option}"> 
+                                         ${specialite} 
+                                    </option>`);
+           }
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe                      
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+              $('.choix_classes').append(`<option value="${option}"> 
+                                         ${nom_classe} 
+                                    </option>`);
+           }
+     }
+
+    if (choix == "specialite") {
+          liste_classes = data.classes;
+          nbre_classes = liste_classes.length;
+          
+          $('.choix_classes').empty();
+
+           for (var i = 0; i < nbre_classes; i++) {
+              nom_classe = liste_classes[i].nom_classe                      
+              id = liste_classes[i].id;
+              option = nom_classe+"_"+id;
+              $('.choix_classes').append(`<option value="${option}"> 
+                                         ${nom_classe} 
+                                    </option>`);
+           }
+     }
+
+  } 
+
+function gererErreur2(error) {
+    $("#message").text(error);
+        console.log(error);
+}
+
+// Lorsqu'on veut voir les paiements d'une autre classe
+$("body").on("change", "#classe_recherchee", function() {
+
+        $("#message").text("");
+        var recherche = $("#recherche").val().trim();
+        var nbre_element_par_page = $("#nbre_element_par_page").val();
+        var numero_page = " "
+
+        var form = $(".recherche_paiement");
+        var url_action = form.attr("action");
+        var classe_recherchee = $("#classe_recherchee").val();
+        var trier_par = "non defini";
+
+        var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee ;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces,
+             error: gererErreur,
+         });
+});
+
+// Debut de la recherche
    $(".recherche").keyup(function(e) {
 
         e.stopImmediatePropagation(); 
-
+        $("#classe_recherchee").val("tous_all");
         $("#message").text("");
         var recherche = $("#recherche").val().trim();
         var nbre_element_par_page = $("#nbre_element_par_page").val();
@@ -76,10 +385,13 @@ $(document).ready(function(){
                       date_fin = liste_paiements[i].date_fin;
                       entree_sortie_caisee = liste_paiements[i].entree_sortie_caisee;                   
                       montant = liste_paiements[i].montant                      
+                      liste_classes_afficher = liste_paiements[i].liste_classes_afficher
+                      ordre_paiement = liste_paiements[i].ordre_paiement                      
+
                       id = liste_paiements[i].id;
                       // alert(nom_etab, classe, libelle, id);
-                        nouvelle_ligne = "<tr class='"+ id +'²²'+ libelle +'²²'+ date_deb +'²²'+ date_fin +'²²'+ entree_sortie_caisee +'²²'+ montant +"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
-                    '</th><td style="text-transform: uppercase;" class="detail-paiement-link-td fix-col1">'+ libelle + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ entree_sortie_caisee + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ montant +'</td><td class="td-actions text-right">';
+                        nouvelle_ligne = "<tr class='"+ id +'²²'+ libelle +'²²'+ date_deb +'²²'+ date_fin +'²²'+ entree_sortie_caisee +'²²'+ montant +'²²'+ liste_classes_afficher +'²²'+ ordre_paiement+"'>" + '<th scope="row" class="fix-col">'+ (i+1) +
+                    '</th><td style="text-transform: uppercase;" class="detail-paiement-link-td fix-col1">'+ libelle + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_deb + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ date_fin + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ entree_sortie_caisee + '</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ montant +'</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ liste_classes_afficher +'</td><td style="text-transform: uppercase;" class="detail-paiement-link-td">'+ ordre_paiement +'</td><td class="td-actions text-right">';
                     view = '<button type="button" rel="tooltip" class="detail-paiement-link-td btn" data-toggle="modal" data-target="#modal_detail_paiement"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-paiement-link-ajax btn"><i class="material-icons">edit</i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-paiement-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
@@ -195,14 +507,14 @@ $(document).ready(function(){
         $("#modal_ajouter_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
         $("#modal_ajouter_paiement .montant").val(montant);
         $("#modal_ajouter_paiement .classe").val(classe);*/
-        $("#id_modif").val(id);
+        // $("#id_modif").val(id);
 
         $("#modal_ajouter_paiement .libelle").val("");
         $("#modal_ajouter_paiement .date_deb").val("");
         $("#modal_ajouter_paiement .date_fin").val("");
         $("#modal_ajouter_paiement .entree_sortie_caisee").val("");
         $("#modal_ajouter_paiement .montant").val("");
-        $("#modal_ajouter_paiement .classe").val("");
+        $("#modal_ajouter_paiement .liste_classes_afficher").val("");
 
     });
 
@@ -219,14 +531,16 @@ $(document).ready(function(){
         date_fin = tab_element[3];
         entree_sortie_caisee = tab_element[4];
         montant = parseFloat(tab_element[5]);
-        classe = tab_element[6];
+        liste_classes_afficher = tab_element[6];
+        ordre_paiement = tab_element[7];
       
         $("#modal_detail_paiement .libelle").val(libelle);
         $("#modal_detail_paiement .date_deb").val(date_deb);
         $("#modal_detail_paiement .date_fin").val(date_fin);
         $("#modal_detail_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
         $("#modal_detail_paiement .montant").val(montant);
-        $("#modal_detail_paiement .classe").val(classe);
+        $("#modal_detail_paiement .liste_classes_afficher").val(liste_classes_afficher);
+        $("#modal_detail_paiement .ordre_paiement").val(ordre_paiement);
         $("#id_modif").val(id);
 
         $("#modal_detail_paiement .libelle").attr("disabled", "True");
@@ -234,7 +548,8 @@ $(document).ready(function(){
         $("#modal_detail_paiement .date_fin").attr("disabled", "True");
         $("#modal_detail_paiement .entree_sortie_caisee").attr("disabled", "True");
         $("#modal_detail_paiement .montant").attr("disabled", "True");
-        $("#modal_detail_paiement .classe").attr("disabled", "True");
+        $("#modal_detail_paiement .liste_classes_afficher").attr("disabled", "True");
+        $("#modal_detail_paiement .ordre_paiement").attr("disabled", "True");
 
     });
 
@@ -250,13 +565,16 @@ $(document).ready(function(){
         date_fin = tab_element[3];
         entree_sortie_caisee = tab_element[4];
         montant = parseFloat(tab_element[5]);
-        classe = tab_element[6];
+        liste_classes_afficher = tab_element[6];
+        ordre_paiement = tab_element[7];
+
         $("#modal_modifier_paiement .libelle").val(libelle);
         $("#modal_modifier_paiement .date_deb").val(date_deb);
         $("#modal_modifier_paiement .date_fin").val(date_fin);
         $("#modal_modifier_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
         $("#modal_modifier_paiement .montant").val(montant);
-        $("#modal_modifier_paiement .classe").val(classe);
+        $("#modal_modifier_paiement .liste_classes_afficher").val(liste_classes_afficher);
+        $("#modal_modifier_paiement .ordre_paiement").val(ordre_paiement);
         $("#id_modif").val(id);
 
         $("#modal_modifier_paiement .libelle").removeAttr("disabled");
@@ -264,7 +582,8 @@ $(document).ready(function(){
         $("#modal_modifier_paiement .date_fin").removeAttr("disabled");
         $("#modal_modifier_paiement .entree_sortie_caisee").removeAttr("disabled");
         $("#modal_modifier_paiement .montant").removeAttr("disabled");
-        $("#modal_modifier_paiement .classe").removeAttr("disabled");
+        $("#modal_modifier_paiement .liste_classes_afficher").removeAttr("disabled");
+        $("#modal_modifier_paiement .ordre_paiement").removeAttr("disabled");
 
     });
 
@@ -282,7 +601,9 @@ $(document).ready(function(){
       date_fin = tab_element[3];
       entree_sortie_caisee = tab_element[4];
       montant = parseFloat(tab_element[5]);
-      classe = tab_element[6];
+      liste_classes_afficher = tab_element[6];
+      ordre_paiement = tab_element[7];
+
       
       $("#id_supp").val(id);
       $("#modal_supprimer_paiement .libelle").text(libelle);
@@ -290,7 +611,8 @@ $(document).ready(function(){
       $("#modal_supprimer_paiement .date_fin").text(date_fin);
       $("#modal_supprimer_paiement .entree_sortie_caisee").text(entree_sortie_caisee);
       $("#modal_supprimer_paiement .montant").text(montant);
-      $("#modal_supprimer_paiement .classe").text(classe);
+      $("#modal_supprimer_paiement .liste_classes_afficher").text(liste_classes_afficher);
+      $("#modal_supprimer_paiement .ordre_paiement").text(ordre_paiement);
     
     });
 
@@ -298,6 +620,7 @@ $(document).ready(function(){
 
         e.stopImmediatePropagation(); 
         $("#message").text("");
+        $("#classe_recherchee").val("tous_all");
         var recherche = $("#recherche").val().trim();
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         numero_page = " "
@@ -351,7 +674,8 @@ $(document).ready(function(){
           date_fin = tab_element[3];
           entree_sortie_caisee = tab_element[4];
           montant = parseFloat(tab_element[5]);
-          classe = tab_element[6];
+          liste_classes_afficher = tab_element[6];
+          ordre_paiement = tab_element[7];
 
           $("#id_supp").val(id);
           $("#modal_supprimer_paiement .libelle").text(libelle);
@@ -359,7 +683,8 @@ $(document).ready(function(){
           $("#modal_supprimer_paiement .date_fin").text(date_fin);
           $("#modal_supprimer_paiement .entree_sortie_caisee").text(entree_sortie_caisee);
           $("#modal_supprimer_paiement .montant").text(montant);
-          $("#modal_supprimer_paiement .classe").text(classe);
+          $("#modal_supprimer_paiement .liste_classes_afficher").text(liste_classes_afficher);
+          $("#modal_supprimer_paiement .ordre_paiement").text(ordre_paiement);
 
     });
 
@@ -376,21 +701,25 @@ $(document).ready(function(){
         date_fin = tab_element[3];
         entree_sortie_caisee = tab_element[4];
         montant = parseFloat(tab_element[5]);
-        classe = tab_element[6];
+        liste_classes_afficher = tab_element[6];
+        ordre_paiement = tab_element[7];
+
 
         $("#modal_modifier_paiement .montant").val(montant);
-        $("#modal_modifier_paiement .classe").val(classe);
+        $("#modal_modifier_paiement .liste_classes_afficher").val(liste_classes_afficher);
         $("#modal_modifier_paiement .date_deb").val(date_deb);
         $("#modal_modifier_paiement .libelle").val(libelle);
         $("#modal_modifier_paiement .date_fin").val(date_fin);
         $("#modal_modifier_paiement .entree_sortie_caisee").val(entree_sortie_caisee);
+        $("#modal_modifier_paiement .ordre_paiement").val(ordre_paiement);
         $("#id_modif").val(id);
 
         $("#modal_modifier_paiement .montant").removeAttr("disabled");
-        $("#modal_modifier_paiement .classe").removeAttr("disabled");
+        $("#modal_modifier_paiement .liste_classes_afficher").removeAttr("disabled");
         $("#modal_modifier_paiement .libelle").removeAttr("disabled");
         $("#modal_modifier_paiement .date_fin").removeAttr("disabled");
         $("#modal_modifier_paiement .entree_sortie_caisee").removeAttr("disabled");
+        $("#modal_modifier_paiement .ordre_paiement").removeAttr("disabled");
         $("#modal_modifier_paiement .date_deb").removeAttr("disabled");
 
     });
@@ -399,6 +728,7 @@ $(document).ready(function(){
     $("body").on("click", ".pagination-element", function(e) {
 
           e.stopImmediatePropagation();
+          $("#classe_recherchee").val("tous_all");
 
           var numero_page = $(this).attr('id');
           
@@ -450,7 +780,7 @@ $(document).ready(function(){
    $("body").on("click", ".tri-asc", function(e) {
 
         e.stopImmediatePropagation();
-
+        $("#classe_recherchee").val("tous_all");
         $(".tri").find("img").attr("src", "/static/images/arrow.png");
         $(this).find("img").attr("src", "/static/images/up.png");
 
@@ -488,7 +818,7 @@ $(document).ready(function(){
    $("body").on("click", ".tri-desc", function(e) {
 
         e.stopImmediatePropagation();
-
+        $("#classe_recherchee").val("tous_all");
         $(".tri").find("img").attr("src", "/static/images/arrow.png");
         $(this).find("img").attr("src", "/static/images/down.png");        
 

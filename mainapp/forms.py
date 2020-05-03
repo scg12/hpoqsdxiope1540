@@ -661,34 +661,33 @@ class ConditionSuccesForm(forms.Form):
 class TypePayementEleveForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     libelle= forms.CharField(
-        label=_('Libelle'),
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Entrer Libelle', 'class': 'form-control form-group libelle' }),
+        required=True,
+        widget=forms.TextInput(attrs={ 'class': 'form-control form-group libelle', 'name' : 'libelle' }),
     )
-    date_deb= forms.CharField(
-        label=_('Date Début'),
-        max_length=30,
-        widget=forms.TextInput(attrs={'placeholder': '16-07-2020', 'class': 'form-control form-group date_deb' }),
-    )
-    date_fin= forms.CharField(
-        label=_('Date Fin'),
-        max_length=30,
-        widget=forms.TextInput(attrs={'placeholder': '27-09-2020', 'class': 'form-control form-group date_fin' }),
-    )
+    # date_deb= forms.CharField(
+    #     max_length=30,
+    #     required=True,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group date_deb', 'name' : 'date_deb' }),
+    # )
+    # date_fin= forms.CharField(
+    #     max_length=30,
+    #     required=True,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group date_fin', 'name' : 'date_fin' }),
+    # )
     montant= forms.FloatField(
-        label=_('Montant'),
-        widget=forms.TextInput(attrs={'placeholder': '20', 'class': 'form-control form-group montant' }),
+        required=True,
+        widget=forms.TextInput(attrs={ 'class': 'form-control form-group montant','type' : "number", 'min':'0', 'name' : 'montant' }),
     )
-    classe = forms.CharField(
-        label='Classe',
-        max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Classe', 'class': 'form-control form-group classe'}),
+    ordre_paiement= forms.IntegerField(
+        required=True,
+        widget=forms.TextInput(attrs={ 'class': 'form-control form-group ordre_paiement','type' : "number", 'min':'1', 'name' : 'ordre_paiement' }),
     )
-    entree_sortie_caisee = forms.CharField(
-        label='E/S de Caisse',
-        max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'E/S de Caisse', 'class': 'form-control form-group entree_sortie_caisee'}),
-    ) 
+    # entree_sortie_caisee = forms.CharField(
+    #     max_length=100,
+    #     required=False,
+    #     widget=forms.TextInput(attrs={'class': 'form-control form-group entree_sortie_caisee','name' : 'entree_sortie_caisee'}),
+    # ) 
     
 class TypePayementPersAdministratifForm(forms.Form):
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')

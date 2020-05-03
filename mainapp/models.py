@@ -47,7 +47,6 @@ class Profil(models.Model):
 	def groupes(self):
 		return self.user.groups.all()
 
-
 class Etudiant(models.Model):
     matricule = models.CharField(max_length=200, unique=True)
     nom = models.CharField(max_length=200)
@@ -241,6 +240,7 @@ class Enseignant(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
+    sexe = models.CharField(max_length=20, default='masculin')
     tel1 = models.CharField(max_length=30)
     tel2 = models.CharField(max_length=30)
     tel3 = models.CharField(max_length=30)
@@ -555,7 +555,7 @@ class Eleve(models.Model):
     nom = models.CharField(max_length=100)
     adresse = models.CharField(max_length=200, default="")
     prenom = models.CharField(max_length=150)
-    sexe = models.CharField(max_length=2, default='M')
+    sexe = models.CharField(max_length=20, default='masculin')
     date_naissance = models.CharField(max_length=100)
     lieu_naissance = models.CharField(max_length=100)
     date_entree = models.CharField(max_length=50)
@@ -574,6 +574,18 @@ class Eleve(models.Model):
     age = models.IntegerField(default=0)
     archived = models.CharField(max_length=2,default="0")
     etat_sante = models.CharField(max_length=2,default="0")
+    # On supprimera ,default="6eA" et default=1 pr classe_actuelle et id_classe_actuelle a la prochaine
+    # migartion
+    classe_actuelle = models.CharField(max_length=100)
+    liste_classes_changees = models.CharField(max_length=150,default="")
+    id_classe_actuelle = models.IntegerField()
+    bourse = models.FloatField(default=0)
+    # excedent : ce qui est en plus lorsque l'eleve a tout payé
+    excedent = models.FloatField(default=0)
+    compte = models.FloatField(default=0)
+    # Pr savoir si l'élève a payé la pension pr l'année en cours
+    est_en_regle = models.CharField(max_length=1, default="0")
+
 
     divisions_temps = models.ArrayReferenceField(
         to=DivisionTemps,
@@ -932,15 +944,39 @@ class PayementFacture(models.Model):
 class TypePayementEleve(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
-    date_deb = models.CharField(max_length=20)
-    date_fin = models.CharField(max_length=20)
+    date_deb = models.CharField(max_length=50)
+    date_fin = models.CharField(max_length=50)
     entree_sortie_caisee = models.CharField(max_length=2)
     montant = models.FloatField()
     archived = models.CharField(max_length=2,default="0")
-    classes = models.ArrayReferenceField(
-        to=Classe,
-        #on_delete=models.CASCADE,
-    )
+    liste_classes = models.TextField(default="")
+    liste_classes_afficher = models.TextField(default="")
+    # indicateur_liste_classes permet de savoir ce qui est dans liste_classes
+    # indicateur_liste_classes est sous la forme id_portee ex; 1_etab_College etoile, 
+    # 7_sousetab_Section Fr, 4_cycle_Cycle1, 9_niveau_6e et est vide si liste_classes contient une
+    # liste de classe sous la forme: 1_6eA_2_6eB_...
+    indicateur_liste_classes = models.CharField(max_length=100, default="")
+    # Permet de connaitre l'ordre de payement pour les classes concernées
+    ordre_paiement = models.IntegerField(default=0)
+    
+    
+    objects = models.DjongoManager()
+
+    def __str__(self):
+            return self.libelle
+class Bourse(models.Model):
+    annee_scolaire =  models.CharField(max_length=20)
+    libelle = models.CharField(max_length=100)
+    # Concatenation du nom et prenom
+    nom_eleve = models.CharField(max_length=100)
+    id_eleve = models.IntegerField()
+    matricule_eleve = models.CharField(max_length=20)
+    nom_bourse = models.CharField(max_length=100)
+    id_bourse = models.IntegerField()
+    nom_classe = models.CharField(max_length=100)
+    id_classe = models.IntegerField()
+    montant = models.FloatField()
+    archived = models.CharField(max_length=2,default="0")
     
     objects = models.DjongoManager()
 
@@ -994,7 +1030,7 @@ class SousEtab(models.Model):
     mat_yearindex = models.CharField(max_length=10)
     mat_varyindex = models.CharField(max_length=10)
     archived = models.CharField(max_length=2,default="0")
-    nom_etab = models.CharField(max_length=10)
+    nom_etab = models.CharField(max_length=100)
     id_etab = models.IntegerField()
 
     cycles = models.ArrayReferenceField(

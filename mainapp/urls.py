@@ -14,6 +14,9 @@ url(r'^verrouiller/$', views.verrouiller, name='verrouiller'),
 url(r'^deverrouiller/$', views.deverrouiller, name='deverrouiller'),
 
 url('matformat/', views.matriculeformat, name="matformat"),
+url(r'^paiement-eleve/$', views.paiement_eleve, name="paiement_eleve"),
+url('changement-classe-eleve/', views.changement_classe_eleve, name="changement_classe_eleve"),
+
 
 url(r'mlab/$', views.mlab, name="mlab"),
 url('initialisation-charger-fichier/', views.initialisation_charger_fichier, name="initialisation_charger_fichier"),
@@ -54,7 +57,9 @@ url('liste-types-paiements-cantine.html/', views.liste_types_paiements_cantine, 
 url('liste-types-paiements-transport.html/', views.liste_types_paiements_transport, name="liste_types_paiements_transport"),
 url('liste-types-paiements-dortoir.html/', views.liste_types_paiements_dortoir, name="liste_types_paiements_dortoir"),
 url('liste-types-paiements-facture.html/', views.liste_types_paiements_facture, name="liste_types_paiements_facture"),
+
 url('liste-eleves/', views.liste_eleves, name="liste_eleves"),
+
 
 url('parametres-progression/', views.parametres_progression, name="parametres_progression"),
 url('parametres-cours/', views.parametres_cours, name="parametres_cours"),

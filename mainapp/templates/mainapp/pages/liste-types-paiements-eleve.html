@@ -1,7 +1,7 @@
   {% extends 'mainapp/layouts/base-dashbord.html' %}
 
   {% load i18n static %}
-
+  {% load customfilters %}
   {% block header %}
       
       <script src="{% static 'js/liste-type-paiements-eleve.js' %}"></script>
@@ -32,8 +32,7 @@
       {% block language %}
           <form action="/i18n/setlang/" method="post">
                   {% csrf_token %}
-                  <input name="next" type="hidden" value="{% url 'mainapp:liste_types_paiements_eleve' %}" />
-                  
+                                    
                   <select name="language" onchange="this.form.submit()">
                     {% for lang in LANGUAGES %}
                       {% if LANGUAGE_CODE == lang.0 %}
@@ -70,8 +69,7 @@
 
                         <div class="row">
 
-                            <div class="col-sm-12 col-md-8">
-                                
+                            <div class="col-sm-12 col-md-4">
                                  <label>Afficher </label> 
                                  <select id="nbre_element_par_page" class="form-control-sm">
                                     <option value="10" selected>10</option>
@@ -83,7 +81,15 @@
                                     <option value="-1">Tout</option>
                                   </select> 
                                   <label>Elements</label> 
-                                
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                 <label>Classe: </label> 
+                                 <select id="classe_recherchee" class="form-control-sm">
+                                    <option value="tous_all" selected>Toutes</option>
+                                    {% for c in type_paiements_eleves_afficher %}
+                                      <option value="{{type_paiements_eleves_|getchar2:forloop.counter}}"> {{c}}
+                                    {% endfor %}
+                                  </select> 
                             </div>
 
                             <div class="col-sm-12 col-md-4">
@@ -129,15 +135,21 @@
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
-                                <th scope="col" class="classe">
-                                    <span class="tri tri-asc">Classe
+                                <th scope="col" class="liste_classes_afficher">
+                                    <span class="tri tri-asc">Portée
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="ordre_paiement">
+                                    <span class="tri tri-asc">Ordre Paiement
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
                                     </span>                                  
                                 </th>
                                 <th scope="col" class="text-right">
                                   {% if perms.mainapp.can_add_typepayementeleve or perms.mainapp.add_typepayementeleve %}
                                   <button type="button" rel="tooltip" class="btn btn-sm ajouter-paiement-link" data-toggle="modal" data-target="#modal_ajouter_paiement">
-                                      <i class="material-icons">person_add</i>
+                                     <!--  <i class="material-icons">person_add</i> -->
+                                     <b>+ </b><i class="far fa-sack-dollar fa-2x"> </i>
                                   </button>
                                   {% endif %}
                                 </th>
@@ -147,7 +159,7 @@
                             <tbody>
                                
                                     {% for paiement in paiements  %}
-                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.date_deb }}²²{{ paiement.date_fin }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}²²{{ paiement.classe }}">
+                                    <tr class="{{ paiement.id }}²²{{ paiement.libelle }}²²{{ paiement.date_deb }}²²{{ paiement.date_fin }}²²{{ paiement.entree_sortie_caisee }}²²{{ paiement.montant }}²²{{ paiement.liste_classes_afficher }}²²{{ paiement.ordre_paiement }}">
                                       <th scope="row" class="detail-paiement-link-td fix-col">{{ forloop.counter }}</th>
                                      
                                       <td class="detail-paiement-link-td fix-col1" style="text-transform: uppercase;">{{ paiement.libelle }}</td>
@@ -155,7 +167,8 @@
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_fin }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.entree_sortie_caisee }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.montant }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.classe }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.liste_classes_afficher }}</td>
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.ordre_paiement }}</td>
                                       <td class="td-actions text-right"> 
 
                                       {% if perms.mainapp.can_change_typepayementeleve or perms.mainapp.change_typepayementeleve %}
@@ -189,7 +202,8 @@
                                 <th scope="col" >Date Fin</th>
                                 <th scope="col" >E/S de Caisse</th>
                                 <th scope="col">Montant</th> 
-                                <th scope="col">Classe</th>                           
+                                <th scope="col">Portée</th>                           
+                                <th scope="col">Ordre paiement</th>                           
                                 <th scope="col">Actions</th>                              
 
                               </tr>
@@ -256,13 +270,119 @@
                 <div class="modal-body ">
                   <div class="card-body">
                     <p class="h4 text-center">AJOUTER TYPE PAYEMENT APPRENANT</p>
-                    <form method="post"  class="" action="{% url 'mainapp:creation_type_paiement_eleve' %}">
+                    <form action="{% url 'mainapp:creation_type_paiement_eleve' %}" class="load_type_payement_eleve_ajax" method="POST">
                         {% csrf_token %}
-                        {{ form.as_p }}
+                      <div class="row justify-content-center">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                Etab:
+                                <select class="choix_etab" name="choix_etab">
+                                  <!-- <option value="school_1"> school -->
+                                  {% for etab in etabs %}
+                                    <option value="{{ etab.nom_etab }}_{{etab.id}}">{{ etab.nom_etab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                          </div>
+                            <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Sous Etab:
+                                <select class="choix_sousetab" name="choix_sousetab" data-size="7">
+                                  <option value="tous_all">Tous
+                                  {% for setab in sousetabs %}
+                                    <option value="{{ setab.nom_sousetab }}_{{setab.id}}">{{ setab.nom_sousetab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Cycle:
+                                <select name="choix_cycle" style="width:200px;" class="choix_cycle">
+                                </select>
+                              </div>
+                          </div>
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Niveau:
+                                <select name="choix_niveau" style="width:200px;" class="choix_niveau">
+                                </select>
+                              </div>
+                          </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Spécialité:
+                                <select name="specialite" style="width:200px;" class="specialite">
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group" id="liste_classes_niveaux">
+                                Classes:&nbsp;&nbsp;&nbsp;
+                        <select name="choix_classes" style="width:200px;" class="choix_classes" size="4" multiple>
+                                 </select>
+                              </div>
+                        </div>
+                    </div>
 
-                         <label id="message"></label><br>
+
+                        <div class="row justify-content-center">
+                          <div class="col-sm-6">
+                           <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group">
+                                <!-- <label for="entree_sortie_caisee1" class="bmd-label-floating">E/S caisse*</label> -->
+                                 <select name="entree_sortie_caisee" class ="form-control form-group entree_sortie_caisee2">
+                                   <option value="e" selected>Entree Caisse</option>
+                                   <option value="s">Sortie Caisse</option>
+                                 </select>
+                              </div>
+                            </div>
+                            <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                <label for="libelle" class="bmd-label-floating">Libelle*</label>
+                                {{ form.libelle }}
+                              </div>
+                            </div>
+
+                            <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                <label for="montant" class="bmd-label-floating montant_label">Montant*</label>
+                                {{ form.montant }}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-sm-6">
+                            <div class="input-group form-control-md date_ordre_paiement">
+                              <div class="form-group bmd-form-group">
+                                <label for="date_deb" class="bmd-label-floating">Date début*</label>
+                                <input id="datetimepicker1" type="text" name="date_deb" class =" form-control form-group" >
+                              </div>
+                            </div>
+
+                            <div class="input-group form-control-md date_ordre_paiement">
+                              <div class="form-group bmd-form-group">
+                                <label for="date_fin" class="bmd-label-floating">Date fin*</label>
+                                <input id="datetimepicker2" type="text" name="date_fin" class =" form-control form-group" >
+                              </div>
+                            </div>
+
+                            <div class="input-group form-control-md date_ordre_paiement">
+                              <div class="input-group form-control-md">
+                                <div class="form-group bmd-form-group">
+                                  <label for="ordre_paiement" class="bmd-label-floating">Ordre Paiement*</label>
+                                  {{ form.ordre_paiement }}
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                
+                        </div>
+
+                        <label id="message"></label>
                         <div class="text-center">
-                            <button type="submit" class="btn">Créer</button>
+                            <button type="submit" class="btn">Ajouter</button>
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
                          </div>
                     </form>
@@ -345,7 +465,7 @@
                           <label class="montant text-primary"></label>
                         </div>
                         <div class="form-group">
-                          <label class="">Classe : </label>
+                          <label class="liste_classes_afficher text-primary">Portée : </label>
                           <label class="classe text-primary"></label>
                         </div>
                         
