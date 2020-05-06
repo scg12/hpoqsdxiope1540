@@ -16,6 +16,8 @@ url(r'^deverrouiller/$', views.deverrouiller, name='deverrouiller'),
 url('matformat/', views.matriculeformat, name="matformat"),
 url(r'^paiement-eleve/$', views.paiement_eleve, name="paiement_eleve"),
 url('changement-classe-eleve/', views.changement_classe_eleve, name="changement_classe_eleve"),
+url('attribution-bourse-eleve/', views.attribution_bourse_eleve, name="attribution_bourse_eleve"),
+url('prendre-photos-eleve/', views.prendre_photos_eleve, name="prendre_photos_eleve"),
 
 
 url(r'mlab/$', views.mlab, name="mlab"),
@@ -59,6 +61,7 @@ url('liste-types-paiements-dortoir.html/', views.liste_types_paiements_dortoir, 
 url('liste-types-paiements-facture.html/', views.liste_types_paiements_facture, name="liste_types_paiements_facture"),
 
 url('liste-eleves/', views.liste_eleves, name="liste_eleves"),
+url('liste-boursiers/', views.liste_boursiers, name="liste_boursiers"),
 
 
 url('parametres-progression/', views.parametres_progression, name="parametres_progression"),
@@ -92,6 +95,7 @@ url(r'^recherche-type-paiement-transport/$', views.recherche_type_paiement_trans
 url(r'^recherche-type-paiement-dortoir/$', views.recherche_type_paiement_dortoir, name='recherche_type_paiement_dortoir'),
 url(r'^recherche-type-paiement-facture/$', views.recherche_type_paiement_facture, name='recherche_type_paiement_facture'),
 url(r'^recherche-eleve/$', views.recherche_eleve, name='recherche_eleve'),
+url(r'^recherche-boursier/$', views.recherche_boursier, name='recherche_boursier'),
 
 url(r'^recherche-eleves-salle-de-classe/$', views.recherche_eleves_salle_de_classe, name='recherche_eleves_salle_de_classe'),
 
@@ -120,6 +124,7 @@ url('creation-type-paiement-dortoir/', views.creation_type_paiement_dortoir, nam
 url('creation-type-paiement-facture/', views.creation_type_paiement_facture, name="creation_type_paiement_facture"),
 url('creation-cours/', views.creation_cours, name="creation_cours"),
 url('creation-eleve/', views.creation_eleve, name="creation_eleve"),
+url('creation-boursier/', views.creation_boursier, name="creation_boursier"),
 
 url(r'^suppression-etablissement/$', views.suppression_etablissement, name='suppression_etablissement'),
 url(r'^suppression-sous-etablissement/$', views.suppression_sous_etablissement, name='suppression_sous_etablissement'),
@@ -146,6 +151,7 @@ url(r'^suppression-type-paiement-transport/$', views.suppression_type_paiement_t
 url(r'^suppression-type-paiement-dortoir/$', views.suppression_type_paiement_dortoir, name='suppression_type_paiement_dortoir'),
 url(r'^suppression-type-paiement-facture/$', views.suppression_type_paiement_facture, name='suppression_type_paiement_facture'),
 url(r'^suppression-eleve/$', views.suppression_eleve, name='suppression_eleve'),
+url(r'^suppression-boursier/$', views.suppression_boursier, name='suppression_boursier'),
 
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
@@ -171,6 +177,7 @@ url(r'^modification-type-paiement-transport/$', views.modification_type_paiement
 url(r'^modification-type-paiement-dortoir/$', views.modification_type_paiement_dortoir, name='modification_type_paiement_dortoir'),
 url(r'^modification-type-paiement-facture/$', views.modification_type_paiement_facture, name='modification_type_paiement_facture'),
 url(r'^modification-eleve/$', views.modification_eleve, name='modification_eleve'),
+url(r'^modification-boursier/$', views.modification_boursier, name='modification_boursier'),
 
 url(r'^classe/(?P<id>\d+)$', views.classe, name='classe'),
 # url(r'^classe/(?P<string>\d+)$', views.classe, name='classe'),

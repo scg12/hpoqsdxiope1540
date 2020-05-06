@@ -45,11 +45,17 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 
 import numbers
+import cv2
+import numpy as np
+import time
+from playsound import playsound
+from weasyprint import HTML, CSS
 
 
 # definition des constantes
 pagination_nbre_element_par_page = 50
 photo_repertoire = "/photos/"
+photo_eleves_repertoire = "mainapp/media/photos/"
 
 # definition des preferences utilisateurs par defaut (couleur, theme, ...) pour ceux qui ne sont pas connectés
 data_color_default = "bleu"
@@ -66,6 +72,134 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+
+def prendre_photos_eleve(request):
+
+    if request.method == 'POST':
+        choix =""
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            id_classe = int(donnees.split('_')[1])
+            eleves = Eleve.objects.values('id','matricule','nom','prenom').filter(id_classe_actuelle = id_classe).order_by('nom')
+            # donnees = donnees.split("²²~~")
+            print(donnees)
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            print("LE CHOIX ...",choix)
+            data = {
+                "choix":"prendre_photos_eleve",
+                "eleves": eleves,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data)
+    decompte = 0
+    total = 0
+    valide_ip_port = True
+    ip = request.POST['ip_address']
+    port = request.POST['port_number']
+    intervalle_ch = request.POST['intervalle'] if request.POST['intervalle'].isdigit() else "100"
+    intervalle = int(intervalle_ch)
+    valide_ip_port = port.isdigit() and ip.replace('.','').isdigit()
+    if valide_ip_port:
+        eleves = []
+        nbre_eleves = len(request.POST) - 5
+        for r in request.POST:
+            if r.count('_') == 3:
+                id_eleve, matricule, nom, prenom = r.split('_')
+                id_eleve = int(id_eleve)
+                eleves.append([id_eleve, matricule, nom, prenom])
+        # for e in eleves:
+        #     print(e[0],e[1],e[2],e[3])
+        i = 0
+        url = "http://"+ip+":"+port+"/shot.jpg"
+
+        # font 
+        font = cv2.FONT_HERSHEY_SIMPLEX 
+          
+        # org 
+        org = (2, 50) 
+          
+        # fontScale 
+        fontScale = 0.5
+           
+        # Blue color in BGR 
+        color = (255, 0, 0) 
+          
+        # Line thickness of 2 px 
+        thickness = 1
+
+        while True:
+
+            img_resp = requests.get(url)
+            img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+            img = cv2.imdecode(img_arr, -1)
+            img2 = cv2.imdecode(img_arr, -1)
+               
+            # Using cv2.putText() method 
+            decompte_ch =str(decompte)
+            image = cv2.putText(img, "Entree ou prise photo a "+(intervalle_ch)+" -- "+decompte_ch+" pour: "+ eleves[i][1]+" "+eleves[i][2]+" "+eleves[i][3], org, font, fontScale, color, thickness, cv2.LINE_AA)
+
+            if decompte == intervalle:
+                playsound(photo_eleves_repertoire+"camera-shutter.mp3")
+                decompte = 0
+                eleve = eleves[i][1]+"_"+eleves[i][2]+"_"+eleves[i][3]
+                cv2.imwrite(photo_eleves_repertoire+ eleve +".jpg", img2)
+                Eleve.objects.filter(pk = eleves[i][0]).update(photo_url = "/media"+photo_repertoire+eleve+".jpg",\
+                    photo = photo_repertoire+eleve+".jpg")
+                i += 1
+            cv2.imshow("AndroidCam", image)
+            # time.sleep(3)
+            decompte += 1
+            total += 1
+
+            if i == nbre_eleves:
+                print("Decompte est: ", total)
+                cv2.destroyAllWindows()
+                break
+            # cv2.waitKey(1) attend 1ms si on saisit: renvoie -1 si pas de saisie, 27 si c'est escape
+            key = cv2.waitKey(1)
+            # key == 27 alors l'utilisateur a décidé d'arrêter le processus de prise de photos
+            if key == 27:
+                print("Decompte est: ", total)
+                cv2.destroyAllWindows()
+                break
+            # key != -1 and key != 27 l'user a pressé une touche # de ESC donc l'eleve etait pret avant
+            # la fin de son compte à rebours
+            elif key != -1 and key != 27:
+                playsound(photo_eleves_repertoire+"camera-shutter.mp3")
+                decompte = 0
+                eleve = eleves[i][1]+"_"+eleves[i][2]+"_"+eleves[i][3]
+                cv2.imwrite(photo_eleves_repertoire+ eleve +".jpg", img2)
+                Eleve.objects.filter(pk = eleves[i][0]).update(photo_url = "/media"+photo_repertoire+eleve+".jpg",\
+                    photo = photo_repertoire+eleve+".jpg")
+                print("key # 27 pressed: ", i, nbre_eleves)
+
+                i += 1
+                if i == nbre_eleves:
+                    print("fin avec key # 27: ", total)
+                    cv2.destroyAllWindows()
+                    break
+            
+
+    return redirect('mainapp:liste_eleves')
 
 def dashboard(request):
 
@@ -234,6 +368,85 @@ def paiement_eleve(request):
         request.session['classe_courante'] = classe_courante
 
     return redirect('mainapp:liste_eleves' )
+
+def attribution_bourse_eleve(request):
+    if request.method == 'POST':
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+            print("Les donnees: ", donnees)
+            id_eleve = donnees[0]
+            info = Eleve.objects.values('liste_bourses','bourse').filter(pk = id_eleve)[0]
+            liste_bourses = info['liste_bourses']
+            bourse = info['bourse']
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            
+            data = {
+                "choix": "eleve_bourse_info",
+                "montant_bourse": bourse,
+                "liste_bourses": liste_bourses,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+            return JSONResponse(data)
+        liste_bourses = ""
+        liste_bourses_afficher = ""
+        id_eleve =  id_eleve = int(request.POST['id_eleve'])
+        info = Eleve.objects.values('liste_bourses','bourse').filter(pk = id_eleve)[0]
+        fini = False
+
+        if info['bourse'] == 0 and len(info['liste_bourses'])>0:
+            fini = True
+        if fini == False:
+            bourse = 0
+            for r in request.POST:
+                item = request.POST[r]
+                print(r)
+                if r != "id_eleve" and item.replace('.','',1).isdigit():
+                    n = len(r.split("_"))
+                    if n == 3:
+                        libelle,id, autre = r.split("_")
+                        # if float(item) != 0:
+                        
+                        if libelle+"_"+id in request.POST:
+                            item = request.POST[libelle+"_"+id]
+                            
+                            if item.replace('.','',1).isdigit():
+                                liste_bourses += id+"_"+libelle+"_"+item+"_"
+                                liste_bourses_afficher += libelle+", "
+                            else:
+                                item = "0"
+                        else:
+                            liste_bourses += id+"_"+libelle+"_"+item+"_"
+                            liste_bourses_afficher += libelle+", "
+
+                        bourse += float(item)
+                        print("libelle, montant: ", libelle, item)
+            
+            print("--Liste_bourses: ", liste_bourses)
+
+            Eleve.objects.filter(pk = id_eleve).update(bourse = bourse, liste_bourses = liste_bourses, liste_bourses_afficher= liste_bourses_afficher)
+        else:
+            # Bourse deja utilisée
+            print("Modification plus possibles!")
+        return redirect('mainapp:liste_eleves')
 
 def creation_type_paiement_eleve(request):
     print("****************creation_type_paiement_eleve")
@@ -581,7 +794,8 @@ def creation_eleve(request):
             if choix_classe == 0:
                 classe_selected = request.POST['classe_selected']
                 print(classe_selected)
-                classe, id_classe, etoile = classe_selected.split('_')
+                # classe, id_classe, etoile = classe_selected.split('_')
+                classe, id_classe = classe_selected.split('_')
                 id_classe = int(id_classe)
                 # print("classe selected radio: ",classe, id_classe)
             else:
@@ -797,6 +1011,24 @@ def creation_cycle(request):
             cycle.save()
 
         return redirect('mainapp:liste_cycles')
+
+def creation_boursier(request):
+
+    if request.method == 'POST':
+        form = BoursierForm(request.POST)
+        if form.is_valid():
+            nom_etab = form.cleaned_data['nom_etab']
+            nom_sousetab = form.cleaned_data['nom_sousetab']
+            nom_cycle = form.cleaned_data['nom_cycle']
+            print(nom_etab," ",nom_sousetab," ",nom_cycle)
+
+            cycle = Cycle()
+            cycle.nom_cycle = nom_cycle
+            cycle.nom_etab = nom_etab
+            cycle.nom_sousetab = nom_sousetab
+            cycle.save()
+
+        return redirect('mainapp:liste_boursiers')
 
 def creation_niveau(request):
 
@@ -1566,11 +1798,16 @@ def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_
         request.session.modified = True
     # print("id_classe_courante------ ",id_classe_courante)
 
-    tranches = TypePayementEleve.objects.values('id','libelle','montant','ordre_paiement').filter(liste_classes__icontains = classe).order_by('ordre_paiement')
+    tranches = TypePayementEleve.objects.values('id','libelle','montant','ordre_paiement').filter(liste_classes__icontains = classe, entree_sortie_caisee = "e").order_by('ordre_paiement')
     tranches_paiements = ""
     for t in tranches:
         montant_a_payer += t['montant']
         tranches_paiements += str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"²²"+str(t['ordre_paiement'])+"*²*"
+
+    tranches = TypePayementEleve.objects.values('id','libelle','montant').filter(liste_classes__icontains = classe, entree_sortie_caisee = "s").order_by('libelle')
+    bourses = ""
+    for t in tranches:
+        bourses += str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"*²*"
 
     # tranches_paiements = [tranches_paiements+str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"²²"+str(t['ordre_paiement']) for t in tranches ]
     # print("montant, tranches_paiements",montant_a_payer, tranches_paiements)
@@ -1652,6 +1889,45 @@ def liste_eleves(request, page=1, nbre_element_par_page=pagination_nbre_element_
 
   
     return render(request, 'mainapp/pages/liste-eleves.html', locals())
+
+def liste_boursiers(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    bourses = Eleve.objects.filter(~Q(liste_bourses = ""),archived = "0").order_by('matricule')
+    print("boursiers: ", bourses)
+    form = BoursierForm  
+    paginator = Paginator(bourses, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/liste-boursiers.html', locals())
 
 def liste_etablissements(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
@@ -2215,11 +2491,11 @@ def liste_disciplines(request, page=1, nbre_element_par_page=pagination_nbre_ele
 
 def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
-    paiements = TypePayementEleve.objects.filter(archived = "0", entree_sortie_caisee = "e").order_by('ordre_paiement')
+    paiements = TypePayementEleve.objects.filter(archived = "0").order_by('ordre_paiement')
     etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
     sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
     # classe_recherchees = Classe.objects.values('id','nom_classe').filter(archived = "0")
-    type_paiements_eleves = TypePayementEleve.objects.values('liste_classes_afficher', 'indicateur_liste_classes', 'liste_classes').filter(archived = "0", entree_sortie_caisee = "e")
+    type_paiements_eleves = TypePayementEleve.objects.values('liste_classes_afficher', 'indicateur_liste_classes', 'liste_classes').filter(archived = "0")
     # c_r: classe_recherchees, c_r_a: classe_recherchees_afficher
     c_r = []
     c_r_a = []
@@ -3031,6 +3307,14 @@ def suppression_eleve(request):
 
     return redirect('mainapp:liste_eleves')
 
+def suppression_boursier(request):
+
+    id = int(request.POST['id_supp'])
+
+    eleve = Eleve.objects.get(pk=id).update(bourse = 0, liste_bourses_afficher = "", liste_bourses = "")
+
+    return redirect('mainapp:liste_boursiers')
+
 def suppression_etablissement(request):
 
     id = int(request.POST['id_supp'])
@@ -3732,6 +4016,19 @@ def modification_eleve(request):
 
         return redirect('mainapp:liste_eleves')
 
+def modification_boursier(request):
+    # Fction à adapter
+    id = int(request.POST['id_modif'])
+    form = BoursierForm(request.POST)
+
+    if form.is_valid():
+
+        nom = form.cleaned_data['nom']
+        Eleve.objects.filter(pk=id).update(bourse = 0, liste_bourses_afficher = "", liste_bourses = ""
+        )
+
+        return redirect('mainapp:liste_Bourses')
+
 def modification_appellation_apprenant_formateur(request):
 
     id = int(request.POST['id_modif'])
@@ -4304,16 +4601,15 @@ def find_eleve(recherche, trier_par, classe_recherchee):
     id_classe = int(id_classe)
     if recherche == "" or not recherche:
         if (trier_par == "non defini"):
-            eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe).order_by('-id')
+            eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe).order_by('matricule')
         else:
             eleves = Eleve.objects.filter(archived = "0", id_classe_actuelle = id_classe).order_by(trier_par)
 
     else:
         if (trier_par == "non defini"):
             # Q(archived ="0") &
-            eleves = Eleve.objects.filter(Q(archived ="0") &
-                (Q(id_classe_actuelle = id_classe) |
-                Q(matricule__icontains=recherche) |
+            eleves = Eleve.objects.filter(Q(archived ="0") & Q(id_classe_actuelle = id_classe) &
+                (Q(matricule__icontains=recherche) |
                 Q(nom__icontains=recherche) |
                 Q(prenom__icontains=recherche) |
                 Q(sexe__icontains=recherche)|
@@ -4334,9 +4630,8 @@ def find_eleve(recherche, trier_par, classe_recherchee):
 
         else:
 
-            eleves = Eleve.objects.filter(Q(archived ="0") &
-                (Q(id_classe_actuelle = id_classe) |
-                Q(matricule__icontains=recherche) |
+            eleves = Eleve.objects.filter(Q(archived ="0") & Q(id_classe_actuelle = id_classe) &
+                (Q(matricule__icontains=recherche) |
                 Q(nom__icontains=recherche) |
                 Q(prenom__icontains=recherche) |
                 Q(sexe__icontains=recherche)|
@@ -4369,6 +4664,136 @@ def find_eleve(recherche, trier_par, classe_recherchee):
     #                 ).order_by(matricule)
 
     eleves_serializers = EleveSerializer(eleves, many=True)
+
+    return eleves_serializers.data
+
+def recherche_boursier(request):
+    
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            tailles_donnees = len(donnees)
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            bourses = find_boursier(donnees_recherche,trier_par)
+
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(eleves)
+
+            #form = EtudiantForm
+            paginator = Paginator(bourses, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "bourses": bourses,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+def find_boursier(recherche, trier_par):
+    
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            bourses = Eleve.objects.filter(~Q(liste_bourses = ""), archived = "0").order_by('matricule')
+        else:
+            bourses = Eleve.objects.filter(~Q(liste_bourses = ""), archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+            # Q(archived ="0") &
+            bourses = Eleve.objects.filter(~Q(liste_bourses = "") & Q(archived ="0") &
+                (Q(matricule__icontains = recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(sexe__icontains=recherche) |
+                Q(classe_actuelle__icontains=recherche)|
+                Q(liste_bourses_afficher__icontains=recherche))
+            ).distinct()
+
+        else:
+
+            bourses = Eleve.objects.filter(~Q(liste_bourses = "") & Q(archived ="0") &
+                (Q(matricule__icontains = recherche) |
+                Q(nom__icontains=recherche) |
+                Q(prenom__icontains=recherche) |
+                Q(sexe__icontains=recherche) |
+                Q(classe_actuelle__icontains=recherche)|
+                Q(liste_bourses_afficher__icontains=recherche))
+            ).distinct().order_by(trier_par)
+
+    eleves_serializers = BoursierSerializer(bourses, many=True)
 
     return eleves_serializers.data
 
@@ -6419,15 +6844,15 @@ def find_type_paiement_eleve(recherche, trier_par, classe_recherchee):
             else:
                 classe_recherchee = info[1]+"_"+info[0]+"_"
                 paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
-                        (Q(entree_sortie_caisee="e")|
+                        (Q(entree_sortie_caisee="e")&
                         Q(liste_classes__icontains=classe_recherchee)
                         )
                     ).order_by('ordre_paiement')
         else:
             liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes__iexact = classe_recherchee)[0]['liste_classes']
             paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
-                        (Q(entree_sortie_caisee="e")|
-                        Q(indicateur_liste_classes__icontains=classe_recherchee)|
+                        (Q(entree_sortie_caisee="e")&
+                        Q(indicateur_liste_classes__icontains=classe_recherchee)&
                         Q(liste_classes__icontains=liste_classes)
                         )
                     ).order_by('ordre_paiement')
@@ -9300,6 +9725,25 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
 
 
             cpt_sheet += 1
+        # ASSOCIATION DES ELEVES AUX COURS
+        annee = ANNEE_SCOLAIRE
+        all_classes = Classe.objects.values('id')
+        [print(c) for c in all_classes]
+        for clss in all_classes:
+            classes = Classe.objects.filter(pk=clss['id'],annee_scolaire=annee)[0]\
+                    .annees.filter(annee=annee)[0]
+            list_eleves = classes.eleves.all()
+            grps = classes.groupes.values('id')
+            # grps = classes.groupes.only('id')
+            print("CLASSE: ", clss['id'] )
+            for gr in grps:
+                grp = classes.groupes.filter(pk=gr['id'])[0].cours
+                # list_cours = list(grp.all())
+                list_cours = list(grp.values('id'))
+                list_eleves = list(list_eleves)
+                for lc in list_cours:
+                    print("cours: ",lc['id'])
+                    grp.filter(pk=lc['id'])[0].eleves.add(*list_eleves)
         # return render(request, 'mainapp/pages/config-terminee.html', locals())
         return redirect('mainapp:dashboard')
 

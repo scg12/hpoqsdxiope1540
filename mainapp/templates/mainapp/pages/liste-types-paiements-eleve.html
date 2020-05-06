@@ -166,9 +166,19 @@
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_deb }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.date_fin }}</td>
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.entree_sortie_caisee }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.montant }}</td>
+                                      {% if paiement.montant|isequal:0 %}
+                                        <td class="detail-paiement-link-td" style="text-transform: uppercase;"></td>
+                                      {% else %}
+                                        <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.montant }}</td>
+                                      {% endif %}
+                                      
                                       <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.liste_classes_afficher }}</td>
-                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.ordre_paiement }}</td>
+                                      {% if paiement.ordre_paiement|isequal:1000000 %}
+                                      <td class="detail-paiement-link-td" style="text-transform: uppercase;"></td>
+                                        {% else %}
+                                        <td class="detail-paiement-link-td" style="text-transform: uppercase;">{{ paiement.ordre_paiement }}</td>
+                                      {% endif %}
+                                      
                                       <td class="td-actions text-right"> 
 
                                       {% if perms.mainapp.can_change_typepayementeleve or perms.mainapp.change_typepayementeleve %}

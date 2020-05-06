@@ -20,7 +20,18 @@ var classe_actuelle_eleve_avant_changement = "";
 $('.terminer').prop("disabled", true);
 $('.effectuer').prop("disabled", true);
 
-
+$("body").on("click", ".select_all", function() {
+  var checkBoxes = $(":checkbox[eleve]");
+        checkBoxes.prop("checked", $(this).prop("checked"));
+});
+$("body").on("click", ".eleve_checkbox", function() {
+    nb_select = $(":checkbox[eleve]:checked").length;
+    nb = $(":checkbox[eleve]").length;
+    if (nb == nb_select)
+       $(":checkbox[all]").prop("checked", true);
+    else
+       $(":checkbox[all]").prop("checked", false);
+});
 // $("input[text]").keyup(function()
  $("body").on("click", ".radio_classe", function() {
  // $(":radio").on("click", function(){
@@ -109,6 +120,7 @@ $("#datetimepicker").datetimepicker();
   else
     $(".effectuer").attr("disabled", true);
 });
+
 
 $(":checkbox").on("click", function(){
     // alert("yesss");
@@ -783,6 +795,93 @@ $(":checkbox").on("click", function(){
                                          ${nom_classe}&nbsp;&nbsp;&nbsp;`);
 
            }
+        } 
+
+
+        if (choix == "prendre_photos_eleve"){
+            liste_eleves = data.eleves;
+            nbre_eleves = liste_eleves.length;
+
+          all_lignes = "";
+          /*ligne = `<tr><td><input type=checkbox name=select_all class=select_all  value=select_all> 
+                                         Tous | Aucun </td></tr>` ;
+          all_lignes += ligne*/
+           for (var i = 0; i < nbre_eleves; i++) {
+              matricule = liste_eleves[i].matricule;                     
+              nom = liste_eleves[i].nom;                     
+              prenom = liste_eleves[i].prenom;                     
+              id = liste_eleves[i].id;
+              option = id+"_"+matricule+"_"+nom+"_"+prenom;
+            all_lignes += `<tr><td><input type=checkbox name="${option}" eleve class=eleve_checkbox  value="${option}"></td><td>${i+1}</td><td>${matricule}</td><td>${nom}</td><td>${prenom}</td></tr>`;
+
+              /*all_lignes += `<input type=checkbox name="${option}" eleve  value="${option}"> 
+                                         ${matricule} ${nom} ${prenom}<br>`*/
+           }
+            $("#tbody_tranches2").append(all_lignes);
+        }
+
+        if (choix == "eleve_bourse_info"){
+            liste_bourses = data.liste_bourses;
+
+            bourses = $(".bourses").text();
+            $(".attribution_bourse").empty();
+
+
+            bourses = bourses.split("*²*");
+            nb_bourses = bourses.length - 1;
+            nouvelle_ligne = "";
+            montant_bourse = data.montant_bourse
+            bourse_deja_utilise = (montant_bourse == 0) && (liste_bourses.length > 0)
+            // alert(bourse_deja_utilise);
+            for (var i = 0; i < nb_bourses; i++) {
+              bourse = bourses[i].split("²²");
+              id = bourse[0];
+              libelle = bourse[1];
+              montant = bourse[2];
+              option = libelle+"_"+id;
+              check = libelle+"_"+id+"_checkbox";
+              editable = false;
+              
+
+              substring = id+"_"+libelle+"_";
+                if (liste_bourses.indexOf(substring) !== -1){
+                    
+                    if (montant == "0.0"){
+                      montant = liste_bourses.split(substring)[1].split("_")[0];
+                      editable =true;
+                    }
+                    check = libelle+"_"+id+"_"+montant;
+
+                    checkbox_ligne = `<input type=checkbox name="${check}" bourse value="${montant}" checked> 
+                                             ${libelle}&nbsp;&nbsp;&nbsp;`;
+                  
+                  }
+                else{
+                     checkbox_ligne = `<input type=checkbox name="${check}" bourse value="${montant}" > 
+                                             ${libelle}&nbsp;&nbsp;&nbsp;`;
+                    }
+
+              montant_ligne ="";
+              // alert(montant);
+              if (montant == "0.0"){
+                if (bourse_deja_utilise == true)
+                  montant_ligne = `<input type=text name="${option}"  value="" disabled> <br>`;
+                else
+                  montant_ligne = `<input type=text name="${option}"  value="" > <br>`;
+              }else{
+                if (editable == true)
+                  if (bourse_deja_utilise == true)
+                    montant_ligne = `<input type=text name="${option}"  value="${montant}" disabled> <br>`;
+                  else
+                    montant_ligne = `<input type=text name="${option}"  value="${montant}"> <br>`;
+
+                else
+                  montant_ligne = `<input type=text name="${option}"  value="${montant}" disabled> <br>`;
+            }
+
+
+              $('.attribution_bourse').append(checkbox_ligne+montant_ligne);
+            }
         }
 
       }
@@ -795,13 +894,15 @@ $(":checkbox").on("click", function(){
       // Lorsqu'on veut voir les paiements d'une autre classe
 $("body").on("change", "#classe_recherchee", function() {
       if (classe_actuelle_eleve_avant_changement != ""){
-         $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").removeAttr('hidden');
-        $(".radio_"+classe_actuelle_eleve_avant_changement).removeAttr('hidden');
+         $(`.radio_classe2[value="${classe_actuelle_eleve_avant_changement}"]`).removeAttr('hidden');
+        $(`.radio_${classe_actuelle_eleve_avant_changement}`).removeAttr('hidden');
       }
        
         classe_actuelle_eleve_avant_changement = $("#classe_recherchee").val();
-        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
-        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        // $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        // $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        $(`.radio_classe2[value="${classe_actuelle_eleve_avant_changement}"]`).prop("hidden", true);
+        $(`.radio_${classe_actuelle_eleve_avant_changement}`).prop("hidden", true);
 
         $("#message").text("");
         var recherche = $("#recherche").val().trim();
@@ -932,6 +1033,7 @@ $(".recherche").keyup(function(e) {
                     view = '<button type="button" rel="tooltip" class="detail-eleve-link-td btn" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
                     change_classe ='&nbsp;<button type="button" rel="tooltip" class="changer-eleve-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    bourse_eleve ='&nbsp;<button type="button" rel="tooltip" class="attribuer-bourse-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
                     paiement_eleve ='&nbsp;<button type="button" rel="tooltip" class="paiement-eleve-link-ajax btn"><i class="far fa-sack-dollar fa-x"> </i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-eleve-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                       }
@@ -941,6 +1043,7 @@ $(".recherche").keyup(function(e) {
                     view = '<button type="button" rel="tooltip" class="detail-eleve-link-td btn" data-toggle="modal" data-target="#modal_detail_eleve"><i class="material-icons">visibility</i></button>';
                     change ='&nbsp;<button type="button" rel="tooltip" class="modifier-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
                     change_classe ='&nbsp;<button type="button" rel="tooltip" class="changer-eleve-classe-link-ajax btn"><i class="material-icons">edit</i></button>';
+                    bourse_eleve ='&nbsp;<button type="button" rel="tooltip" class="attribuer-bourse-eleve-link-ajax btn"><i class="material-icons">edit</i></button>';
                     paiement_eleve ='&nbsp;<button type="button" rel="tooltip" class="paiement-eleve-link-ajax btn"><i class="far fa-sack-dollar fa-x"> </i></button>';
                     del = '&nbsp;<button rel="tooltip" class="supprimer-eleve-link-ajax btn btn-danger"><i class="material-icons">close</i></button>' + "</td></tr>";                
                     
@@ -959,6 +1062,7 @@ $(".recherche").keyup(function(e) {
                         if(data.permissions[index_model + 2] ==1 ){
                           nouvelle_ligne += change;
                           nouvelle_ligne += change_classe;
+                          nouvelle_ligne += bourse_eleve;
                           nouvelle_ligne += paiement_eleve;
                         }  
                         //retirer le bouton add si pas de permission pour ajouter
@@ -1286,8 +1390,10 @@ $(".recherche").keyup(function(e) {
         excedent = tab_element[22];
         classe_actuelle_eleve_avant_changement = classe_actuelle+"_"+id_classe_actuelle;
 
-        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
-        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        // $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        // $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        $(`.radio_classe2[value="${classe_actuelle_eleve_avant_changement}"]`).prop("hidden", true);
+        $(`.radio_${classe_actuelle_eleve_avant_changement}`).prop("hidden", true);
         $(".info_changement_apprenant").empty();
         /*append(`<input type=checkbox name="${option}" value="${option}"> 
                                          ${nom_classe}&nbsp;&nbsp;&nbsp;`)*/
@@ -1340,6 +1446,147 @@ $(".recherche").keyup(function(e) {
         $(".tel_mere").removeAttr("disabled");
         $(".email_pere").removeAttr("disabled");
         $(".email_mere").removeAttr("disabled");
+    });
+
+    $(".attribuer-bourse-eleve-link").click(function() {
+        $('#modal_attribuer_bourse_eleve').modal('show');
+
+        var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+
+        id = tab_element[0];
+        matricule = tab_element[1];
+        nom = tab_element[2];
+        prenom = tab_element[3];
+        sexe = tab_element[4];
+        redouble = tab_element[5];
+        date_naissance = tab_element[6];
+        lieu_naissance = tab_element[7];
+        date_entree = tab_element[8];
+        nom_pere = tab_element[9];
+        prenom_pere = tab_element[10];
+        nom_mere = tab_element[11];
+        prenom_mere = tab_element[12];
+        tel_pere = tab_element[13];
+        tel_mere = tab_element[14];
+        email_pere = tab_element[15];
+        email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
+        $(".info_bourse_apprenant").empty();
+
+        $(".info_bourse_apprenant").append(`Attribution de la bourse à:  <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i>`);
+        var form = $(".load_bourse");
+        var url_action = form.attr("action");
+        var donnees = id;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+
+        $(".nom").val(nom);
+        $(".matricule").val(matricule);
+        $(".prenom").val(prenom);
+        $(".sexe").val(sexe);
+        $(".redouble").val(redouble);
+        $(".date_naissance").val(date_naissance);
+        $(".lieu_naissance").val(lieu_naissance);
+        $(".date_entree").val(date_entree);
+        $(".nom_pere").val(nom_pere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".nom_mere").val(nom_mere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".tel_pere").val(tel_pere);
+        $(".tel_mere").val(tel_mere);
+        $(".email_pere").val(email_pere);
+        $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
+        $(".info_apprenant").val(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        // alert(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        $("#id_modif").val(id);
+        $(".id_eleve").val(id);
+    });
+        $("body").on("click", ".attribuer-bourse-eleve-link-ajax", function() {
+        $('#modal_attribuer_bourse_eleve').modal('show');
+
+        var classe = $(this).parents("tr").attr('class');
+        tab_element = classe.split("²²");
+
+        id = tab_element[0];
+        matricule = tab_element[1];
+        nom = tab_element[2];
+        prenom = tab_element[3];
+        sexe = tab_element[4];
+        redouble = tab_element[5];
+        date_naissance = tab_element[6];
+        lieu_naissance = tab_element[7];
+        date_entree = tab_element[8];
+        nom_pere = tab_element[9];
+        prenom_pere = tab_element[10];
+        nom_mere = tab_element[11];
+        prenom_mere = tab_element[12];
+        tel_pere = tab_element[13];
+        tel_mere = tab_element[14];
+        email_pere = tab_element[15];
+        email_mere = tab_element[16];
+        id_classe_actuelle = tab_element[17];
+        classe_actuelle = tab_element[18];
+        bourse = tab_element[19];
+        est_en_regle = tab_element[20];
+        compte = tab_element[21];
+        excedent = tab_element[22];
+        $(".info_bourse_apprenant").empty();
+
+        $(".info_bourse_apprenant").append(`Attribution de la bourse à:  <br><i><b style="color:blue;">${matricule} ${nom} ${prenom} de la ${classe_actuelle}</b></i>`);
+        var form = $(".load_bourse");
+        var url_action = form.attr("action");
+        var donnees = id;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+
+        $(".nom").val(nom);
+        $(".matricule").val(matricule);
+        $(".prenom").val(prenom);
+        $(".sexe").val(sexe);
+        $(".redouble").val(redouble);
+        $(".date_naissance").val(date_naissance);
+        $(".lieu_naissance").val(lieu_naissance);
+        $(".date_entree").val(date_entree);
+        $(".nom_pere").val(nom_pere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".nom_mere").val(nom_mere);
+        $(".prenom_mere").val(prenom_mere);
+        $(".tel_pere").val(tel_pere);
+        $(".tel_mere").val(tel_mere);
+        $(".email_pere").val(email_pere);
+        $(".email_mere").val(email_mere);
+        $(".id_classe_actuelle").val(id_classe_actuelle);
+        $(".classe_actuelle").val(classe_actuelle);
+        $(".info_apprenant").val(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        // alert(id+"_"+matricule+"_"+nom+"_"+prenom+"_"+sexe+"_"+id_classe_actuelle+"_"+classe_actuelle);
+        $("#id_modif").val(id);
+        $(".id_eleve").val(id);
     });
 
 
@@ -1768,8 +2015,10 @@ $(".recherche").keyup(function(e) {
         excedent = tab_element[22];
         classe_actuelle_eleve_avant_changement = classe_actuelle+"_"+id_classe_actuelle;
         label = ""
-        $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
-        $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        // $(".radio_classe2[value="+classe_actuelle_eleve_avant_changement+"]").prop("hidden", true);
+        // $(".radio_"+classe_actuelle_eleve_avant_changement).prop("hidden", true);
+        $(`.radio_classe2[value="${classe_actuelle_eleve_avant_changement}"]`).prop("hidden", true);
+        $(`.radio_${classe_actuelle_eleve_avant_changement}`).prop("hidden", true);
         
         $(".info_changement_apprenant").empty();
         /*append(`<input type=checkbox name="${option}" value="${option}"> 
@@ -1826,6 +2075,30 @@ $(".recherche").keyup(function(e) {
 
     });
 
+    $("body").on("click", ".prendre-photo-eleve-link", function() {
+        $('#modal_prendre_photo_eleve').modal('show');
+
+        $(".eleves_liste").empty();
+        $(".prise_photo_classe_info").empty();
+        $("#tbody_tranches2").empty();
+        classe = $("#classe_recherchee").val();
+        classe_afficher = classe.split('_')[0]
+        $(".prise_photo_classe_info").append(`<b>Prise photo Classe:</b><i><b style="color:blue;"> ${classe_afficher}</b></i>`);
+        var form = $(".prendre_photos_eleve");
+        var url_action = form.attr("action");
+        var donnees = classe;
+
+         $.ajax({
+             method: 'POST',
+             url: url_action,
+             data: {
+               form_data : donnees,
+               csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+             },
+             success: gererSucces2,
+             error: gererErreur2,
+         });
+      });
       
   /*  $("body").on("click", ".detail-eleve-link-ajax", function() {
         $('#modal_detail_eleve').modal('show');

@@ -43,6 +43,30 @@ class EtudiantSerializer(serializers.Serializer):
         
         return instance
 
+class BoursierSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    matricule = serializers.CharField(max_length=150)
+    nom = serializers.CharField(max_length=150)
+    prenom = serializers.CharField(max_length=250)
+    sexe = serializers.CharField(max_length=20)
+    classe_actuelle = serializers.CharField(max_length=100)
+    liste_bourses_afficher = serializers.CharField(max_length=300)
+
+    def create(self, validated_data):
+        return Eleve.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.matricule = validated_data.get('matricule', instance.matricule.lower())
+        instance.nom = validated_data.get('nom', instance.nom.lower())
+        instance.prenom = validated_data.get('prenom', instance.prenom.lower())
+        instance.sexe = validated_data.get('sexe', instance.sexe.lower())
+        instance.classe_actuelle = validated_data.get('classe_actuelle', instance.classe_actuelle.lower())
+        instance.liste_bourses_afficher = validated_data.get('liste_bourses_afficher', instance.liste_bourses_afficher.lower())
+        instance.save()
+        
+        return instance
+
+
 class EleveSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     matricule = serializers.CharField(max_length=30)

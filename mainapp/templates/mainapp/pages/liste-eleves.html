@@ -153,7 +153,9 @@
                                       <option value="{{c.nom_classe}}_{{c.id}}"> {{c.nom_classe}} 
                                     {% endif %}
                                   {% endfor %}
-                                  </select> 
+                                  </select>
+                                  
+                                 <button class="btn prendre-photo-eleve-link">Photos</button>
                             </div>
 
                             <div class="col-sm-12 col-md-4">
@@ -161,8 +163,7 @@
                                 {% csrf_token %}
                                   <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
                                   <div id="message" ></div>
-                              </form>
-                              
+                              </form>                              
                             </div>
 
                         </div><br>
@@ -315,6 +316,9 @@
                                         <button rel="tooltip" class="btn changer-eleve-classe-link">
                                           <i class="material-icons">edit</i>
                                         </button>
+                                        <button rel="tooltip" class="btn attribuer-bourse-eleve-link">
+                                          <i class="material-icons">edit</i>
+                                        </button>
                                         <button rel="tooltip" class="btn paiement-eleve-link">
                                             <i class="far fa-sack-dollar fa-x"> </i>
                                         </button>
@@ -336,6 +340,7 @@
                                       </tr>
                                 {% endfor %}
               <h6 class="tranches_paiements" name="tranches_paiements" style="visibility: hidden;">{{tranches_paiements}}</h6>
+              <h6 class="bourses" name="bourses" style="visibility: hidden;">{{bourses}}</h6>
               <h6 class="montant_a_payer" name="montant_a_payer" style="visibility: hidden;">{{montant_a_payer}}</h6>
               
                             </tbody>
@@ -517,6 +522,51 @@
     </div>
 </div>
 
+<!-- dialog box attribuer bourse eleve  -->
+<div class="modal fade" id="modal_attribuer_bourse_eleve" tabindex="-1" role="">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body card-primary">
+                    <div class="wizard-container">
+                  <h3 class=" text-center">
+                    Attribution Bourse Eleve
+                  </h3>
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+                    
+                  <form action="{% url 'mainapp:attribution_bourse_eleve' %}" class="load_bourse" method="POST">
+                        {% csrf_token %}
+                        <h6 class="info_bourse_apprenant">Attribution de la bourse à l'élève </h6>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group attribution_bourse">
+                               
+                              </div>
+                        </div>
+                          
+                        <input type="text" class="id_eleve" name="id_eleve" style="visibility: hidden;">
+
+                        <label id="message"></label>
+                        <div class="text-center">
+                            <button type="submit" class="btn valider">Valider</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div>
+
 <!-- dialog box paiement eleve  -->
 <div class="modal fade" id="modal_paiement_eleve" tabindex="-1" role="">
     <div class="modal-dialog modal-md" role="document">
@@ -538,7 +588,7 @@
                         {% csrf_token %}
                         <H5><b style="color:blue;" class="apprenant_info"></b> </H5>                     
                         <b>Montant à payer:</b> <span class="le_montant_a_payer"><b>0</b></span> <br>
-                        Bourse: <span class="la_bourse"><b>0</b></span> <br>
+                        Réduction: <span class="la_bourse"><b>0</b></span> <br>
                         Excédent: <span class="l_excedent"><b>0</b></span> <br>
                         Montant qu'il reste à payer: <span class="le_reste_a_payer"><b>0</b></span> <br>
                         <b>Montant déjà payé:</b> <span class="deja_paye"><b>0</b></span> <br>
@@ -591,6 +641,59 @@
           </div>
                   
          </div>
+   
+        </div>
+    </div>
+</div>
+
+  <!-- Prendre Photo classe-Dialog box -->
+<div class="modal fade" id="modal_prendre_photo_eleve" tabindex="-1" role="">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body card-primary">
+                    <div class="wizard-container">
+              <div class="card card-wizard " data-color="rose" id="wizardProfile">
+
+                <div class=" text-center">
+
+                  <form method="post"  class="prendre_photos_eleve" action="{% url 'mainapp:prendre_photos_eleve' %} ">
+                    <p class="h4 text-center"><b>PRISE PHOTO</b></p>
+                      {% csrf_token %}
+                      <h5 class="prise_photo_classe_info">Photo</h5>
+          <i><b>Appuyer 'ESCAPE' pour annuler une fois lancé ou une autre touche pour prendre la photo d'un apprenant avant la fin du décompte</i></b><br>
+                            IP:<input id="ip_address" type="text" size="16" name="ip_address" required > - 
+                      Port: <input id="port_number" type="text" size="8" name="port_number" type="number"  value="8080" required >
+                      -Intervalle: <input id="intervalle" type="text" size="4" type="number" value="100" name="intervalle" required >
+                        
+                      <table class="table table-striped table-hover" style="border: 0px; width: 100%; ">
+                              <thead>
+                                <tr ><th><input type="checkbox" all name="select_all" class="select_all"  value="select_all"> Tous | Aucun </th></tr>
+                              </thead>
+                              <tbody id="tbody_tranches2">
+                              </tbody>
+                      </table>
+
+                        <div class="text-center">
+                          <!-- <div class="text-center eleves_liste"> -->
+                            
+                          </div>
+                          <button type="submit" class="btn prendre">Prendre</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        </div>
+                     <input type="hidden" name="id_supp" id="id_supp">
+
+                  </form>
+
+                 </div>
+              </div>
+            </div>
+                  </div>
+                  
+              </div>
    
         </div>
     </div>

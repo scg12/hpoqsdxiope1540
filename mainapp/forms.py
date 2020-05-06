@@ -27,6 +27,38 @@ class EtudiantForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': 'ENTRER VOTRE ÂGE', 'type' : "number", 'min':'0', 'class': 'form-control form-group age'}),
     )
 
+class BoursierForm(forms.Form):
+    matricule = forms.CharField(
+        label=_('MATRICULE'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'MATRICULE', 'class': 'form-control form-group matricule', 'style': 'text-transform:uppercase' }),
+    )
+    nom = forms.CharField(
+        label='NOM',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'NOM', 'class': 'form-control form-group nom', 'style': 'text-transform:uppercase'}),
+    )
+    prenom = forms.CharField(
+        label=_('PRENOM'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'PRENOM', 'class': 'form-control form-group prenom', 'style': 'text-transform:capitalize'}),
+    )
+    sexe = forms.CharField(
+        label=_('SEXE'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'SEXE', 'class': 'form-control form-group sexe', 'style': 'text-transform:capitalize'}),
+    )
+    classe_actuelle = forms.CharField(
+        label=_('CLASSE'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'CLASSE', 'class': 'form-control form-group classe_actuelle', 'style': 'text-transform:capitalize'}),
+    )
+    liste_boursiers_afficher = forms.CharField(
+        label=_('Bourse'),
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'BOURSES', 'class': 'form-control form-group liste_boursiers_afficher', 'style': 'text-transform:capitalize'}),
+    )
+
 class DateForm(forms.Form):
     date = forms.DateTimeField(input_formats=['%d/%m/%Y %H:%M'])
 

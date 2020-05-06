@@ -574,8 +574,6 @@ class Eleve(models.Model):
     age = models.IntegerField(default=0)
     archived = models.CharField(max_length=2,default="0")
     etat_sante = models.CharField(max_length=2,default="0")
-    # On supprimera ,default="6eA" et default=1 pr classe_actuelle et id_classe_actuelle a la prochaine
-    # migartion
     classe_actuelle = models.CharField(max_length=100)
     liste_classes_changees = models.CharField(max_length=150,default="")
     id_classe_actuelle = models.IntegerField()
@@ -585,7 +583,8 @@ class Eleve(models.Model):
     compte = models.FloatField(default=0)
     # Pr savoir si l'élève a payé la pension pr l'année en cours
     est_en_regle = models.CharField(max_length=1, default="0")
-
+    liste_bourses = models.TextField(default="")
+    liste_bourses_afficher = models.TextField(default="")
 
     divisions_temps = models.ArrayReferenceField(
         to=DivisionTemps,

@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
 
     #crispy_forms for awesome forms style
-    'crispy_forms',
+    # 'crispy_forms',
 
 ]
 
