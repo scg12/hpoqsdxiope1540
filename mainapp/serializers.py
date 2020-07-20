@@ -66,7 +66,6 @@ class BoursierSerializer(serializers.Serializer):
         
         return instance
 
-
 class EleveSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     matricule = serializers.CharField(max_length=30)
@@ -150,6 +149,29 @@ class CycleSerializer(serializers.Serializer):
         instance.nom_cycle = validated_data.get('nom_cycle', instance.nom_cycle.lower())
         instance.cycle_id = validated_data.get('cycle_id', instance.cycle_id)
 
+class LesDivisionTempsSousEtabSerializer(serializers.Serializer):
+    """docstring for LesDivisionTempsSousEtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    libelle = serializers.CharField(max_length=200)
+    date_deb_saisie = serializers.CharField(max_length=10)
+    date_fin_saisie = serializers.CharField(max_length=10)
+    is_active = serializers.BooleanField()
+    niveau_division_temps = serializers.IntegerField()
+    nom_sousetab = serializers.CharField(max_length=100)
+    # id_sousetab = serializers.IntegerField()
+
+    def create(self, validated_data):
+        return LesDivisionTempsSousEtab.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.libelle = validated_data.get('libelle', instance.libelle.lower())
+        instance.date_deb_saisie = validated_data.get('date_deb_saisie', instance.date_deb_saisie.lower())
+        instance.date_fin_saisie = validated_data.get('date_fin_saisie', instance.date_fin_saisie.lower())
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        # instance.id_sousetab = validated_data.get('id_sousetab', instance.id_sousetab)
+        instance.niveau_division_temps = validated_data.get('niveau_division_temps', instance.niveau_division_temps.lower())
+
 class EtabSerializer(serializers.Serializer):
     """docstring for EtabSerializer"""
     id = serializers.IntegerField(read_only=True)
@@ -197,6 +219,27 @@ class SousEtabSerializer(serializers.Serializer):
         instance.date_creation = validated_data.get('date_creation', instance.date_creation.lower())
         instance.nom_fondateur = validated_data.get('nom_fondateur', instance.nom_fondateur.lower())
         instance.localisation = validated_data.get('localisation', instance.localisation.lower())
+
+class SousEtabJoursOuvrablesSerializer(serializers.Serializer):
+    """docstring for SousEtabSerializer"""
+    id = serializers.IntegerField(read_only=True)
+    nom_sousetab = serializers.CharField(max_length=200)
+    liste_jours_ouvrables = serializers.CharField(max_length=150)
+    duree_tranche_horaire = serializers.IntegerField()
+    heure_deb_cours = serializers.CharField(max_length=10)
+    liste_pauses = serializers.CharField(max_length=300)
+    liste_pauses_afficher = serializers.CharField(max_length=300)
+
+    def create(self, validated_data):
+        return SousEtab.objects.create(**validated_data)
+        
+    def update(self, instance, validated_data):
+        instance.nom_sousetab = validated_data.get('nom_sousetab', instance.nom_sousetab.lower())
+        instance.liste_jours_ouvrables = validated_data.get('liste_jours_ouvrables', instance.liste_jours_ouvrables.lower())
+        instance.duree_tranche_horaire = validated_data.get('duree_tranche_horaire', instance.duree_tranche_horaire)
+        instance.heure_deb_cours = validated_data.get('heure_deb_cours', instance.heure_deb_cours.lower())
+        instance.liste_pauses = validated_data.get('liste_pauses', instance.liste_pauses.lower())
+        instance.liste_pauses_afficher = validated_data.get('liste_pauses_afficher', instance.liste_pauses_afficher.lower())
 
 class SousEtabConfigSerializer(serializers.Serializer):
     """docstring for SousEtabSerializer"""

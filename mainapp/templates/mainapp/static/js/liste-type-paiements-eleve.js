@@ -2,6 +2,17 @@ $(document).ready(function(){
 $("#datetimepicker1").datetimepicker();
 $("#datetimepicker2").datetimepicker();
 
+$(".ajouter_btn").on("click", function(){
+  nbre_classes = $(".choix_classes").children("option").length;
+  nbre_classes_selected = $(".choix_classes").children("option:selected").length;
+
+  if (nbre_classes > 0 && nbre_classes_selected == nbre_classes)
+    $("#equal").val("yes");
+  else $("#equal").val("no");
+  
+  $("#form").submit();
+});
+
 $("body").on("change", ".entree_sortie_caisee2", function() {
 
   if ($(this).val() == "s"){
@@ -116,7 +127,7 @@ $(".choix_sousetab").on("change", function(){
 
     if (id_niveau == "all"){
           $('.specialite').empty();
-          $('#liste_classes_niveaux').empty();
+          // $('#liste_classes_niveaux').empty();
           $('.choix_classes').empty();
     }else{
         var form = $(".load_type_payement_eleve_ajax");
@@ -142,7 +153,8 @@ $(".choix_sousetab").on("change", function(){
     id_niveau = $('.choix_niveau').val().split("_")[1];
     position = "5";
     // id_specialite = specialite.split("_")[1];
-    specialite = specialite.split("_")[0];
+    
+
 
  /*if (specialite == "tous"){
           $('#liste_classes_niveaux').empty();
@@ -171,7 +183,7 @@ function gererSucces2(data) {
   console.log(data);
   choix = data.choix;
 
-  if (choix == "etab") {
+  if (choix == "etab") {$(".ajouter_btn").removeAttr('disabled');
           liste_sousetabs = data.sousetabs;
           nbre_sousetabs = liste_sousetabs.length;
           
@@ -192,7 +204,7 @@ function gererSucces2(data) {
                                     </option>`);
            }
       }
-  if (choix == "sousetab") {
+  if (choix == "sousetab") {$(".ajouter_btn").removeAttr('disabled');
           liste_cycles = data.cycles;
           nbre_cycles = liste_cycles.length;
           
@@ -210,7 +222,7 @@ function gererSucces2(data) {
                                     </option>`);
            }
      }
-  if (choix == "cycle") {
+  if (choix == "cycle") {$(".ajouter_btn").removeAttr('disabled');
           liste_niveaux = data.niveaux;
           nbre_niveaux = liste_niveaux.length;
           
@@ -227,7 +239,7 @@ function gererSucces2(data) {
                                     </option>`);
            }
      }
-  if (choix == "niveau") {
+  if (choix == "niveau") {$(".ajouter_btn").removeAttr('disabled');
           liste_specialites = data.specialites;
           nbre_specialites = liste_specialites.length;
 
@@ -262,6 +274,12 @@ function gererSucces2(data) {
           liste_classes = data.classes;
           nbre_classes = liste_classes.length;
           
+          if (nbre_classes == 0)
+            $(".ajouter_btn").prop('disabled', true);
+          else
+            $(".ajouter_btn").removeAttr('disabled');
+
+
           $('.choix_classes').empty();
 
            for (var i = 0; i < nbre_classes; i++) {

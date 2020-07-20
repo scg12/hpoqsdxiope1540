@@ -25,7 +25,7 @@ SECRET_KEY = 'ut5jbzynr+)o+tn61cehc2n(zid3$o&43i^g5ob7*x$!*yj9b%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.43.229','192.168.43.60','127.0.0.1','172.20.10.2','192.168.8.102']
+ALLOWED_HOSTS = ['192.168.43.229','pupil','192.168.43.60','192.168.43.131','127.0.0.1','172.20.10.2','192.168.8.102']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'qr_code',
 
     #mainapp application
     'mainapp.apps.MainappConfig',
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # For I18N and L10N
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -96,6 +99,7 @@ DATABASES = {
         # 'NAME': 'cursusdjongodb',
         # 'NAME': 'maindb',
         'NAME': 'cursusdb',
+        'ATOMIC_REQUESTS': True,
     }
 }
 

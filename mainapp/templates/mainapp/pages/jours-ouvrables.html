@@ -1,0 +1,596 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/jours-ouvrables.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+      .dropdown{
+        margin-bottom: 8px!important;
+        
+      }
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:jours_ouvrables' %}" />
+                  
+                  <select name="language" id="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+  {% block content %}
+        
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+
+                <div class="card">
+
+                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
+                  </div> -->
+
+                  <div class="card-body">
+                      <div class="row">
+
+                        <div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center"><b>Jours Ouvrables</b></p>
+                        </div>
+
+                      </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12 col-md-8">
+                                
+                                 <label>Afficher </label> 
+                                 <select id="nbre_element_par_page" class="form-control-sm">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="-1">Tout</option>
+                                  </select> 
+                                  <label>Elements</label> 
+                                
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                              <form action="{% url 'mainapp:recherche_eleve33' %}" class="recherche_eleve33" method="POST">
+                                {% csrf_token %}
+                                  <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                                  <div id="message" ></div>
+                              </form>
+                              
+                            </div>
+
+                        </div><br>
+
+
+                  <div class="table-responsive">
+                        <div class="table-scroll">
+                          <table class="table table-striped table-hover">
+                            <thead class="">
+                              <tr>
+                                <th scope="col" class="fix-col" >#</th>
+                                
+                                <th scope="col" style="font-size:12px; font-weight:bold;" class="nom_sousetab fix-col1" >
+                                    <span class="tri tri-asc">Sous Etab
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                                       
+                                </th>
+                                <th scope="col" class="liste_jours_ouvrables" style="font-size:12px; font-weight:bold;">
+                                    <span class="tri tri-asc">Jours Ouvrables
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                  
+                                </th>
+                                <th scope="col" class="duree_tranche_horaire" style="font-size:12px; font-weight:bold;">
+                                    <span class="tri tri-asc">Durée Tranche Horaire
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span> 
+                                </th>
+                                <th scope="col" class="heure_deb_cours" style="font-size:12px; font-weight:bold;">
+                                    <span class="tri tri-asc">Heure Deb Cours
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span> 
+                                </th>
+                                <th scope="col" class="liste_pauses_afficher" style="font-size:12px; font-weight:bold;">
+                                    <span class="tri tri-asc">Pause(s)
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span>                                   
+                                </th>
+                                <th scope="col" class="text-right" style="font-size:12px; font-weight:bold;"><span class="tri tri-asc">Actions
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                    </span> 
+                                </th>
+
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for j in jours_ouvrables  %}
+                                    <tr class="{{ j.id }}²²{{ j.nom_sousetab }}²²{{ j.liste_jours_ouvrables }}²²{{ j.duree_tranche_horaire }}²²{{ j.heure_deb_cours }}²²{{ j.liste_pauses }}²²{{ j.liste_pauses_afficher }}">
+                                      <th scope="row" class="detail-sousetab-link-td fix-col">{{ forloop.counter }}</th>
+                                     
+                                      <td class="detail-sousetab-link-td fix-col1" style="text-transform: capitalize;">{{ j.nom_sousetab }}</td>
+                                      <td class="detail-sousetab-link-td" style="text-transform: capitalize;">{{ j.liste_jours_ouvrables }}</td>
+                                      <td class="detail-sousetab-link-td" style="text-transform: capitalize;">{{ j.duree_tranche_horaire }}</td>
+                                      <td class="detail-sousetab-link-td">{{ j.heure_deb_cours}}</td>
+                                      <td class="detail-sousetab-link-td">{{ j.liste_pauses_afficher}}</td>
+                                      <td class="td-actions text-right"> 
+
+                                      {% if perms.mainapp.can_change_sousetab or perms.mainapp.change_sousetab %}
+                                        <button rel="tooltip" class="btn modifier-sousetab-link">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                      {% endif %}
+                                      </td>
+
+                                    </tr>
+
+                                    {% empty %}
+                                      <tr>
+                                        <td colspan="7" class="text-center h4">Aucun Sous-etablissement créé </td>
+                                      </tr>
+                                {% endfor %}
+
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                               
+                                <th scope="col" class="fix-col">#</th>
+                                <th scope="col" class="fix-col1">Sous Etab</th>
+                                <th scope="col">Jours Ouvrables</th>
+                                <th scope="col">Durée Tranche Horaire</th>
+                                <th scope="col">Heure Deb Cours</th>                              
+                                <th scope="col">Pause(s)</th>                              
+                                <th scope="col">Actions</th>                              
+
+                              </tr>
+                            </tfoot>
+                      
+                        </table>
+                        </div>
+                        
+
+                  </div>      
+
+                           {% block pagination %}
+                              {% include 'mainapp/layouts/_pagination.html' %}
+                          {% endblock %}
+                              
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+
+  <!-- Detail-Dialog box -->
+<!-- <div class="modal fade" id="modal_detail_sousetab" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+                  <p class="h4 text-center">DETAIL SOUS ETABLISSEMENT</p>
+                  <form method="post"  class="detail_sousetab" action=" ">
+                      {% csrf_token %}
+                      {{ form.as_p }}
+
+                        <div class="text-center">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                       </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div> -->
+
+
+  <!-- dialog box ajouter sousetab  -->
+<!-- <div class="modal fade" id="modal_ajouter_sousetab" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+                <div class="modal-body ">
+                  <div class="card-body">
+                    <p class="h4 text-center">AJOUTER SOUS ETABLISSEMENT</p>
+                    <form method="post"  class="" action="{% url 'mainapp:creation_sous_etablissement' %}">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+
+                         <label id="message"></label><br>
+                        <div class="text-center">
+                            <button type="submit" class="btn">Créer</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                         </div>
+                    </form>
+
+                  </div>
+                  
+              </div>
+   
+        </div>
+    </div>
+</div> -->
+
+
+
+  <!-- dialog box modifier sousetab  -->
+<div class="modal fade" id="modal_modifier_sousetab" tabindex="-1" role="">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+              <div class="card-body">
+                <p class="h4 text-center"><b>MODIFIER JOURS OUVRABLES</b></p>
+                <div class=" justify-content-center">
+                   <form method="post" class="modification_jours1" action="{% url 'mainapp:modification_eleve3' %}">
+                    {% csrf_token %}
+                    
+                    <div class="text-center">
+                        <span style="font-size: 11px;">
+                          Rassurer vous que pour chaque jour les heures de pauses et de cours coincident pour une bonne réalisation de l'emploi du temps!
+                        </span><br>
+                        
+                    </div>
+                    <div class="text-center">
+                        <!-- <label for="sousetab" class="bmd-label-floating">Sous Etab</label> -->
+                        <select name="sousetab" class ="form-control form-group sousetab" style="width:150px; margin: 0 auto; font-weight: bold;" disabled>
+                             
+                              {% for s in sousetabs %}
+                               <option value="{{s.id}}" style="text-align: center;">{{s.nom_sousetab}}
+                              {% endfor %}
+                        </select>
+                    </div>
+                     
+
+                    <div class="row">
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Lundi:&nbsp;</span> <input type="checkbox" name="jour1" class="form-control-sm form-group lundi">
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Mardi:&nbsp;</span> <input type="checkbox" name="jour2" class="form-control-sm form-group mardi">
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Mercredi:&nbsp;</span> <input type="checkbox" name="jour3" class="form-control-sm form-group mercredi">
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Jeudi:&nbsp;</span> <input type="checkbox" name="jour4" class="form-control-sm form-group jeudi">
+                            </div>
+                        </div>
+                      </div>
+
+                  </div>
+                    <div class="row">
+                       <div class="col-sm-0 col-md-2"></div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Vendredi:&nbsp;</span> <input type="checkbox" name="jour5" class="form-control-sm form-group vendredi">
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Samedi:&nbsp;</span> <input type="checkbox" name="jour6" class="form-control-sm form-group samedi">
+                            </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-12 col-md-3">
+                        <div class="input-group form-control-md">
+                            <div class="form-group bmd-form-group ">
+                              <span style="font-weight: 500">Dimanche:&nbsp;</span> <input type="checkbox" name="jour7" class="form-control-sm form-group dimanche">
+                            </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm-0 col-md-1"></div>
+                      <div class="col-sm-12 col-md-5">
+                        <label for="duree_tranche_horaire_label" class="bmd-label-floating duree_tranche_horaire_label"><b style="color :#506ce9;">Durée tranche horaire:</b></label>
+                      </div>
+                      <div class="col-sm-6 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" maxlength="4" type="number" min="1" name="duree_tranche_horaire" class="duree_tranche_horaire form-group form-control"> &nbsp; 
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-6 col-md-3">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <label for="p1" class="bmd-label-floating ">Minutes</label>
+                              </div>
+                           </div>
+                       </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm-0 col-md-1"></div>
+                      <div class="col-sm-12 col-md-5">
+                          <label for="heure_deb_cours_label" class="bmd-label-floating heure_deb_cours_label"><b style="color :#506ce9;">Heure début cours:</b></label>
+                      </div>
+                      <div class="col-sm-4 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" maxlength="4" type="number" min="1" name="heure_deb_cours_h" class="heure_deb_cours_h form-group form-control"> &nbsp; 
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-1 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <label for="h" class="bmd-label-floating ">H</label>
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-4 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" maxlength="4" type="number" min="0" name="heure_deb_cours_m" class="heure_deb_cours_m form-group form-control"> &nbsp;
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-12 col-md-3">
+                         <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                                  <label for="p2" class="bmd-label-floating ">Minutes</label>
+                              </div>
+                         </div>
+                       </div>
+                    </div>
+
+                    <div class="row">
+                       <div class="col-sm-0 col-md-2"></div>
+                        <div class="col-sm-12 col-md-4">
+                          <label for="pause_add" class="bmd-label-floating pause_add "><b><a href="#" style="color :#506ce9;">+ Pause</a></b></label>
+                        </div>
+                      
+                       <div class="col-sm-12 col-md-4">
+                        <label for="pause_add" class="bmd-label-floating pause_rmv "><b><a href="#" style="color :#506ce9;">- Pause</a></b></label>
+                      </div>
+                    </div>
+                    
+                    <div class="text-center les_pauses row">
+
+                    </div>
+
+
+                    
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <input type="hidden" name="nb_pauses" id="nb_pauses" value="0">
+                      <input type="hidden" name="current_lang" id="current_lang">
+                      <input type="hidden" name="id_sousetab" id="id_sousetab">
+
+                      <div class="text-center">
+                        <button type="submit" class="btn">Modifier</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+                  </div>
+              </div>
+              
+            </div>
+                    
+        </div>
+    </div>
+</div>
+
+
+
+  <!-- Suppression-Dialog box -->
+<!-- <div class="modal fade" id="modal_supprimer_sousetab" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+
+                  <form method="post"  class="suppression_sousetab" action="{% url 'mainapp:suppression_sous_etablissement' %} ">
+                    <p class="h4 text-center">SUPPRIMER SOUS ETABLISSEMENT</p>
+                      {% csrf_token %}
+                        <input type="hidden" name="id_supp" id="id_supp">
+
+                        <div class="form-group">
+                          <label class="">Sous Etab: </label>
+                          <label class="nom_sousetab text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Date Création : </label>
+                          <label class="date_creation text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Fondateur : </label>
+                          <label class="nom_fondateur text-primary"></label>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="">Localisation : </label>
+                          <label class="localisation text-primary"></label>
+                        </div>
+                        
+                        <div class="card-body">Voulez vous vraiment supprimer?</div>
+                        <div class="text-center">
+                          <button type="submit" class="btn">OUI</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">NON</button>
+                        </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div>
+ -->
+
+  <!-- input with datetimepicker -->
+  <!-- <div class="form-group">
+      <label class="label-control">Datetime Picker</label>
+      <input type="text" class="form-control datetimepicker" value="21/06/2018"/>
+      <input type="date" class="form-control" value="21/06/2018"/>
+      <input type="time" class="form-control" value="21/06/2018"/>
+  </div>
+   -->
+
+  {% endblock %}
+
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+    
+    <script type="text/javascript">
+    $(document).ready(function() {
+
+      var i = 0;
+        $(".etab-link").click(function(){
+          //alert("message?: DOMString");
+            // $(".etab").toggleClass("show");
+            if(i%2 == 0)
+              $(".etab").css("visibility", "hidden");
+            else
+              $(".etab").css("visibility", "visible");
+            i++;
+
+        });
+
+
+          $(".theme").click(function(e) {
+      
+          e.stopImmediatePropagation(); 
+
+          var url_action = $("#changer_theme").attr("class");
+
+          classe = $(this).children("div").attr("class");
+          tab_element = classe.split("²²");
+
+          data_color = tab_element[0];
+          sidebar_class = tab_element[1];
+          theme_class = tab_element[2];
+
+          var donnees = data_color + "²²~~" + sidebar_class + "²²~~" + theme_class;
+
+           $.ajax({
+               method: 'POST',
+               url: url_action,
+               data: {
+                 form_data : donnees,
+                 csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+               },
+               success: themeSucces,
+               error: themeError,
+           });
+
+    });
+
+
+     function themeSucces(data){
+        console.log(data);
+
+            $(".sidebar").attr("data-color", data.data_color);
+            $(".sidebar").removeClass("sidebar-bleu sidebar-violet sidebar-vert sidebar-orange sidebar-rose sidebar-turquoise sidebar-jaune").addClass(data.sidebar_class);
+
+            $(".btn").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+            $(".moving-tab").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+
+            $(".btn-rond").removeClass("orange vert violet turquoise bleu rose jaune").addClass(data.theme_class);
+
+            $(".loader").removeClass("loader_orange loader_vert loader_violet loader_turquoise loader_bleu loader_rose loader_jaune").addClass("loader_" + data.theme_class);
+
+            $("#navbar-top").removeClass("orange vert violet bleu rose jaune turquoise").addClass(data.theme_class);
+        
+     }
+
+     function themeError(error){
+        console.log(error);
+     }
+
+    });
+
+
+
+    </script>
+    
+  {% endblock %}

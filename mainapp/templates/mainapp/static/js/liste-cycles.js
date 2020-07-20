@@ -46,8 +46,8 @@ $(document).ready(function(){
 
              nouvelle_ligne = '<tr><td colspan="7" class="text-center h4">Vous n\'avez plus droit d\'accès sur cette page</td></tr>';                
              $("table tbody").append(nouvelle_ligne);
-          }else{
-
+          }
+     else{
 
 
             $("table tbody tr").remove();

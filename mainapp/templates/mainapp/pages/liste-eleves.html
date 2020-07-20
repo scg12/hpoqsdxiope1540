@@ -144,8 +144,10 @@
                             </div>
 
                             <div class="col-sm-12 col-md-4">
-                                 <label>Classe: </label> 
-                                 <select id="classe_recherchee" class="form-control-sm">
+                              <form action="{% url 'mainapp:liste_eleve_pdf' %}" class="liste_eleve_pdf" method="POST">
+                                {% csrf_token %}
+                              <label>Classe: </label> 
+                                 <select id="classe_recherchee" class="form-control-sm" name="classe_recherchee">
                                   {% for c in classe_recherchees %}
                                     {% if c.id|isequal:id_classe_courante %}
                                       <option value="{{c.nom_classe}}_{{c.id}}" selected> {{c.nom_classe}}
@@ -154,6 +156,11 @@
                                     {% endif %}
                                   {% endfor %}
                                   </select>
+                              <button type="submit" class="btn telecharger_liste_classe">Liste</button>
+
+                              </form>
+
+                                 
                                   
                                  <button class="btn prendre-photo-eleve-link">Photos</button>
                             </div>
@@ -289,7 +296,7 @@
                                     {% for elv in page_active  %}
                                     <tr class="{{ elv.id }}²²{{ elv.matricule }}²²{{ elv.nom }}²²{{ elv.prenom }}²²{{ elv.sexe }}²²{{ elv.redouble }}²²{{ elv.date_naissance }}²²{{ elv.lieu_naissance }}²²{{ elv.date_entree }}²²{{ elv.nom_pere }}²²{{ elv.prenom_pere }}²²{{ elv.nom_mere }}²²{{ elv.prenom_mere }}²²{{ elv.tel_pere }}²²{{ elv.tel_mere }}²²{{ elv.email_pere }}²²{{ elv.email_mere }}²²{{elv.id_classe_actuelle}}²²{{ elv.classe_actuelle }}²²{{ elv.photo_url }}²²{{ elv.bourse }}²²{{ elv.est_en_regle }}²²{{ elv.compte }}²²{{ elv.excedent }}">
                                       <th scope="row" class="detail-eleve-link-td fix-col0">{{ forloop.counter }}</th>
-                                     {% if elv.est_en_regle|isequal:"1" %}
+                                     {% if elv.compte|suporequal:montant_a_payer %}
                                         <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;"> <span style="color:green;">{{ elv.matricule }}</span></td>
                                       {% else %}
                                       <td class="detail-eleve-link-td fix-col1" style="text-transform: uppercase;">{{ elv.matricule }}</td>

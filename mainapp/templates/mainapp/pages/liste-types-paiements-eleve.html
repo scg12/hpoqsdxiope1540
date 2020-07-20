@@ -87,7 +87,12 @@
                                  <select id="classe_recherchee" class="form-control-sm">
                                     <option value="tous_all" selected>Toutes</option>
                                     {% for c in type_paiements_eleves_afficher %}
-                                      <option value="{{type_paiements_eleves_|getchar2:forloop.counter}}"> {{c}}
+                                    {% if type_paiements_eleves_|getchar2:forloop.counter|is_in:"aucune" %}
+                                          <option value="{{type_paiements_eleves_|getchar2:forloop.counter}}"> {{c}} Sans Spécialité
+                                    {% else %}
+                                          <option value="{{type_paiements_eleves_|getchar2:forloop.counter}}"> {{c}}
+                                    {% endif %}
+                                      
                                     {% endfor %}
                                   </select> 
                             </div>
@@ -280,7 +285,7 @@
                 <div class="modal-body ">
                   <div class="card-body">
                     <p class="h4 text-center">AJOUTER TYPE PAYEMENT APPRENANT</p>
-                    <form action="{% url 'mainapp:creation_type_paiement_eleve' %}" class="load_type_payement_eleve_ajax" method="POST">
+                    <form action="{% url 'mainapp:creation_type_paiement_eleve' %}" class="load_type_payement_eleve_ajax" method="POST" id="form">
                         {% csrf_token %}
                       <div class="row justify-content-center">
                           <div class="input-group form-control-md">
@@ -392,7 +397,9 @@
 
                         <label id="message"></label>
                         <div class="text-center">
-                            <button type="submit" class="btn">Ajouter</button>
+                          <input type="hidden" name="equal" id="equal">
+
+                            <button type="button" class="btn ajouter_btn">Ajouter</button>
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
                          </div>
                     </form>

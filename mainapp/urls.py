@@ -1,11 +1,14 @@
 from django.conf.urls import url
 from mainapp import views
+from qr_code import urls as qr_code_urls
 
 app_name = 'mainapp'
 
 urlpatterns = [
 
-
+url('definition-divisionstemps/', views.definition_divisionstemps, name="definition_divisionstemps"),
+url(r'^etats-paiements-eleves/$',views.etats_paiements_eleves,name='etats_paiements_eleves'),
+url(r'^liste-eleve-pdf/$',views.liste_eleve_pdf,name='liste_eleve_pdf'),
 url('dashboard/', views.dashboard, name="dashboard"),
 url(r'^groupe-permission-modification/(?P<id>\d+)$', views.groupe_permission_modification, name='groupe_permission_modification'),
 url(r'^login/$', views.login_user, name='login'),
@@ -32,6 +35,9 @@ url(r'^liste-etudiants/(?P<page>\d+)$', views.liste_etudiants, name='liste_etudi
 url('liste-etudiants/', views.liste_etudiants, name="liste_etudiants"),
 url('liste-groupes/', views.liste_groupes, name="liste_groupes"),
 
+url('definition_tranches_horaires/', views.definition_tranches_horaires, name="definition_tranches_horaires"),
+url('jours-ouvrables/', views.jours_ouvrables, name="jours_ouvrables"),
+url('periodes-saisie-actives/', views.periodes_saisie_actives, name="periodes_saisie_actives"),
 url('load-specialites-ajax/', views.load_specialites_ajax, name="load_specialites_ajax"),
 url('liste-etablissements/', views.liste_etablissements, name="liste_etablissements"),
 url('liste-sous-etablissements/', views.liste_sous_etablissements, name="liste_sous_etablissements"),
@@ -60,6 +66,7 @@ url('liste-types-paiements-transport.html/', views.liste_types_paiements_transpo
 url('liste-types-paiements-dortoir.html/', views.liste_types_paiements_dortoir, name="liste_types_paiements_dortoir"),
 url('liste-types-paiements-facture.html/', views.liste_types_paiements_facture, name="liste_types_paiements_facture"),
 
+url('liste-divisionstemps/', views.liste_divisionstemps, name="liste_divisionstemps"),
 url('liste-eleves/', views.liste_eleves, name="liste_eleves"),
 url('liste-boursiers/', views.liste_boursiers, name="liste_boursiers"),
 
@@ -68,6 +75,7 @@ url('parametres-progression/', views.parametres_progression, name="parametres_pr
 url('parametres-cours/', views.parametres_cours, name="parametres_cours"),
 url('parametres-reunion/', views.parametres_reunion, name="parametres_reunion"),
 
+url(r'^recherche-jours-ouvrables/$', views.recherche_jours_ouvrables, name='recherche_jours_ouvrables'),
 url(r'^recherche-etablissement/$', views.recherche_etablissement, name='recherche_etablissement'),
 url(r'^recherche-etudiant/$', views.recherche_etudiant, name='recherche_etudiant'),
 url(r'^recherche-profil/$', views.recherche_profil, name='recherche_profil'),
@@ -96,6 +104,9 @@ url(r'^recherche-type-paiement-dortoir/$', views.recherche_type_paiement_dortoir
 url(r'^recherche-type-paiement-facture/$', views.recherche_type_paiement_facture, name='recherche_type_paiement_facture'),
 url(r'^recherche-eleve/$', views.recherche_eleve, name='recherche_eleve'),
 url(r'^recherche-boursier/$', views.recherche_boursier, name='recherche_boursier'),
+# url(r'^recherche-periodes-saisie-actives/$', views.recherche_periodes_saisie_actives, name='recherche_periodes_saisie_actives'),
+url(r'^recherche-eleve3/$', views.recherche_eleve3, name='recherche_eleve3'),
+url(r'^recherche-eleve33/$', views.recherche_eleve33, name='recherche_eleve33'),
 
 url(r'^recherche-eleves-salle-de-classe/$', views.recherche_eleves_salle_de_classe, name='recherche_eleves_salle_de_classe'),
 
@@ -153,6 +164,7 @@ url(r'^suppression-type-paiement-facture/$', views.suppression_type_paiement_fac
 url(r'^suppression-eleve/$', views.suppression_eleve, name='suppression_eleve'),
 url(r'^suppression-boursier/$', views.suppression_boursier, name='suppression_boursier'),
 
+url(r'^modification-definition-tranche-horaire/$', views.modification_def_tranche_horaire, name='modification_def_tranche_horaire'),
 url(r'^modification-sous-etablissement/$', views.modification_sous_etablissement, name='modification_sous_etablissement'),
 url(r'^modification-etablissement/$', views.modification_etablissement, name='modification_etablissement'),
 url(r'^modification-etudiant/$', views.modification_etudiant, name='modification_etudiant'),
@@ -177,7 +189,11 @@ url(r'^modification-type-paiement-transport/$', views.modification_type_paiement
 url(r'^modification-type-paiement-dortoir/$', views.modification_type_paiement_dortoir, name='modification_type_paiement_dortoir'),
 url(r'^modification-type-paiement-facture/$', views.modification_type_paiement_facture, name='modification_type_paiement_facture'),
 url(r'^modification-eleve/$', views.modification_eleve, name='modification_eleve'),
+url(r'^modification-eleve2/$', views.modification_eleve2, name='modification_eleve2'),
+url(r'^modification-eleve3/$', views.modification_eleve3, name='modification_eleve3'),
+url(r'^modification-jours-ouvrables/$', views.modification_jours_ouvrables, name='modification_jours_ouvrables'),
 url(r'^modification-boursier/$', views.modification_boursier, name='modification_boursier'),
+url(r'^modification-periodes-saisie-actives/$', views.modification_periodes_saisie_actives, name='modification_periodes_saisie_actives'),
 
 url(r'^classe/(?P<id>\d+)$', views.classe, name='classe'),
 # url(r'^classe/(?P<string>\d+)$', views.classe, name='classe'),

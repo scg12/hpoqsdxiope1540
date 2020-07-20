@@ -15,7 +15,6 @@ from requests.exceptions import ConnectionError
 
 from django.http import JsonResponse, HttpResponse
 
-from mainapp.models import Profil
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -26,10 +25,9 @@ from mainapp.serializers import *
 
 from pymongo import MongoClient
 
-from django.db.models import Q
-from mainapp.models import Etudiant
+from django.db.models import Q, F
 from django.apps import apps
-from django.db import transaction
+from django.db import transaction, connection
 
 from .forms import InitialisationForm 
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -48,8 +46,19 @@ import numbers
 import cv2
 import numpy as np
 import time
-from playsound import playsound
+from datetime import date
+from django.template.loader import render_to_string
 from weasyprint import HTML, CSS
+from weasyprint.fonts import FontConfiguration
+from playsound import playsound
+
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.template.loader import get_template
+from django.db.models import Avg, Count, Min, Sum
+from functools import reduce
+import operator
 
 
 # definition des constantes
@@ -67,11 +76,2062 @@ chemin_fichier_excel = "mainapp/templates/mainapp/static/upload/"
 ANNEE_SCOLAIRE = "2019-2020"
 
 
+
 class JSONResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+
+# Retourne la date ok et la date aun format anglophone
+def date_correct(date):
+    # date_ok = "11/06/2020"
+    date_ok = date.replace("/","-")
+    date_ok_en = ""
+    n1 = len(date_ok.split("-")) - 1
+    # n1 == 2 date bien formé sinon mal formé. De m pr n2
+    if n1 == 2:
+    # Ici on met la date au format anglais pr la recherche
+        date_ = date_ok.split("-")
+        un = date_[0]
+        deux = date_[1]
+        trois = date_[2]
+        # print("Deux: ",deux, deux.isdigit())
+        if len(trois) == 4 and len(deux) == 2 and len(un) == 2 and trois.isdigit() and deux.isdigit() and un.isdigit():
+          date_ok_en = trois+"-"+deux+"-"+un
+          date_ok = un+"-"+deux+"-"+trois
+        else:
+            date_ok = ""
+    else:
+        date_ok, date_ok_en = "", ""
+    return date_ok, date_ok_en
+
+def set_divisiontemps_status(date_deb_en, date_fin_en,today):
+    # On cherche à fixer la le status de la division du temps
+    is_active = False
+    if date_deb_en != "" and date_fin_en != "":
+        is_active = True if today <= date_fin_en and today >= date_deb_en else False
+
+    elif date_deb_en != "" and date_fin_en == "":
+            is_active = True if today >= date_deb_en else False
+
+    elif date_deb_en == "" and date_fin_en != "":
+        is_active = True if today <= date_fin_en else False
+    else:
+        is_active = False
+    # print(date_deb_en, today, date_fin_en,is_active)
+
+    return is_active
+
+def definition_divisionstemps(request):
+    
+    start = time.time()  
+    id_sousetab = request.POST["sousetab"] if request.POST["sousetab"] == "all" else int(request.POST["sousetab"])
+    print("id_sousetab", id_sousetab)   
+    sousetab_id, nom_sousetab = "", ""
+    setab = []
+    evolution, cpte_evolution, nb_sousetab = 1, 0, 0
+
+    appellation_bull = request.POST['appellation_bull']
+    nb_hierarchies = int(request.POST['nb_hierarchies'])
+    print("nb_hierarchies ", nb_hierarchies)
+    # evolution = nb_hierarchies * nb_sousetab
+    # evolution = nb_hierarchies * nb_sousetab + 2 if id_sousetab == "all" else nb_hierarchies * nb_sousetab + 1
+    cpte_evolution = 1
+    indice = 2
+    while indice <= nb_hierarchies:
+        # if indice < nb_hierarchies:
+        nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
+        # print("nombre_hierarchie",indice, nombre_hierarchie)
+        evolution += nombre_hierarchie
+        indice += 1
+    # print("evolution: ", evolution)
+
+    if id_sousetab != "all":
+        setab = SousEtab.objects.values('id','nom_sousetab').filter(pk = id_sousetab)[0]
+        sousetab_id, nom_sousetab = setab['id'], setab['nom_sousetab']
+        nb_sousetab = 1
+    else:
+        nb_sousetab =  SousEtab.objects.all().count()
+
+    evolution = evolution * nb_sousetab
+
+    if LesDivisionTemps.objects.all().count() > 0 or DivisionTemps.objects.all().count() > 0:
+        cursor = connection.cursor()
+        liste_classes_id = []
+        niveaux = []
+
+        # cursor.execute(“DELETE FROM mainapp_lesdivisiontempssousetab WHERE store_id = %s”, [store.id])
+        if id_sousetab != "all":
+            cursor.execute("DELETE FROM mainapp_lesdivisiontemps WHERE id_sousetab = %s", [id_sousetab])
+            cursor.execute("DELETE FROM mainapp_divisiontemps WHERE id_sousetab = %s", [id_sousetab])
+            cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab WHERE id_sousetab = %s", [id_sousetab])
+            
+            Groupe.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
+            Cours.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
+
+            niveaux = Niveau.objects.filter(id_sousetab = id_sousetab)
+
+        else:
+            cursor.execute("DELETE FROM mainapp_lesdivisiontemps")
+            cursor.execute("DELETE FROM mainapp_divisiontemps")
+            cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab")
+
+            # le ~Q(id_sousetab = 0) est juste un muchibichi pr dire tous car le update semble vouloir un param au niveau du filter
+            Groupe.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
+            Cours.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
+
+            niveaux = Niveau.objects.filter()
+        for n in niveaux:
+            # niv = niveaux.classes.all()
+            classes = n.classes.values('id').all()
+            [liste_classes_id.append(c['id']) for c in classes]
+        # print(liste_classes_id)
+        Eleve.objects.filter(id_classe_actuelle__in = liste_classes_id).update(divisions_temps = [])
+        deletion_time = time.time() 
+        print("TIME OF DELETION OF OLD DATA IS: ", deletion_time-start)
+
+
+    indice = 1
+
+    today = date.today()
+    today = today.strftime("%d/%m/%Y")
+    p, today = date_correct(today)
+    libelle = ""
+
+
+    # On save d'abord les infos annuelles
+    niveau_division_temps = 1
+    libelle = request.POST['hierarchie1']
+    nom_hierarchie_suiv = request.POST['hierarchie2']
+
+    # Ici on save d'abord la division de temps annuelle, qui est calculée.
+    if id_sousetab == "all":
+        # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
+        sousetab_id = SousEtab.objects.all()
+        for s in sousetab_id:
+            print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+            cpte_evolution += 1
+            print(s.nom_sousetab)
+            dt  = LesDivisionTempsSousEtab()
+            dt.libelle = libelle
+            dt.date_deb, dt.date_deb_en =  "", ""
+            dt.date_fin, dt.date_fin_en =  "", ""
+            dt.is_active = False
+            dt.niveau_division_temps = niveau_division_temps
+            dt.mode = "calculé"
+            dt.nom_sous_hierarchie = nom_hierarchie_suiv
+            dt.archived = "0"
+            dt.id_sousetab = s.id
+            dt.nom_sousetab = s.nom_sousetab
+            dt.save()
+            s.divisions_temps.add(dt)
+            s.appellation_bulletin = appellation_bull
+            s.save()
+            groupes = Groupe.objects.filter(id_sousetab = s.id)
+            for g in groupes:
+                #print(g)
+                dt  = LesDivisionTemps()
+                dt.niveau_division_temps = niveau_division_temps
+                dt.archived = "0"
+                dt.id_sousetab = s.id
+                dt.nom_sousetab = s.nom_sousetab
+                dt.save()
+                g.divisions_temps.add(dt)
+
+            cours = Cours.objects.filter(id_sousetab = s.id)
+            for c in cours:
+                #print(c)
+                dt  = LesDivisionTemps()
+                dt.niveau_division_temps = niveau_division_temps
+                dt.archived = "0"
+                dt.id_sousetab = s.id
+                dt.nom_sousetab = s.nom_sousetab
+                dt.save()
+                c.divisions_temps.add(dt)
+                elvs = c.eleves.all()
+                for e in elvs:
+                    # dt  = LesDivisionTemps()
+                    # dt.niveau_division_temps = niveau_division_temps
+                    # dt.archived = "0"
+                    # dt.id_sousetab = s.id
+                    # dt.nom_sousetab = s.nom_sousetab
+                    # dt.save()
+                    divt = DivisionTemps()
+                    divt.id_sousetab = s.id
+                    divt.nom_sousetab = s.nom_sousetab
+                    divt.niveau_division_temps = niveau_division_temps
+                    divt.save()
+                    # divt.type_divisions_temps.add(dt)
+                    e.divisions_temps.add(divt)
+
+    else:
+        sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
+        print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+        cpte_evolution += 1
+        dt  = LesDivisionTempsSousEtab()
+        dt.libelle = libelle
+        dt.date_deb, dt.date_deb_en =  "", ""
+        dt.date_fin, dt.date_fin_en =  "", ""
+        dt.is_active = False
+        dt.niveau_division_temps = niveau_division_temps
+        dt.mode = "calculé"
+        dt.nom_sous_hierarchie = nom_hierarchie_suiv
+        dt.archived = "0"
+        dt.id_sousetab = id_sousetab
+        dt.nom_sousetab = nom_sousetab
+        dt.save()
+        sousetab.divisions_temps.add(dt)
+        # sousetab.update(appellation_bulletin = appellation_bull)
+        sousetab.appellation_bulletin = appellation_bull
+        sousetab.save()
+        groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
+        for g in groupes:
+            #print(g)
+            dt  = LesDivisionTemps()
+            dt.archived = "0"
+            dt.niveau_division_temps = niveau_division_temps
+            dt.id_sousetab = id_sousetab
+            dt.nom_sousetab = nom_sousetab
+            dt.save()
+            g.divisions_temps.add(dt)
+
+        cours = Cours.objects.filter(id_sousetab = id_sousetab)
+        for c in cours:
+            #print(c)
+            dt  = LesDivisionTemps()
+            dt.archived = "0"
+            dt.niveau_division_temps = niveau_division_temps
+            dt.id_sousetab = id_sousetab
+            dt.nom_sousetab = nom_sousetab
+            dt.save()
+            c.divisions_temps.add(dt)
+            elvs = c.eleves.all()
+            for e in elvs:
+                # dt  = LesDivisionTemps()
+                # dt.archived = "0"
+                # dt.niveau_division_temps = niveau_division_temps
+                # dt.nom_sousetab = nom_sousetab
+                # dt.id_sousetab = id_sousetab
+                # dt.save()
+                divt = DivisionTemps()
+                divt.nom_sousetab = nom_sousetab
+                divt.id_sousetab = id_sousetab
+                divt.niveau_division_temps = niveau_division_temps
+                divt.save()
+                # divt.type_divisions_temps.add(dt)
+                e.divisions_temps.add(divt)
+
+    niveau_division_temps = 2
+
+    # Dans ce cas il y a une seule division du temps
+    if nb_hierarchies == 2:
+        nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice+1)])
+        print("nombre_hierarchie",indice+1, nombre_hierarchie)
+        hierarchie = request.POST['hierarchie'+str(indice+1)]
+        print("hierarchie", indice+1, hierarchie)
+
+        
+        while indice <= nombre_hierarchie:
+            
+            date_deb = request.POST['date_deb_'+str(indice)]
+            date_fin = request.POST['date_fin_'+str(indice)]
+            d_deb, d_deb_en = date_correct(date_deb)
+            d_fin, d_fin_en = date_correct(date_fin)
+            is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+            libelle =  hierarchie+str(indice)
+
+            if id_sousetab == "all":
+                sousetab = SousEtab.objects.filter()
+                for s in sousetab:
+                    print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                    cpte_evolution += 1
+                    print(s.nom_sousetab)
+                    dt  = LesDivisionTempsSousEtab()
+                    dt.libelle = libelle
+                    dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                    dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                    dt.is_active = is_active
+                    dt.mode = "saisi"
+                    dt.niveau_division_temps = niveau_division_temps
+                    dt.archived = "0"
+                    dt.id_sousetab = s.id
+                    dt.nom_sousetab = s.nom_sousetab
+                    dt.save()
+                    s.nom_division_temps_saisisable = libelle
+                    s.save()
+                    s.divisions_temps.add(dt)
+                    groupes = Groupe.objects.filter(id_sousetab = s.id)
+                    #print("***Config Groupes")
+                    for g in groupes:
+                        dt  = LesDivisionTemps()
+                        # dt.libelle = hierarchie+str(indice)
+                        # dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                        # dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                        # dt.is_active = is_active
+                        # dt.mode = "saisi"
+                        dt.niveau_division_temps = niveau_division_temps
+                        dt.archived = "0"
+                        dt.id_sousetab = s.id
+                        dt.nom_sousetab = s.nom_sousetab
+                        dt.save()
+                        g.divisions_temps.add(dt)
+
+                    cours = Cours.objects.filter(id_sousetab =  s.id)
+                    #print("***Config Cours")
+
+                    for c in cours:
+                        dt  = LesDivisionTemps()
+                        dt.niveau_division_temps = niveau_division_temps
+                        dt.archived = "0"
+                        dt.id_sousetab = s.id
+                        dt.nom_sousetab = s.nom_sousetab
+                        dt.save()
+                        c.divisions_temps.add(dt)
+                        elvs = c.eleves.all()
+                        for e in elvs:
+                            # print(e.divisions_temps.all())
+                            # dt  = LesDivisionTemps()
+                            # dt.niveau_division_temps = niveau_division_temps
+                            # dt.archived = "0"
+                            # dt.id_sousetab = s.id
+                            # dt.nom_sousetab = s.nom_sousetab
+                            # dt.save()
+                            divt = DivisionTemps()
+                            divt.id_sousetab = s.id
+                            divt.nom_sousetab = s.nom_sousetab
+                            divt.niveau_division_temps = niveau_division_temps
+                            divt.save()
+                            # divt.type_divisions_temps.add(dt)
+                            e.divisions_temps.add(divt)
+                            # divt.type_divisions_temps.add(dt)
+
+            else:
+                print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                cpte_evolution += 1
+                sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
+                dt  = LesDivisionTempsSousEtab()
+                dt.libelle = libelle
+                dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                dt.is_active = is_active
+                dt.mode = "saisi"
+                dt.niveau_division_temps = niveau_division_temps
+                dt.archived = "0"
+                dt.id_sousetab = sousetab_id
+                dt.nom_sousetab = nom_sousetab
+                dt.save()
+                sousetab.nom_division_temps_saisisable = libelle
+                sousetab.save()
+                sousetab.divisions_temps.add(dt)
+                groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
+                #print("***Config Groupes")
+                for g in groupes:
+                    dt  = LesDivisionTemps()
+                    dt.niveau_division_temps = niveau_division_temps
+                    dt.archived = "0"
+                    dt.id_sousetab = id_sousetab
+                    dt.nom_sousetab = nom_sousetab
+                    dt.save()
+                    g.divisions_temps.add(dt)
+
+
+                cours = Cours.objects.filter(id_sousetab = id_sousetab)
+                #print("***Config Cours")
+
+                for c in cours:
+                    dt  = LesDivisionTemps()
+                    dt.niveau_division_temps = niveau_division_temps
+                    dt.archived = "0"
+                    dt.id_sousetab = id_sousetab
+                    dt.nom_sousetab = nom_sousetab
+                    dt.save()
+                    c.divisions_temps.add(dt)
+                    elvs = c.eleves.all()
+                    for e in elvs:
+                        # dt  = LesDivisionTemps()
+                        # dt.niveau_division_temps = niveau_division_temps
+                        # dt.archived = "0"
+                        # dt.id_sousetab = id_sousetab
+                        # dt.nom_sousetab = nom_sousetab
+                        # dt.save()
+                        divt = DivisionTemps()
+                        divt.id_sousetab = id_sousetab
+                        divt.nom_sousetab = nom_sousetab
+                        divt.niveau_division_temps = niveau_division_temps
+                        divt.save()
+                        # divt.type_divisions_temps.add(dt)
+                        e.divisions_temps.add(divt)
+                        # e.divisions_temps.add(dt)
+
+
+            # print("date_deb_",indice, dt.date_deb)
+            # print("date_fin_",indice, dt.date_fin)
+            indice += 1
+    # Dans ce cas il y a +sieurs divisions du temps
+    else:
+        # hierarchie = request.POST['hierarchie'+str(indice)]
+        # print("hierarchie", indice, hierarchie)
+        
+
+        nombre_hierarchie = 0
+        mode_saisie = 0
+        cpt = 0
+        k = 0
+        
+        # i = 1
+        # m = 0
+        ind = 1
+        nbrehierarchie_i_total= 0
+        d_deb, d_deb_en, d_fin, d_fin_en = "","","",""
+        is_active = False
+
+        
+        indice = 2
+
+
+        while indice <= nb_hierarchies:
+            hierarchie = request.POST['hierarchie'+str(indice)]
+            # dt  = LesDivisionTemps()
+            # dt.libelle = hierarchie+str(indice)
+            # dt.niveau_division_temps = niveau_division_temps
+            # print(dt.libelle, dt.niveau_division_temps)
+            # print(dt.libelle)
+            nom_hierarchie_suiv = ""
+            libelle =  hierarchie+str(indice)
+            # print("££ LIBELLE: ", libelle,hierarchie+str(ind))
+            j = 1
+            # On save d'abord les infos annuelles
+        
+
+            if indice < nb_hierarchies:
+                nom_hierarchie_suiv = request.POST['hierarchie'+str(indice+1)]
+                nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
+                # print("nbrehierarchie_",indice, nbrehierarchie)
+                
+                m = 0
+                i = 1
+                while i <= nombre_hierarchie:
+                    nbrehierarchie_i = int(request.POST['nbrehierarchie_'+str(ind)])
+                    date_deb = request.POST['date_deb_'+str(ind)]
+                    date_fin = request.POST['date_fin_'+str(ind)]
+                    d_deb, d_deb_en = date_correct(date_deb)
+                    d_fin, d_fin_en = date_correct(date_fin)
+                    is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+                    # added
+                    libelle = hierarchie+str(i)
+                    # m += 1
+                    # print("** LIBELLE: ", libelle, niveau_division_temps, date_deb, date_fin)
+                    if indice == 2:
+                        # print("----save ", libelle, niveau_division_temps, date_deb, date_fin)
+                        if id_sousetab == "all":
+                            # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
+                            sousetab_id = SousEtab.objects.all()
+                            for s in sousetab_id:
+                                print(s.nom_sousetab)
+                                print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                                cpte_evolution += 1
+                                dt  = LesDivisionTempsSousEtab()
+                                dt.libelle = libelle
+                                dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                                dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                                dt.is_active = is_active
+                                dt.niveau_division_temps = niveau_division_temps
+                                dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                                dt.nom_sous_hierarchie = nom_hierarchie_suiv
+                                dt.archived = "0"
+                                dt.id_sousetab = s.id
+                                dt.nom_sousetab = s.nom_sousetab
+                                dt.save()
+                                s.divisions_temps.add(dt)
+                                
+                                groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                for g in groupes:
+                                    #print(g)
+                                    dt  = LesDivisionTemps()
+                                    dt.niveau_division_temps = niveau_division_temps
+                                    dt.archived = "0"
+                                    dt.id_sousetab = s.id
+                                    dt.nom_sousetab = s.nom_sousetab
+                                    dt.save()
+                                    g.divisions_temps.add(dt)
+
+                                cours = Cours.objects.filter(id_sousetab = s.id)
+                                for c in cours:
+                                    #print(c)
+                                    dt  = LesDivisionTemps()
+                                    dt.niveau_division_temps = niveau_division_temps
+                                    dt.archived = "0"
+                                    dt.id_sousetab = s.id
+                                    dt.nom_sousetab = s.nom_sousetab
+                                    dt.save()
+                                    c.divisions_temps.add(dt)
+                                    elvs = c.eleves.all()
+                                    for e in elvs:
+                                        # dt  = LesDivisionTemps()
+                                        # dt.niveau_division_temps = niveau_division_temps
+                                        # dt.archived = "0"
+                                        # dt.id_sousetab = s.id
+                                        # dt.nom_sousetab = s.nom_sousetab
+                                        # dt.save()
+                                        divt = DivisionTemps()
+                                        divt.id_sousetab = s.id
+                                        divt.nom_sousetab = s.nom_sousetab
+                                        divt.niveau_division_temps = niveau_division_temps
+                                        divt.save()
+                                        # divt.type_divisions_temps.add(dt)
+                                        e.divisions_temps.add(divt)
+
+                        else:
+                            sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
+                            print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                            cpte_evolution += 1
+                            dt  = LesDivisionTempsSousEtab()
+                            dt.libelle = libelle
+                            dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                            dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                            dt.is_active = is_active
+                            dt.niveau_division_temps = niveau_division_temps
+                            dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                            dt.nom_sous_hierarchie = nom_hierarchie_suiv
+                            dt.archived = "0"
+                            dt.id_sousetab = id_sousetab
+                            dt.nom_sousetab = nom_sousetab
+                            dt.save()
+                            sousetab.divisions_temps.add(dt)
+                            groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
+                            for g in groupes:
+                                #print(g)
+                                dt  = LesDivisionTemps()
+                                dt.archived = "0"
+                                dt.niveau_division_temps = niveau_division_temps
+                                dt.id_sousetab = id_sousetab
+                                dt.nom_sousetab = nom_sousetab
+                                dt.save()
+                                g.divisions_temps.add(dt)
+
+                            cours = Cours.objects.filter(id_sousetab = id_sousetab)
+                            for c in cours:
+                                #print(c)
+                                dt  = LesDivisionTemps()
+                                dt.archived = "0"
+                                dt.niveau_division_temps = niveau_division_temps
+                                dt.id_sousetab = id_sousetab
+                                dt.nom_sousetab = nom_sousetab
+                                dt.save()
+                                c.divisions_temps.add(dt)
+                                elvs = c.eleves.all()
+                                for e in elvs:
+                                    # dt  = LesDivisionTemps()
+                                    # dt.archived = "0"
+                                    # dt.niveau_division_temps = niveau_division_temps
+                                    # dt.nom_sousetab = nom_sousetab
+                                    # dt.id_sousetab = id_sousetab
+                                    # dt.save()
+                                    divt = DivisionTemps()
+                                    divt.nom_sousetab = nom_sousetab
+                                    divt.id_sousetab = id_sousetab
+                                    divt.niveau_division_temps = niveau_division_temps
+                                    divt.save()
+                                    # divt.type_divisions_temps.add(dt)
+                                    e.divisions_temps.add(divt)
+
+                    # else:
+                    #     print("----NoT ", libelle, niveau_division_temps, date_deb, date_fin)
+
+
+                    j = 1
+                    print("nbrehierarchie_i: ", nbrehierarchie_i)
+                    while j <= nbrehierarchie_i:
+                        if j == 1:
+                            nbrehierarchie_i_total += nbrehierarchie_i
+                        
+                        # print("**++:{}_{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, date_deb, date_fin))
+                        # print("**++:{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, nbrehierarchie_i))
+                        libelle = nom_hierarchie_suiv+str(j+m)
+                        if j == nbrehierarchie_i:
+                            m += nbrehierarchie_i
+
+                        date_deb = request.POST['date_deb_'+str(j+nbrehierarchie_i_total)]
+                        date_fin = request.POST['date_fin_'+str(j+nbrehierarchie_i_total)]
+                        d_deb, d_deb_en = date_correct(date_deb)
+                        d_fin, d_fin_en = date_correct(date_fin)
+                        is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+                        # print("** LIBELLE: ", libelle, niveau_division_temps+1, j+nbrehierarchie_i_total, date_deb, date_fin)
+
+                        if id_sousetab == "all":
+                            sousetab_id = SousEtab.objects.all()
+                            for s in sousetab_id:
+                                print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                                cpte_evolution += 1
+                                dt  = LesDivisionTempsSousEtab()
+                                dt.libelle = libelle
+                                dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                                dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                                dt.is_active = is_active
+                                dt.niveau_division_temps = niveau_division_temps + 1
+                                dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                                if dt.mode == "saisi":
+                                    s.nom_division_temps_saisisable = nom_hierarchie_suiv
+                                    s.save()
+                                dt.archived = "0"
+                                dt.id_sousetab = s.id
+                                dt.nom_sousetab = s.nom_sousetab
+                                dt.save()
+                                s.divisions_temps.add(dt)
+                                groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                for g in groupes:
+                                    #print(g)
+                                    dt2  = LesDivisionTemps()
+                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2.archived = "0"
+                                    dt2.id_sousetab = s.id
+                                    dt2.nom_sousetab = s.nom_sousetab
+                                    dt2.save()
+                                    g.divisions_temps.add(dt2)
+
+                                cours = Cours.objects.filter(id_sousetab = s.id)
+                                for c in cours:
+                                    #print(c)
+                                    dt2  = LesDivisionTemps()
+                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2.archived = "0"
+                                    dt2.id_sousetab = s.id
+                                    dt2.nom_sousetab = s.nom_sousetab
+                                    dt2.save()
+                                    c.divisions_temps.add(dt2)
+                                    elvs = c.eleves.all()
+                                    for e in elvs:
+                                        # dt2  = LesDivisionTemps()
+                                        # dt2.niveau_division_temps = niveau_division_temps + 1
+                                        # dt2.archived = "0"
+                                        # dt2.id_sousetab = s.id
+                                        # dt2.nom_sousetab = s.nom_sousetab
+                                        # dt2.save()
+                                        divt = DivisionTemps()
+                                        divt.id_sousetab = s.id
+                                        divt.nom_sousetab = s.nom_sousetab
+                                        divt.niveau_division_temps = niveau_division_temps + 1
+                                        divt.save()
+                                        # divt.type_divisions_temps.add(dt2)
+                                        e.divisions_temps.add(divt)
+
+                        else:
+                           
+                            print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                            cpte_evolution += 1
+                            sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
+                            dt  = LesDivisionTempsSousEtab()
+                            dt.libelle = libelle
+                            dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                            dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                            dt.is_active = is_active
+                            dt.niveau_division_temps = niveau_division_temps + 1
+                            dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                            if dt.mode == "saisi" :
+                                sousetab.nom_division_temps_saisisable = nom_hierarchie_suiv
+                                sousetab.save()
+                            dt.archived = "0"
+                            dt.id_sousetab = sousetab_id
+                            dt.nom_sousetab = nom_sousetab
+                            dt.save()
+                            sousetab.divisions_temps.add(dt)
+                            groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
+                            for g in groupes:
+                                #print(g)
+                                dt2  = LesDivisionTemps()
+                                dt2.archived = "0"
+                                dt2.niveau_division_temps = niveau_division_temps + 1
+                                dt2.id_sousetab = id_sousetab
+                                dt2.nom_sousetab = nom_sousetab
+                                dt2.save()
+                                g.divisions_temps.add(dt2)
+
+                            cours = Cours.objects.filter(id_sousetab = id_sousetab)
+                            for c in cours:
+                                #print(c)
+                                dt2  = LesDivisionTemps()
+                                dt2.archived = "0"
+                                dt2.niveau_division_temps = niveau_division_temps + 1
+                                dt2.id_sousetab = id_sousetab
+                                dt2.nom_sousetab = nom_sousetab
+                                dt2.save()
+                                c.divisions_temps.add(dt2)
+                                elvs = c.eleves.all()
+                                for e in elvs:
+                                    # dt2  = LesDivisionTemps()
+                                    # dt2.archived = "0"
+                                    # dt2.niveau_division_temps = niveau_division_temps + 1
+                                    # dt2.id_sousetab = id_sousetab
+                                    # dt2.nom_sousetab = nom_sousetab
+                                    # dt2.save()
+                                    divt = DivisionTemps()
+                                    divt.id_sousetab = id_sousetab
+                                    divt.nom_sousetab = nom_sousetab
+                                    divt.niveau_division_temps = niveau_division_temps + 1
+                                    divt.save()
+                                    # divt.type_divisions_temps.add(dt2)
+                                    e.divisions_temps.add(divt)
+
+                        j += 1
+                    i += 1
+                    ind += 1
+                    k += nombre_hierarchie
+            # break
+            niveau_division_temps += 1
+            indice += 1
+    end = time.time()
+    print("EXECUTION TIME DIVISIONS TEMPS: {}, Soit: {} '".format(end - start, (end - start)/60))
+    return redirect('mainapp:liste_divisionstemps')
+
+def etats_paiements_eleves_fonction(request, imprimer=False, donnees=[]):
+    
+    sousetabs = []
+    cycles = []
+    niveaux = []
+    classes = []
+    specialites = []
+    order_by = []
+    info_classes = []
+    info_eleves = []
+    choix =""
+    etat = ""
+    kwargs_date = {}
+    kwargs_classes = {}
+    # choix_retour permet de connaitre quel data renvoyer au js
+    choix_retour = 0
+    montant_previsionnel = 0
+    bourse_total = 0
+    montant_total_eleves = 0
+    excedent_total_eleves = 0
+    taux_recouvrement = 0
+    type_paiements_associes = []
+    niveau = ""
+    terminer = False
+    sousetab_id = 0
+    id_elem = 0
+    data = []
+    id_etab = 0
+    id_sousetab = 0
+    id_cycle = 0
+    id_niveau = 0
+    
+
+    if imprimer == False:
+        donnees = request.POST['form_data']
+
+    donnees = donnees.split("²²~~")
+        
+    print("Les donnees: ", donnees)
+    position = donnees[0]
+
+    param2 = donnees[1] if donnees[1] == "all" else int(donnees[1])
+    param3 = donnees[2]
+    # param4 represente l'id du parent et peut etre all ou un id
+    param4 = donnees[3]
+    print("PYTHON: ",position,param2, param3,param4)
+    # position == "0" on veut juste voir les paiements
+    if position == "0":
+        date_deb = donnees[2]
+        date_fin = donnees[3]
+        choix = "voir_paiements_associes"
+        choix_retour = 3
+
+        etat, genre, date_deb, date_fin, order_by, sens_tri = "", "", "", "", "", ""
+        parent, id_parent, element, id_element, classes = "", "", "", "", ""
+        # kwargs va contenir de manière dynamique les params du filter
+        kwargs = {}
+        kwargs['archived'] = "0"
+        indicateur_liste_classes = ""
+        classe_display = ""
+        liste_classes = []
+        classes_selectionnees = []
+        les_classes = []
+        les_classes_afficher = ""
+        id_des_classes = []
+        # etape1: Récupération des paramètres
+        niveau_recherche = int(donnees[1])
+        print("Les données ici: ", donnees)
+        print("niveau_recherche: ", niveau_recherche)
+        
+        if niveau_recherche == 1: #id_sousetab == all
+            # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + etab + "²²~~" + id_etab;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            # on cherche les TypePaiementEleve dont le indicateur_liste_classes est sous la forme
+            # "etab_nom_etab_id_etab
+            etat = donnees[2]
+            genre = donnees[5]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            date_deb = donnees[6]
+            date_fin = donnees[7]
+            order_by = donnees[8]
+            sens_tri = donnees[9]
+
+            indicateur_liste_classes = "etab_"+parent+"_"+id_parent
+            classe_display = parent
+            kwargs['id_etab'] = int(id_parent)
+
+            # if genre != "tous":
+            #     kwargs['sexe'] = genre
+
+            
+            # kwargs['date_deb_en'] = date_deb
+            # kwargs['date_fin_en'] = date_fin
+            # print("1date_deb: ",date_deb, "date_fin: ",date_fin)
+
+        elif niveau_recherche == 2: #id_cycle == all
+        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + sousetab  + "²²~~" + id_sousetab;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            # on cherche les TypePaiementEleve dont le indicateur_liste_classes est sous la forme
+            # sousetab_nom_sousetab_id_sousetab
+            etat = donnees[2]
+            genre = donnees[5]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            date_deb = donnees[6]
+            date_fin = donnees[7]
+            order_by = donnees[8]
+            sens_tri = donnees[9]
+
+            indicateur_liste_classes = "sousetab_"+parent+"_"+id_parent
+            classe_display = parent
+
+            kwargs['id_sousetab'] = int(id_parent)
+
+            # if genre != "tous":
+            #     kwargs['sexe'] = genre
+        elif niveau_recherche == 3: #id_niveau == all
+        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + cycle  + "²²~~" + id_cycle;
+        # + "²²~~" + sousetab  + "²²~~" + id_sousetab;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+
+            etat = donnees[2]
+            element = donnees[3]
+            id_element = donnees[4]
+            parent = donnees[5]
+            id_parent = donnees[6]
+            genre = donnees[7]
+            date_deb = donnees[8]
+            date_fin = donnees[9]
+            order_by = donnees[10]
+            sens_tri = donnees[11]
+
+            kwargs['id_cycle'] = int(id_element)
+
+            # if genre != "tous":
+            #     kwargs['sexe'] = genre
+            indicateur_liste_classes = "cycle_"+parent+"_"+id_parent
+            classe_display = parent
+
+
+        elif niveau_recherche == 4: #sinon
+        
+            # etats + "²²~~" + niveau  + "²²~~" + id_niveau + "²²~~" + specialite  + "²²~~" + id_specialite + "²²~~" + classes + "²²~~" + equal+ "²²~~" +nbre_classes+ "²²~~" + nbre_classes_selected;
+            # donnees += "²²~~" + sousetab + "²²~~" + id_sousetab + "²²~~" + cycle + "²²~~" + id_cycle
+            etat = donnees[2]
+            parent = donnees[3]
+            id_parent = donnees[4] #id_niveau
+            element = donnees[5]
+            id_element = donnees[6] #id_specialite
+            classes = donnees[7]
+        # equal permet de savoir si le nbre de classes affichées est égal au nbre de classe selected
+            equal = donnees[8]
+            nbre_classes = int(donnees[9])
+            nbre_classe_selected = int(donnees[10])
+            id_sousetab = int(donnees[12])
+            id_cycle = int(donnees[14])
+            genre = donnees[15]
+            date_deb = donnees[16]
+            date_fin = donnees[17]
+            order_by = donnees[18]
+            sens_tri = donnees[19]
+            # sousetab_id = int(donnees[16])
+
+            # if genre != "tous":
+            #     kwargs['sexe'] = genre
+            if element == "tous":
+                if nbre_classe_selected == 0:
+                    indicateur_liste_classes = "niveau_"+parent+"_"+id_parent
+                    classe_display = parent
+                    kwargs['id_niveau'] = int(id_parent)
+                    
+                else:
+                    if equal == "yes":
+                        indicateur_liste_classes = "niveau_"+parent+"_"+id_parent
+                        classe_display = parent
+                        kwargs['id_niveau'] = int(id_parent)
+
+
+                    else:
+                        # kwargs['id_niveau'] = int(id_parent)
+                        indicateur_liste_classes = "classe"
+                        # kwargs['{0}__{1}'.format('indicateur_liste_classes', 'iexact')] = indicateur_liste_classes
+
+            else:
+                print("ICI")
+                if nbre_classe_selected == 0:
+                    indicateur_liste_classes = "specialite_"+element+"_"+id_element
+                    classe_display = parent + " " + element
+
+                    kwargs['id_niveau'] = int(id_parent)
+                    kwargs['{0}__{1}'.format('indicateur_liste_classes', 'iexact')] = indicateur_liste_classes
+                    
+
+
+                else:
+                    if equal == "yes":
+                        indicateur_liste_classes = "specialite_"+element+"_"+id_element
+                        classe_display = parent + " " + element
+                        kwargs['id_niveau'] = int(id_parent)
+                        kwargs['{0}__{1}'.format('indicateur_liste_classes', 'iexact')] = indicateur_liste_classes
+                        
+                    else:
+                        # kwargs['id_niveau'] = int(id_parent)
+                        indicateur_liste_classes = "classe"
+        id_parent =int(id_parent)
+        kwargs['entree_sortie_caisee'] = "e"
+        if date_deb != "" and date_fin != "":
+            kwargs['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+            kwargs['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+            kwargs_date['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+            kwargs_date['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+
+        elif date_deb != "" and date_fin == "":
+            kwargs['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+            kwargs_date['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+
+        elif date_deb == "" and date_fin != "":
+            kwargs['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+            kwargs_date['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+
+        if indicateur_liste_classes == "classe":
+            clss = classes.split(",")
+            les_classes_listes = ""
+            result =[]
+            liste_classes =[]
+
+            for cl in clss:
+                c, id_c = cl.split("_")
+                les_classes.append(c)
+                les_classes_afficher +=c+", "
+                les_classes_listes += id_c+"_"+c+"_"
+                id_des_classes.append(id_c)
+                classes_selectionnees.append(id_c+"_"+c+"_")
+                kwargs['{0}__{1}'.format('liste_classes', 'icontains')] = les_classes_listes
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','libelle',
+                    'date_deb','date_fin','montant','indicateur_liste_classes','liste_classes_afficher').filter(**kwargs)
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            ind_liste_cl = l['niveau']+" "+"sans spécialité"
+                        else:
+                            ind_liste_cl = l['liste_classes_afficher']
+                    else:
+                        ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+        else:
+
+            print("indicateur_liste_classes", indicateur_liste_classes)
+            
+            if niveau_recherche == 1:
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','libelle',
+                    'date_deb','date_fin','montant','indicateur_liste_classes','liste_classes_afficher').filter(**kwargs)
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            ind_liste_cl = l['niveau']+" "+"sans spécialité"
+                        else:
+                            ind_liste_cl = l['liste_classes_afficher']
+                    else:
+                        ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                        
+            if niveau_recherche == 2:
+                liste_classes = TypePayementEleve.objects.values('id_etab','id_sousetab',
+                    'id_cycle','id_niveau','niveau','ordre_paiement','liste_classes_afficher',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes',
+                    'liste_classes_afficher').filter(**kwargs)
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            ind_liste_cl = l['niveau']+" "+"sans spécialité"
+                        else:
+                            ind_liste_cl = l['liste_classes_afficher']
+                    else:
+                        ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                # if liste_classes.count()>0:
+                #     id_etab = liste_classes[0]['id_etab']
+
+                liste_classes = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher', 'libelle','date_deb','date_fin',
+                    'montant','indicateur_liste_classes','liste_classes_afficher').filter(
+                    ~Q(id_etab = 0) & Q(archived="0") & Q(id_sousetab = 0) & Q(id_cycle = 0) & Q(id_niveau = 0))
+                for l in liste_classes:
+                    ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                    print("liste_classes: ", liste_classes)
+                    type_paiements_associes = sorted(type_paiements_associes, key=lambda k: k['ordre_paiement'])
+            elif niveau_recherche == 3:
+                print("kwargs 3: ", kwargs)
+                liste_classes = TypePayementEleve.objects.values('id_etab','id_sousetab',
+                    'id_cycle','id_niveau','niveau','ordre_paiement','liste_classes_afficher',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes',
+                    'liste_classes_afficher').filter(**kwargs).order_by('-id_sousetab')
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            ind_liste_cl = l['niveau']+" "+"sans spécialité"
+                        else:
+                            ind_liste_cl = l['liste_classes_afficher']
+                    else:
+                        ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                
+                id_sousetab = int(id_parent)
+                print("kwargs_date: ", kwargs_date)
+                
+                liste_classes = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher', 'libelle','date_deb','date_fin',
+                    'montant','indicateur_liste_classes','liste_classes_afficher').filter( 
+                    ((~Q(id_etab = 0) & Q(id_sousetab = 0) & Q(archived="0")  & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                     (~Q(id_etab = 0) & Q(id_sousetab = id_sousetab) & Q(archived="0") & Q(id_cycle = 0) & Q(id_niveau = 0)))
+                    ,**kwargs_date)#.order_by('-id_sousetab')
+                for l in liste_classes:
+                    ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                print("liste_classes: ", liste_classes)
+                type_paiements_associes = sorted(type_paiements_associes, key=lambda k: k['ordre_paiement'])
+            elif niveau_recherche == 4:
+                print("kwargs4: ", kwargs)
+                liste_classes = TypePayementEleve.objects.values('id_etab','id_sousetab',
+                    'id_cycle','id_niveau','niveau','ordre_paiement','liste_classes_afficher',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes',
+                    'liste_classes_afficher').filter(**kwargs)#.order_by('-id_sousetab')
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            ind_liste_cl = l['niveau']+" "+"sans spécialité"
+                        else:
+                            ind_liste_cl = l['liste_classes_afficher']
+                    else:
+                        ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                
+                     # (~Q(id_etab = 0) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(id_niveau = id_parent) & Q(archived="0"))
+                print("id_cycle: ", id_cycle, "id_setb: ", id_sousetab)
+                liste_classes = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher', 'libelle','date_deb','date_fin',
+                    'montant','indicateur_liste_classes','liste_classes_afficher').filter(
+                    ((~Q(id_etab = 0) & Q(id_sousetab = 0) & Q(archived="0")  & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                     (~Q(id_etab = 0) & Q(id_sousetab = id_sousetab) & Q(archived="0") & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                     (~Q(id_etab = 0) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(archived="0") & Q(id_niveau = 0))
+                     # |(~Q(id_etab = 0) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(id_niveau = id_parent) & Q(archived="0"))
+                     )
+                    ,**kwargs_date
+                    )#.order_by('-id_niveau','-id_cycle','-id_sousetab')
+                for l in liste_classes:
+                    ind_liste_cl = l['liste_classes_afficher']
+                    type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':ind_liste_cl})
+                print("liste_classes: ", liste_classes)
+                liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes = indicateur_liste_classes)
+                if liste_classes.count() > 0:
+                    classes_selectionnees = []
+                    liste_classes = liste_classes[0]['liste_classes']
+                    print(liste_classes)
+                    if element != "tous":
+                        if liste_classes.count("_") == 2:
+                            ligne = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher', 'libelle','date_deb','date_fin',
+                        'montant','indicateur_liste_classes','liste_classes_afficher').filter(archived="0",liste_classes__icontains = liste_classes,
+                        indicateur_liste_classes="classe",**kwargs_date )
+                            for l in ligne:
+                                type_paiements_associes.append({'libelle':l['libelle'], 
+                            'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                            'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':l['liste_classes_afficher']}) 
+                        elif liste_classes.count("_") > 2:
+                            current = liste_classes.split("_")
+                            id_des_classes = current[0:][::2]
+                            les_classes = current[1:][::2]
+
+                            id_des_classes.pop(len(id_des_classes) - 1)
+                            i = 0
+                            for j in les_classes:
+                                classes_selectionnees.append(id_des_classes[i]+"_"+j+"_")
+                                cl = id_des_classes[i]+"_"+j+"_"
+                                ligne = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher', 'libelle','date_deb','date_fin',
+                        'montant','indicateur_liste_classes','liste_classes_afficher').filter(archived="0",liste_classes__icontains = cl,
+                        indicateur_liste_classes="classe",**kwargs_date )
+                                for l in ligne:
+                                    type_paiements_associes.append({'libelle':l['libelle'], 
+                                'ordre_paiement':l['ordre_paiement'],'date_deb':l['date_deb'],
+                                'date_fin':l['date_fin'],'montant':l['montant'],'classe_display':l['liste_classes_afficher']})
+                                i += 1
+                            print("ici", classes_selectionnees)
+                type_paiements_associes = sorted(type_paiements_associes, key=lambda k: k['ordre_paiement'])
+
+        [print("-* \n", l) for l in liste_classes]
+        
+
+    # L'etab a changé on cherche les sousetabs associés
+    if position == "1":
+        param2 = 1
+        choix = "etab"
+        sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(id_etab = param2)
+        
+    # Le sousetab a changé on cherche les niveaux et spécialités associés
+    if position == "2":
+        choix = "sousetab"
+        
+        cycles = Cycle.objects.values('id', 'nom_cycle').filter(id_sousetab = param2)
+        # print("cycles count: ", cycles.count())
+        print("cycles", cycles)
+
+    
+    # Le cycle a changé
+    if position == "3":
+        print("PARAM2: ",param2)
+        choix = "cycle"
+        # if param3 == "tous":
+        #     print("cycle tous: ", param4)
+        #     niveaux = Niveau.objects.values('id', 'nom_niveau').filter(archived = "0", id_cycle = int(param4))
+        # else:
+        niveaux = Niveau.objects.values('id', 'nom_niveau').filter(id_cycle = param2)
+
+    # Le niveau a changé
+    if position == "4":
+        print("PARAM2: ",param2)
+        choix = "niveau"
+        # if param3 == "tous":
+        #     print("tous niveau")
+        #     specialites = Specialite.objects.values('id', 'specialite').filter(archived = "0", id_niveau = int(param4))
+        # else:
+        specialites = Specialite.objects.values('id', 'specialite').filter(archived = "0", id_niveau = param2)
+        classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2)
+
+    # La spécialité a changé
+    if position == "5":
+        choix = "specialite"
+        print("PARAM2: ",param2, "PARAM3:",param3)
+        if param3 == "aucune":
+            print("DANS AUCUNE")
+            classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = "")
+        elif param3 == "tous":
+            classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2)
+        else:
+            classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
+        print("# classes: ", classes.count())
+    # On veut charger le order_by
+    if position == "6":
+        print("** ", donnees)
+        
+        print(order_by)
+        etat = donnees[2]
+        if etat == "eleves_inscrits" or etat == "eleves_tous":
+            order_by.append("Nom")
+            order_by.append("Classe")
+            order_by.append("Matricule")
+            order_by.append("Total")
+            # order_by.append("Payé")
+            # order_by.append("Bourse")
+            order_by.append("Excédent")
+            order_by.append("Prénom")
+            order_by.append("Versé")
+
+            if etat == "eleves_tous":
+                order_by.append("Reste")
+
+
+        elif etat == "eleves_non_inscrits":
+            order_by.append("Nom")
+            order_by.append("Classe")
+            order_by.append("Matricule")
+            order_by.append("Total")
+            # order_by.append("Payé")
+            # order_by.append("Bourse")
+            order_by.append("Excédent")
+            order_by.append("Prénom")
+            order_by.append("Total")
+            order_by.append("Versé")
+
+        choix = "order_by"
+    # On veut afficher les états maintenant
+    if position == "7":
+        choix_retour = 1
+        etat, genre, date_deb, date_fin, order_by, sens_tri = "", "", "", "", "", ""
+        parent, id_parent, element, id_element, classes = "", "", "", "", ""
+        # kwargs va contenir de manière dynamique les params du filter
+        kwargs = {}
+        kwargs['archived'] = "0"
+        indicateur_liste_classes = ""
+        liste_classes = []
+        classes_selectionnees = []
+        les_classes = []
+        id_des_classes = []
+        # etape1: Récupération des paramètres
+        niveau_recherche = int(donnees[1])
+        print("Les données ici: ", donnees)
+        print("niveau_recherche: ", niveau_recherche)
+        choix = donnees[2]
+        if niveau_recherche == 1: #id_sousetab == all
+            # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + etab + "²²~~" + id_etab;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            # on cherche les TypePaiementEleve dont le indicateur_liste_classes est sous la forme
+            # "etab_nom_etab_id_etab
+            etat = donnees[2]
+            genre = donnees[5]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            date_deb = donnees[6]
+            date_fin = donnees[7]
+            order_by = donnees[8]
+            sens_tri = donnees[9]
+
+            indicateur_liste_classes = "etab_"+parent+"_"+id_parent
+
+            print(genre)
+            if genre != "tous":
+                kwargs['sexe'] = genre
+
+            
+            # kwargs['date_deb_en'] = date_deb
+            # kwargs['date_fin_en'] = date_fin
+            # print("1date_deb: ",date_deb, "date_fin: ",date_fin)
+
+        elif niveau_recherche == 2: #id_cycle == all
+        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + sousetab  + "²²~~" + id_sousetab;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            # on cherche les TypePaiementEleve dont le indicateur_liste_classes est sous la forme
+            # sousetab_nom_sousetab_id_sousetab
+            etat = donnees[2]
+            genre = donnees[5]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            date_deb = donnees[6]
+            date_fin = donnees[7]
+            order_by = donnees[8]
+            sens_tri = donnees[9]
+
+            indicateur_liste_classes = "sousetab_"+parent+"_"+id_parent
+            if genre != "tous":
+                kwargs['sexe'] = genre
+        elif niveau_recherche == 3: #id_niveau == all
+        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + cycle  + "²²~~" + id_cycle;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            etat = donnees[2]
+            genre = donnees[5]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            date_deb = donnees[6]
+            date_fin = donnees[7]
+            order_by = donnees[8]
+            sens_tri = donnees[9]
+
+            if genre != "tous":
+                kwargs['sexe'] = genre
+            indicateur_liste_classes = "cycle_"+parent+"_"+id_parent
+
+        elif niveau_recherche == 4: #sinon
+        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + niveau  + "²²~~" + id_niveau + "²²~~" + specialite  + "²²~~" + id_specialite + "²²~~" + classes + "²²~~" + equal;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by;
+            etat = donnees[2]
+            genre = donnees[11]
+            parent = donnees[3]
+            id_parent = donnees[4]
+            element = donnees[5]
+            id_element = donnees[6]
+            classes = donnees[7]
+            date_deb = donnees[12]
+            date_fin = donnees[13]
+            order_by = donnees[14]
+            sens_tri = donnees[15]
+            sousetab_id = int(donnees[16])
+        # equal permet de savoir si le nbre de classes affichées est égal au nbre de classe selected
+            equal = donnees[8]
+            nbre_classes = int(donnees[9])
+            nbre_classe_selected = int(donnees[10])
+
+            if genre != "tous":
+                kwargs['sexe'] = genre
+            if element == "tous":
+                if nbre_classe_selected == 0:
+                    indicateur_liste_classes = "niveau_"+parent+"_"+id_parent
+                else:
+                    if equal == "yes":
+                        indicateur_liste_classes = "niveau_"+parent+"_"+id_parent
+                    else:
+                        indicateur_liste_classes = "classe"
+            else:
+                print("ICI")
+                if nbre_classe_selected == 0:
+                    indicateur_liste_classes = "specialite_"+element+"_"+id_element
+                else:
+                    if equal == "yes":
+                        indicateur_liste_classes = "specialite_"+element+"_"+id_element
+                    else:
+                        indicateur_liste_classes = "classe"
+
+
+        print("indicateur_liste_classes", indicateur_liste_classes)
+
+        if indicateur_liste_classes != "classe":
+            # if "specialite" in indicateur_liste_classes and ("aucune" in indicateur_liste_classes or "all" in indicateur_liste_classes):
+            if "specialite" in indicateur_liste_classes and ("aucune" in indicateur_liste_classes or "tous" in indicateur_liste_classes):
+                liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes = indicateur_liste_classes, id_sousetab = sousetab_id)
+            else:
+                liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes = indicateur_liste_classes)
+            
+
+            if liste_classes.count()>0:
+                liste_classes = liste_classes[0]
+                current = liste_classes['liste_classes'].split("_")
+                id_des_classes = current[0:][::2]
+                les_classes = current[1:][::2]
+
+                id_des_classes.pop(len(id_des_classes) - 1)
+                i = 0
+                for j in les_classes:
+                    classes_selectionnees.append(id_des_classes[i]+"_"+j+"_")
+                    i += 1
+                # print("ici", classes_selectionnees)
+            else:
+                terminer = True
+        else:
+            clss = classes.split(",")
+            for cl in clss:
+                c, id_c = cl.split("_")
+                les_classes.append(c)
+                id_des_classes.append(id_c)
+                classes_selectionnees.append(id_c+"_"+c+"_")
+        print("liste_classes: ", classes_selectionnees)
+
+        # if indicateur_liste_classes != "classe":
+        #     liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes = indicateur_liste_classes)[0]
+        #     current = liste_classes['liste_classes'].split("_")
+        #     id_des_classes = current[0:][::2]
+        #     les_classes = current[1:][::2]
+
+        #     id_des_classes.pop(len(id_des_classes) - 1)
+        #     i = 0
+        #     for j in les_classes:
+        #         classes_selectionnees.append(id_des_classes[i]+"_"+j+"_")
+        #         i += 1
+        #     print("id_des_classes: ", id_des_classes)
+        #     print("les_classes: ", les_classes)
+        # else:
+        #     clss = classes.split(",")
+        #     for cl in clss:
+        #         c, id_c = cl.split("_")
+        #         les_classes.append(c)
+        #         id_des_classes.append(id_c)
+        #         classes_selectionnees.append(id_c+"_"+c+"_")
+        # print("liste_classes: ", classes_selectionnees)
+        if terminer == False:
+        # gestion de la date
+            kwargs_date['entree_sortie_caisee'] = "e"
+            if date_deb != "" and date_fin != "":
+                kwargs_date['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+                kwargs_date['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+
+            elif date_deb != "" and date_fin == "":
+                kwargs_date['{0}__{1}'.format('date_deb_en', 'lte')] = date_deb
+
+            elif date_deb == "" and date_fin != "":
+                kwargs_date['{0}__{1}'.format('date_fin_en', 'gte')] = date_fin
+                
+                
+            print(kwargs_date)
+            print(kwargs)
+            tpes = TypePayementEleve.objects.values('libelle','date_deb_en','date_fin_en','ordre_paiement','date_deb','date_fin','liste_classes','indicateur_liste_classes','entree_sortie_caisee','montant').filter(**kwargs_date).order_by('ordre_paiement')
+            [print("yo ",t['libelle']) for t in tpes]
+            
+            t_liste_classes = []
+            t_liste_montants = []
+            t_liste_libelles = []
+            for t in tpes:
+                t_liste_classes.append(t['liste_classes'])
+                t_liste_montants.append(t['montant'])
+                t_liste_libelles.append(t['libelle'])
+            # print(t_liste_classes)
+            print(t_liste_montants)
+            etat = donnees[2]
+            print("etat: ", etat, " niveau_recherche: ", niveau_recherche)
+
+            # argument_list = []
+            order_by = order_by.lower()
+            if order_by == "excédent":
+                order_by = "excedent"
+            if order_by == "prénom":
+                order_by = "prenom" 
+            if order_by == "classe":
+                order_by = "id_classe_actuelle"
+            if order_by == "versé":
+                order_by = "verse"
+
+            
+
+            i = 0
+            
+            if etat == "previsions":
+                for c in classes_selectionnees:
+                    montant_previsionnel_classe = 0
+                    montant_total_eleves_classe = 0
+                    taux_recouvrement_classe = 0
+                    kwargs['id_classe_actuelle'] = int(id_des_classes[i])
+                    nb_eleve_classe = Eleve.objects.filter(**kwargs).count()
+                    bourse_total += Eleve.objects.filter(**kwargs).aggregate(Sum('bourse'))['bourse__sum'] 
+                    montant_total_eleves_classe = Eleve.objects.filter(**kwargs).aggregate(Sum('compte'))['compte__sum']
+                    montant_total_eleves +=  montant_total_eleves_classe
+                    excedent_total_eleves += Eleve.objects.filter(**kwargs).aggregate(Sum('excedent'))['excedent__sum'] 
+                    print(kwargs,les_classes[i],nb_eleve_classe)
+                    # print("t_liste_classes: ", t_liste_classes)
+                    print("**classe: ", c)
+                    k = 0
+                    for t in t_liste_classes:
+                        if c in t:
+                            print(t_liste_libelles[k], t_liste_montants[k])
+                            montant_previsionnel_classe += t_liste_montants[k] * nb_eleve_classe
+                        k += 1
+                    montant_previsionnel += montant_previsionnel_classe
+                    taux_recouvrement_classe = montant_total_eleves_classe * 100/montant_previsionnel_classe if montant_previsionnel_classe > 0 else 0
+                    taux_recouvrement_classe = "{:.2f}".format(taux_recouvrement_classe);
+
+                    info_classes.append({'classe':les_classes[i], 'montant_previsionnel_classe':montant_previsionnel_classe,'montant_total_eleves_classe':montant_total_eleves_classe,'taux_recouvrement_classe':taux_recouvrement_classe})
+                    i += 1
+                    print(bourse_total,montant_total_eleves,excedent_total_eleves, nb_eleve_classe)
+                    # on prend montant_previsionnel montant_total_eleves et excedent_total_eleves
+
+                taux_recouvrement = montant_total_eleves * 100/montant_previsionnel if montant_previsionnel > 0 else 0
+                # print(taux_recouvrement)
+                taux_recouvrement = "{:.2f}".format(taux_recouvrement);
+                print(montant_previsionnel, bourse_total,montant_total_eleves,excedent_total_eleves, taux_recouvrement)
+                # for c in classes_selectionnees:
+                #     if c in tpes[]
+                # Pr chaque classe selectionnée on cherches les tranches associées puis pr chq elv de cette
+                # classe on calcule le montant de toutes ces tranches - le montant de sa bourse
+                # on somme tout cela --> montant prévisionel
+                # puis on parcourt les eleves prend montants deja versé
+                # moins les bourses --> montant existant
+            elif etat == "eleves_inscrits":
+                print(etat)
+                choix_retour = 2
+                ind = 0
+                nb_classes = len(les_classes) - 1
+                while ind <= nb_classes:
+                    # argument_list.append( Q(**{'id_classe_actuelle':int(id_cl)} )) 
+                    j = 0
+                    # nb_tranches = len(t_liste_classes) - 1
+                    nb_tranches = len(t_liste_classes)
+                    total = 0
+                    # print("*** NB TRANCHES: ", nb_tranches)
+                    while j < nb_tranches:
+                        print("**t_liste_montants[j]: ", t_liste_montants[j], total)
+                        if classes_selectionnees[ind] in t_liste_classes[j]:
+                            total += t_liste_montants[j]
+                        j += 1
+                    reste = 0
+                    eleves = []
+                    if genre == "tous":
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])))
+                    else:
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])) &
+                            Q(sexe=genre))
+
+                    for e in eleves:
+                        compte = e.compte
+                        reste = total - compte
+                        if reste <= 0:
+                            excedent = reste*(-1) + e.excedent
+                            info_eleves.append({'matricule':e.matricule, 'nom':e.nom, 'prenom': e.prenom,
+                             'classe':e.classe_actuelle, 'id_classe':e.id_classe_actuelle,'total':total,
+                             'excedent':excedent, 'verse':compte})
+                    ind += 1
+
+                if sens_tri == "desc":
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by], reverse=True)
+                else:
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by])
+
+                # Pr chaque classe ds tpes on recupere les tranches puis pr chq elv de cette
+                # classe on calcule le montant de toutes ces tranches - le montant de sa bourse
+                # On retient ceux qui sont en règle sur la période considérée
+            elif etat == "eleves_non_inscrits":
+                print(etat)
+                choix_retour = 2
+                ind = 0
+                nb_classes = len(les_classes) - 1
+                while ind <= nb_classes:
+                    # argument_list.append( Q(**{'id_classe_actuelle':int(id_cl)} )) 
+                    j = 0
+                    # nb_tranches = len(t_liste_classes) - 1
+                    nb_tranches = len(t_liste_classes)
+                    total = 0
+                    while j < nb_tranches:
+                        if classes_selectionnees[ind] in t_liste_classes[j]:
+                            total += t_liste_montants[j]
+                        j += 1
+                    reste = 0
+                    eleves = []
+                    if genre == "tous":
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])))
+                    else:
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])) &
+                            Q(sexe=genre))
+
+                    for e in eleves:
+                        compte = e.compte
+                        reste = total - compte
+                        if reste > 0:
+                            info_eleves.append({'matricule':e.matricule, 'nom':e.nom, 'prenom': e.prenom,
+                             'classe':e.classe_actuelle, 'verse':compte, 'id_classe':e.id_classe_actuelle,'total':total})
+                    ind += 1
+
+                if sens_tri == "desc":
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by], reverse=True)
+                else:
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by])
+
+                # Pr chaque classe ds tpes on recupere les tranches puis pr chq elv de cette
+                # classe on calcule le montant de toutes ces tranches - le montant de sa bourse
+                # On retient ceux qui sont en règle sur la période considérée
+            else: # etat == "eleves_tous"
+                print(etat)
+                choix_retour = 2
+            # Pr chaque classe ds tpes on recupere les tranches puis pr chq elv de cette
+            # classe on calcule le montant de toutes ces tranches - le montant de sa bourse
+                ind = 0
+                nb_classes = len(les_classes) - 1
+                print("nb_classes: ", nb_classes, classes_selectionnees[0])
+
+                while ind <= nb_classes:
+                    # argument_list.append( Q(**{'id_classe_actuelle':int(id_cl)} )) 
+                    j = 0
+                    nb_tranches = len(t_liste_classes) - 1
+                    total = 0
+                    while j <= nb_tranches:
+                        if classes_selectionnees[ind] in t_liste_classes[j]:
+                            total += t_liste_montants[j]
+                        j += 1
+                    reste = 0
+                    eleves = []
+                    if genre == "tous":
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])))
+                    else:
+                        eleves = Eleve.objects.filter( Q(archived="0") & Q(id_classe_actuelle=int(id_des_classes[ind])) &
+                            Q(sexe=genre))
+                    for e in eleves:
+                        print("eleve: ", e.nom)
+                        compte = e.compte
+                        reste = total - compte
+                        info_eleves.append({'matricule':e.matricule, 'nom':e.nom, 'prenom': e.prenom,
+                         'classe':e.classe_actuelle, 'verse':compte,'id_classe':e.id_classe_actuelle,'total':total,
+                         'reste':reste, 'excedent':e.excedent})
+                    ind += 1
+
+
+                if sens_tri == "desc":
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by], reverse=True)
+                else:
+                    info_eleves = sorted(info_eleves, key=lambda k: k[order_by])
+
+            if choix_retour == 2:
+                [print(e['nom'],e['matricule']) for e in info_eleves]
+
+                # for e in info_eleves:
+                #     print(e)
+                #     break
+
+
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+    print("AVANT RETOUR AJAX")
+    if imprimer == False:
+        if terminer == True:
+            data = {
+                "choix":choix,
+                "montant_previsionnel": 0,
+                "montant_total_eleves": 0,
+                "excedent_total_eleves": 0,
+                "taux_recouvrement": 0,
+                "type_paiements_associes": [],
+                "info_classes": [],
+                "info_eleves": [],
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+        else:
+            if choix_retour == 0: #Pr la selection des classes, niveaux, specialite
+                data = {
+                    "choix":choix,
+                    "sousetabs": sousetabs,
+                    "cycles": cycles,
+                    "niveaux": niveaux,
+                    "classes": classes,
+                    "specialites": specialites,
+                    "order_by": order_by,
+                    "permissions" : permissions_of_a_user(request.user),
+                    "data_color" : data_color,
+                    "sidebar_class" : sidebar_class,
+                    "theme_class" : theme_class,
+                }
+            elif choix_retour == 1: # previsions - existant
+                # montant_previsionnel, bourse_total,montant_total_eleves,excedent_total_eleves, taux_recouvrement
+                data = {
+                    "choix":choix,
+                    "montant_previsionnel": montant_previsionnel,
+                    "montant_total_eleves": montant_total_eleves,
+                    "excedent_total_eleves": excedent_total_eleves,
+                    "taux_recouvrement": taux_recouvrement,
+                    "info_classes": info_classes,
+                    "order_by": order_by,
+                    "permissions" : permissions_of_a_user(request.user),
+                    "data_color" : data_color,
+                    "sidebar_class" : sidebar_class,
+                    "theme_class" : theme_class,
+                }
+            elif choix_retour == 2: #apprenant en regle, pas en regle, tous
+                data = {
+                    "choix":choix,
+                    "info_eleves":info_eleves,
+                    "order_by": order_by,
+                    "permissions" : permissions_of_a_user(request.user),
+                    "data_color" : data_color,
+                    "sidebar_class" : sidebar_class,
+                    "theme_class" : theme_class,
+                }
+            elif choix_retour == 3:
+                data = {
+                    "choix":choix,
+                    "type_paiements_associes": type_paiements_associes,
+                    "permissions" : permissions_of_a_user(request.user),
+                    "data_color" : data_color,
+                    "sidebar_class" : sidebar_class,
+                    "theme_class" : theme_class,
+                }
+       
+        return JSONResponse(data)
+    else:
+        if terminer == True:
+            data = {
+                "choix":choix,
+                "montant_previsionnel": 0,
+                "montant_total_eleves": 0,
+                "excedent_total_eleves": 0,
+                "taux_recouvrement": 0,
+                "type_paiements_associes": [],
+                "info_classes": [],
+                "info_eleves": [],
+            }
+        elif choix_retour == 1:
+            data = {
+                "choix":choix,
+                "montant_previsionnel": montant_previsionnel,
+                "montant_total_eleves": montant_total_eleves,
+                "excedent_total_eleves": excedent_total_eleves,
+                "taux_recouvrement": taux_recouvrement,
+                "info_classes": info_classes,
+                "order_by": order_by,
+
+            }
+        elif choix_retour == 2:
+            data = {
+                "choix":choix,
+                "info_eleves":info_eleves,
+                "order_by": order_by,
+            }
+        elif choix_retour == 3:
+            data = {
+                "choix":choix,
+                "type_paiements_associes": type_paiements_associes,
+            }
+        return data
+
+def etats_paiements_eleves(request):
+    if request.method == 'POST':
+
+        if(request.is_ajax()):
+            return etats_paiements_eleves_fonction(request)
+    
+        else:
+            # On veut imprimer On va procéder à la réécriture de donnees au m format que lorsqu'on
+            # veut effectuer la requete ajax ci-dessus et on va appeler
+            # etats_paiements_eleves_fonction(request, True, donnees) qui va nous retourner les data à
+            # imprimer.
+
+            donnees = request.POST['donnees_imprimer'].split("²²~~")
+
+            etab = donnees[0]
+            sousetab = donnees[1]
+            cycle = donnees[2]
+            niveau = donnees[3]
+            specialite = donnees[4]
+            classes = donnees[5]
+            nbre_classes = donnees[6]
+            nbre_classes_selected = donnees[7]
+            genre = donnees[8]
+            etats = donnees[9]
+            date_deb = donnees[10]
+            date_fin = donnees[11]
+            order_by = donnees[12]
+            sens_tri = donnees[13]           
+            niveau_recherche = "1"
+            position = "7"
+            donnees = ""
+            titre = ""
+            titre_etat = ""
+            filename = ""
+            print("SPECIALITE***! ", specialite)
+
+            if etats == "previsions":
+                titre = "Prévision - Existant"
+                titre_etat = "Prévision - Existant: "
+                filename = "Prevision_existant_"
+            elif etats == "eleves_tous":
+                titre = "Apprenants en règle | pas en règle"
+                titre_etat = "Apprenants en règle | pas en règle: "
+                filename = "Tous_les_apprenants_"
+            elif etats == "eleves_inscrits":
+                titre = "Apprenants en règle"
+                titre_etat = "Apprenants en règle: "
+                filename = "Apprenants_en_regle_"
+            else :
+                titre = "Apprenants pas en règle"
+                titre_etat = "Apprenants pas en règle: "
+                filename = "Apprenants_pas_en_regle_"
+
+
+
+            sousetab_, id_sousetab = sousetab.split("_")[0], sousetab.split("_")[1]
+            if id_sousetab == "all":
+                niveau_recherche = "1"
+                etab_, id_etab = etab.split("_")[0], etab.split("_")[1]
+                donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + etab_ + "²²~~" + id_etab;
+                donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by + "²²~~" + sens_tri;
+                titre_etat += etab_
+                filename += etab_
+
+            else:
+                cycle_, id_cycle = cycle.split("_")[0], cycle.split("_")[1]
+                if id_cycle == "all": 
+                    niveau_recherche = "2"
+                    donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + sousetab_  + "²²~~" + id_sousetab;
+                    donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by+ "²²~~" + sens_tri;
+                    titre_etat += sousetab_
+                    filename += sousetab_
+
+                else:
+                    niveau_, id_niveau = niveau.split("_")[0], niveau.split("_")[1]
+                    if id_niveau == "all":
+                        niveau_recherche = "3"
+                        donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + cycle_  + "²²~~" + id_cycle;
+                        donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by+ "²²~~" + sens_tri;
+                        titre_etat += cycle_
+                        filename += cycle_
+
+                    else:
+                        niveau_recherche = "4"
+                        # donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + niveau  + "²²~~" + id_niveau + "²²~~" + specialite  + "²²~~" + id_specialite + "²²~~" + classes + "²²~~" + equal;
+            # donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by + "²²~~" + id_sousetab;
+                        equal = "yes" if nbre_classes == nbre_classes_selected else "no"
+                        specialite_, id_specialite = specialite.split("_")[0], specialite.split("_")[1]
+                        donnees = position + "²²~~" + niveau_recherche + "²²~~" + etats + "²²~~" + niveau_  + "²²~~" + id_niveau + "²²~~" + specialite_  + "²²~~" + id_specialite + "²²~~" + classes + "²²~~" + equal;
+                        donnees +="²²~~" + nbre_classes+ "²²~~" + nbre_classes_selected
+                        donnees += "²²~~" + genre + "²²~~" + date_deb + "²²~~" + date_fin + "²²~~" + order_by+ "²²~~" + sens_tri + "²²~~" + id_sousetab;
+                        if classes != "":
+                            clss = classes.split(",")
+                            nom_classes =""
+                            for cl in clss:
+                                c, id_c = cl.split("_")
+                                nom_classes += c+","
+                            titre_etat += nom_classes
+                            filename += nom_classes
+
+                        elif specialite_ == "tous":
+                            titre_etat += niveau_
+                            filename += niveau_
+                            print("NIVEAU***: ",niveau_)
+
+                        elif specialite_ == "aucune":
+                            titre_etat += niveau_+" sans spécialité"
+                            filename += niveau_+"sans_specialite"
+
+                        else :
+                            titre_etat += niveau_+" "+specialite_
+                            filename += niveau_+" "+specialite_
+
+
+
+
+            print("Les data: ", donnees)
+
+            data = etats_paiements_eleves_fonction(request, True, donnees)
+            print("Retour avec: ",data['choix'])
+            etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
+            sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
+            print("On postait")
+
+            choix = data['choix']
+            infos = []
+            etat_template =""
+            # Variable liées au previsons
+            deficit = 0
+            montant_previsionnel = 0
+            montant_total_eleves= 0
+            excedent_total_eleves= 0
+            taux_recouvrement= 0
+
+            # Variable pour les totaux
+            verses = 0;
+            totaux = 0;
+            restes = 0;
+            excedents = 0;
+
+            if choix == "previsions":
+                etat_template = "etat_previsions_existant_paiement_eleves_template.html"            
+                infos = data['info_classes']
+                montant_previsionnel = data['montant_previsionnel']
+                montant_total_eleves= data['montant_total_eleves']
+                excedent_total_eleves= data['excedent_total_eleves']
+                taux_recouvrement= data['taux_recouvrement']
+                for inf in infos:
+                    inf['deficit'] = inf['montant_previsionnel_classe'] - inf['montant_total_eleves_classe']
+                    deficit += inf['deficit']
+            elif choix == "eleves_tous":
+                etat_template = "etat_eleves_en_regle_ou_pas_template.html"
+                infos = data['info_eleves']
+                for inf in infos:
+                    verses += inf['verse'];
+                    totaux += inf['total'];
+                    restes += inf['reste'];
+                    excedents += inf['excedent'];
+
+                
+            elif choix == "eleves_inscrits":
+                etat_template = "etat_eleves_en_regle_template.html"
+                infos = data['info_eleves']
+                for inf in infos:
+                    verses += inf['verse'];
+                    totaux += inf['total'];
+                    excedents += inf['excedent'];
+            elif choix == "eleves_non_inscrits":
+                etat_template = "etat_eleves_pas_en_regle_template.html"
+                infos = data['info_eleves']
+                for inf in infos:
+                    verses += inf['verse'];
+                    totaux += inf['total'];
+                    inf['reste'] = inf['total'] - inf['verse']
+                    restes += inf['reste'];
+
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = ('attachment; filename={}'.format(filename))
+            response['Content-Transfer-Encoding'] = 'binary'
+
+            forme = "a4"
+            
+            css = CSS(string='@page { size: A4; margin: 1cm }')
+            template_name = 'mainapp/pages/{}'.format(etat_template)
+            nb = 1
+            cpte = 0
+            documents = []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+            font_config = FontConfiguration()
+            i = 1
+            
+
+            dict1 = {
+                    'pays': 'republique du cameroun',
+                    'ministere': 'ministère des enseignements secondaires',
+                    'etab': 'Lycee General Leclerc',
+                    'devise' : 'discipline-travail-succès',
+                    'contact' : 'BP. 116 Tel: 678908723',                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+                    'eleves': [],
+                    'titre': titre,
+                    'titre_etat': titre_etat,
+                    'montant_previsionnel': montant_previsionnel,
+                    'montant_total_eleves': montant_total_eleves,
+                    'excedent_total_eleves': excedent_total_eleves,
+                    'taux_recouvrement': taux_recouvrement,
+                    'deficit': deficit,
+                    'infos': infos,
+                    'verses':  verses,
+                    'totaux': totaux,
+                    'restes': restes,
+                    'excedents': excedents,
+
+                    }
+            dict2 = {
+                    'pays2': 'republic of cameroon',
+                    'ministere2': 'ministry of secondary education',
+                    'etab2': 'ghs general leclerc',
+                    'devise2' : 'discipline-hardwork-success',
+                    'contact2' : 'PoBox. 116 Tel: 678908723',
+                    'invoice_id2' : 151,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                    'today2': date.today(), 
+                    'amount2': 39.99,
+                    'customer_name2': 'Cooper Mann'+ str(cpte),
+                    'order_id2': 1233434,
+                    }
+            dict3 = {**dict1, **dict2}
+
+            
+
+            while cpte < nb:
+                html = render_to_string(template_name, dict3)
+                document = HTML(string=html, base_url=request.build_absolute_uri()).render( stylesheets=[css],presentational_hints=True,font_config=font_config)
+                documents.append(document)
+                i += 1
+                cpte += 1
+
+            all_pages = [page for document in documents for page in document.pages]
+            documents[0].copy(all_pages).write_pdf(response)
+            
+            return response
+
+    else:
+        etabs = Etab.objects.values('id','nom_etab').filter(archived = "0")
+        sousetabs = SousEtab.objects.values('id','nom_sousetab').filter(archived = "0")
+        print("GET")
+
+    return render(request, 'mainapp/pages/etats-paiements-eleves.html', locals())
+
+def liste_eleve_pdf(request):
+    # if(request.is_ajax()):
+    # donnees = request.POST['form_data']
+    classe, id_classe = request.POST['classe_recherchee'].split('_')[0], int(request.POST['classe_recherchee'].split('_')[1])
+    # print("request.POST['classe_recherchee']: ",request.POST['classe_recherchee'])
+    response = HttpResponse(content_type='application/pdf')
+    # response['Content-Disposition'] = ('inline; filename="liste_eleves_6eA.pdf"')
+    filename = "liste_eleves_{}.pdf".format(classe)
+    response['Content-Disposition'] = "attachment; filename={}".format(filename)
+    response['Content-Transfer-Encoding'] = 'binary'
+    # filename = "letter.pdf"
+    # content = "inline; filename=%s" %(filename)
+
+    forme = "a4"
+    eleves = Eleve.objects.filter(id_classe_actuelle = id_classe)
+    # eleves = Eleve.objects.filter(pk= 1)
+    # list_group = [5]*22
+    list_group = []
+    list_group.append(5)
+    list_group.append(5)
+    list_group.append(5)
+    list_group.append(3)
+    size_font = '20px'
+    if forme == "a5":
+        css = CSS(string='@page { size: A4 landscape ; margin: 0.5cm }')
+        template_name = 'mainapp/pages/bulletinA5.html'  
+        nb = 2/2
+    else:
+        css = CSS(string='@page { size: A4; margin: 0.5cm }')
+        template_name = 'mainapp/pages/test.html'
+        nb = 1
+
+    # html_string = render_to_string(template_name, {
+    #     'invoice_id' : 150,
+    #     'today': date.today(), 
+    #     'amount': 39.99,
+    #     'customer_name': 'Cooper Mann',
+    #     'order_id': 1233434,
+    #     'etab': 'Lycee General Leclerc',
+    # })
+    # html = HTML(string=html_string)
+    # # css = CSS(string='@page { size: A4 landscape ; margin: 0.5cm }')
+
+    # result = html.write_pdf()
+
+    cpte = 0
+    # COMPONENTS = ['bulletinA5.html'] *4
+    documents = []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+    font_config = FontConfiguration()
+    i = 1
+    
+    # for template_name in COMPONENTS:
+    # list_eleve = []
+    # list_eleve.append()
+    # list_eleve.append()
+    dict1 = {
+            'pays': 'republique du cameroun',
+            'ministere': 'ministère des enseignements secondaires',
+            'etab': 'Lycee General Leclerc',
+            'devise' : 'discipline-travail-succès',
+            'contact' : 'BP. 116 Tel: 678908723',
+            'invoice_id' : 150,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+            'liste_apprenant' : 'liste apprenant classe de 6eA',
+            'eleves': eleves,
+            'nb_matiere': 20,
+            'size_font': size_font,
+            }
+    dict2 = {
+            'pays2': 'republic of cameroon',
+            'ministere2': 'ministry of secondary education',
+            'etab2': 'ghs general leclerc',
+            'devise2' : 'discipline-hardwork-success',
+            'contact2' : 'PoBox. 116 Tel: 678908723',
+            'invoice_id2' : 151,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+            'today2': date.today(), 
+            'amount2': 39.99,
+            'customer_name2': 'Cooper Mann'+ str(cpte),
+            'order_id2': 1233434,
+            }
+    dict3 = {**dict1, **dict2}
+
+    
+
+    while cpte < nb:
+        html = render_to_string(template_name, dict3)
+        document = HTML(string=html, base_url=request.build_absolute_uri()).render( stylesheets=[css],presentational_hints=True,font_config=font_config)
+        documents.append(document)
+        i += 1
+        cpte += 1
+
+    all_pages = [page for document in documents for page in document.pages]
+    documents[0].copy(all_pages).write_pdf(response)
+
+    # css = CSS(string='@page { size: A5; margin: 0.5cm }')
+
+    # # margin-left:2cm; margin-rigth: 0.5cm; margin-top: 0.5cm; margin-bottom: 0.5cm
+    # html = render_to_string("mainapp/pages/test.html", {
+    #     'invoice_id' : 150,
+    #     'today': date.today(), 
+    #     'amount': 39.99,
+    #     'customer_name': 'Cooper Mann',
+    #     'order_id': 1233434,
+    # })
+
+    # font_config = FontConfiguration()
+    # response = HttpResponse(content_type="application/pdf")
+    # HTML(string=html).write_pdf(response, stylesheets=[css], font_config=font_config)
+    # # response['Content-Disposition'] = "inline; filename=result.pdf"
+    # response['Content-Disposition'] = "attachment; filename=result.pdf"
+    
+    return response
 
 def prendre_photos_eleve(request):
 
@@ -138,13 +2198,13 @@ def prendre_photos_eleve(request):
         org = (2, 50) 
           
         # fontScale 
-        fontScale = 0.5
+        fontScale = 0.75
            
         # Blue color in BGR 
         color = (255, 0, 0) 
           
         # Line thickness of 2 px 
-        thickness = 1
+        thickness = 2
 
         while True:
 
@@ -155,7 +2215,7 @@ def prendre_photos_eleve(request):
                
             # Using cv2.putText() method 
             decompte_ch =str(decompte)
-            image = cv2.putText(img, "Entree ou prise photo a "+(intervalle_ch)+" -- "+decompte_ch+" pour: "+ eleves[i][1]+" "+eleves[i][2]+" "+eleves[i][3], org, font, fontScale, color, thickness, cv2.LINE_AA)
+            image = cv2.putText(img, (intervalle_ch)+" -- "+decompte_ch+" Pour: "+ eleves[i][1]+" "+eleves[i][2]+" "+eleves[i][3], org, font, fontScale, color, thickness, cv2.LINE_AA)
 
             if decompte == intervalle:
                 playsound(photo_eleves_repertoire+"camera-shutter.mp3")
@@ -370,7 +2430,7 @@ def paiement_eleve(request):
     return redirect('mainapp:liste_eleves' )
 
 def attribution_bourse_eleve(request):
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         if(request.is_ajax()):
             donnees = request.POST['form_data']
             donnees = donnees.split("²²~~")
@@ -459,6 +2519,16 @@ def creation_type_paiement_eleve(request):
         classes = []
         specialites = []
         choix =""
+        id_sousetab_to_save, sousetab_to_save = 0,""
+        id_etab_to_save = ""
+        id_cycle_to_save = 0
+        id_niveau_to_save, niveau_to_save = 0,""
+        save_cycle = False
+        save_niveau = False
+        save_etab = False
+        save_sousetab = False
+        # niveau_id = ""
+
 
         if(request.is_ajax()):
             donnees = request.POST['form_data']
@@ -511,13 +2581,16 @@ def creation_type_paiement_eleve(request):
             if position == "5":
                 choix = "specialite"
                 print("PARAM2: ",param2, "PARAM3:",param3)
-                if param3 == "aucune":
+                specialite, id_specialite = param3.split('_')[0],param3.split('_')[1]
+                # if id_specialite == "aucune":
+                if specialite == "aucune":
                     print("DANS AUCUNE")
                     classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = "")
-                elif param3 == "tous":
+                # elif id_specialite == "all":
+                elif specialite == "tous":
                     classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2)
                 else:
-                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = param3)
+                    classes = Classe.objects.values('id', 'nom_classe', 'code').filter(archived = "0", id_niveau = param2, specialite__iexact = specialite)
                 print("# classes: ", classes.count())
 
             if (request.user.id != None):
@@ -541,6 +2614,7 @@ def creation_type_paiement_eleve(request):
                 "sousetabs": sousetabs,
                 "cycles": cycles,
                 "niveaux": niveaux,
+                # "niveau_id": niveau_id,
                 "classes": classes,
                 "specialites": specialites,
                 "permissions" : permissions_of_a_user(request.user),
@@ -557,9 +2631,11 @@ def creation_type_paiement_eleve(request):
             liste_classes = ""
             liste_classes_afficher = ""
             indicateur_liste_classes = ""
-            etabb = Etab.objects.values_list('id','nom_etab').all()[0]
-            nom_etab = etabb[1]
-            id_etab = etabb[0]
+            etab = Etab.objects.values_list('id','nom_etab').all()[0]
+            nom_etab = etab[1]
+            id_etab = etab[0]
+            id_etab_to_save = int(id_etab)
+            save_etab = True
             choix_sousetab, id_sousetab = request.POST['choix_sousetab'].split("_")
             if choix_sousetab == "tous":
                 classes = Classe.objects.values_list('id','nom_classe').all()
@@ -570,6 +2646,9 @@ def creation_type_paiement_eleve(request):
                 print("Liste_classes: ",liste_classes )
             else:              
                 id_sousetab = int(id_sousetab)
+                id_sousetab_to_save = id_sousetab
+                sousetab_to_save = choix_sousetab
+                save_sousetab = True
                 choix_cycle, id_cycle = request.POST.get('choix_cycle').split("_")
                 if choix_cycle =="tous":
                     classes = Classe.objects.values_list('id','nom_classe').filter(id_sousetab = id_sousetab)
@@ -581,6 +2660,9 @@ def creation_type_paiement_eleve(request):
                     print("Liste_classes: ",liste_classes)
                 else:
                     id_cycle = int(id_cycle)
+                    id_cycle_to_save = id_cycle
+                    save_cycle = True
+
                     choix_niveau, id_niveau = request.POST.get('choix_niveau').split("_")
                     if choix_niveau =="tous":
                         classes = Classe.objects.values_list('id','nom_classe').filter(id_cycle = id_cycle)
@@ -594,6 +2676,16 @@ def creation_type_paiement_eleve(request):
                         id_niveau = int(id_niveau)
                         specialite, id_specialite = request.POST.get('specialite').split("_")
                         choix_classes = request.POST.getlist('choix_classes')
+                        equal = request.POST['equal']
+                        # equal == yes si nb classes affichéesv == nb classes selected
+                        print("equal: ", equal)
+                        save_niveau = True
+                        id_niveau_to_save = id_niveau
+                        niveau_to_save = choix_niveau
+
+                        # id_sousetab_to_save = id_sousetab
+                        # sousetab_to_save = sousetab
+
                         if specialite =="tous":
                             if len(choix_classes) == 0:
                                 classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau)
@@ -609,26 +2701,36 @@ def creation_type_paiement_eleve(request):
                                     id_classe = int(id_classe)
                                     classes += Classe.objects.values_list('id','nom_classe').filter(pk = id_classe)
                                 indicateur_liste_classes = "classe"
+                                if equal == "yes":
+                                    nom_niveau = Niveau.objects.values_list('nom_niveau').filter(pk = id_niveau)[0][0]
+                                    indicateur_liste_classes = "niveau_" + nom_niveau +"_"+ str(id_niveau)
+                                    liste_classes_afficher = nom_niveau
+
                                 for c in classes:
                                     liste_classes += str(c[0])+"_"+c[1]+"_"
                                     if indicateur_liste_classes == "classe":
                                         liste_classes_afficher += c[1]+", "
                         else:
-                            
+                            print("***Choix_niveaux: ",choix_niveau)
                             if len(choix_classes) == 0:
                                 if specialite == "aucune":
                                     classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau, specialite = "")
                                     print("aucune: ", classes.count())
-                                    indicateur_liste_classes = "specialite_"+ specialite+ "_" + id_specialite
-                                    liste_classes_afficher = nom_niveau+" "+specialite
+                                    # indicateur_liste_classes = "specialite_"+ specialite+ "_" + id_specialite
+                                    indicateur_liste_classes = "specialite_"+ specialite+ "_" + str(id_niveau)
+                                    liste_classes_afficher = choix_niveau
                                 else:
                                     classes = Classe.objects.values_list('id','nom_classe').filter(id_niveau = id_niveau, specialite__iexact = specialite)
                                     indicateur_liste_classes = "specialite_" + specialite + "_" + id_specialite
-                                    liste_classes_afficher = nom_niveau+" "+specialite
+                                    liste_classes_afficher = choix_niveau+" "+specialite
                                 for c in classes:
                                     liste_classes += str(c[0])+"_"+c[1]+"_"
                             else:
                                 indicateur_liste_classes = "classe"
+                                if equal == "yes":
+                                    indicateur_liste_classes = "specialite_" + specialite + "_" + id_specialite
+                                    liste_classes_afficher = choix_niveau+" "+specialite
+
                                 classes = []
                                 for cl in choix_classes:
                                     classe, id_classe = cl.split("_")
@@ -636,10 +2738,13 @@ def creation_type_paiement_eleve(request):
                                     classes += Classe.objects.values_list('id','nom_classe').filter(pk = id_classe)
                                 for c in classes:
                                     liste_classes += str(c[0])+"_"+c[1]+"_"
-                                    liste_classes_afficher += c[1]+", "
+                                    if indicateur_liste_classes == "classe":
+                                        liste_classes_afficher += c[1]+", "
 
                                 
-                                print("Liste_classes: ",liste_classes)
+                        print("*Liste_classes: ",liste_classes)
+                        print("*indicateur_liste_classes: ",indicateur_liste_classes)
+                        print("*liste_classes_afficher: ",liste_classes_afficher)
                                 
 
             type_paiement_eleve = TypePayementEleve()
@@ -666,18 +2771,39 @@ def creation_type_paiement_eleve(request):
             # montant = form.cleaned_data['montant'] if form.cleaned_data['montant'] != None else 0
                 
             if entree_sortie_caisee == "e":
-                montant = form.cleaned_data['montant']
-                ordre_paiement = form.cleaned_data['ordre_paiement']
+                # montant = form.cleaned_data['montant']
+                # ordre_paiement = form.cleaned_data['ordre_paiement']
+                montant = request.POST['montant']
+                ordre_paiement = request.POST['ordre_paiement']
                 date_deb = request.POST['date_deb'].strip().split(" ")[0]
                 date_fin = request.POST['date_fin'].strip().split(" ")[0]
-                type_paiement_eleve.date_deb = date_deb
-                type_paiement_eleve.date_fin = date_fin
                 type_paiement_eleve.ordre_paiement = ordre_paiement
+                mois, jour, annee = date_deb.split('/')
+                date_deb_en = annee+"-"+mois+"-"+jour
+                type_paiement_eleve.date_deb = jour+"-"+mois+"-"+annee
+                mois, jour, annee = date_fin.split('/')
+                date_fin_en = annee+"-"+mois+"-"+jour
+                type_paiement_eleve.date_fin = jour+"-"+mois+"-"+annee
+                type_paiement_eleve.date_deb_en = date_deb_en
+                type_paiement_eleve.date_fin_en = date_fin_en
+                print("date_deb_en: ", date_deb_en, " date_fin_en: ", date_fin_en)
 
            
             type_paiement_eleve.montant = montant
             type_paiement_eleve.libelle = libelle
             type_paiement_eleve.entree_sortie_caisee = entree_sortie_caisee
+            if save_etab == True:
+                type_paiement_eleve.id_etab = id_etab_to_save
+            if save_sousetab == True:
+                type_paiement_eleve.sousetab = sousetab_to_save
+                type_paiement_eleve.id_sousetab = id_sousetab_to_save
+            if save_cycle == True:
+                type_paiement_eleve.id_cycle = id_cycle_to_save
+            if save_niveau == True:
+                type_paiement_eleve.niveau = niveau_to_save
+                type_paiement_eleve.id_niveau = id_niveau_to_save
+                
+
             type_paiement_eleve.save()
             print("*type_paiement_eleve ", type_paiement_eleve)
             return redirect('mainapp:liste_types_paiements_eleve')
@@ -1700,6 +3826,384 @@ def creation_profil(request):
         # else:
         #     return render(request, '400.html')
 
+def periodes_saisie_actives(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+    id_sousetab_session = request.session.get('id_sousetab', None)
+    request.session.modified = True
+    passe = False
+    id_sousetab_selected = 1
+    if request.method == 'POST':
+        choix =""
+        if(request.is_ajax()):
+            choix = "sousetab_recherche"
+            sousetabs = []
+            id_sousetabs = []
+            periode_saisies = []
+            nom_evaluation = ""
+            passe = True
+            donnees = request.POST['form_data'].split('²²~~')
+            print(donnees)
+            id_sousetab = int(donnees[4])
+            
+            sousetabs = SousEtab.objects.values('nom_sousetab','id').filter(archived="0").order_by('id')
+            id_sousetabs = [s['id'] for s in sousetabs]
+            id_sousetab_selected = id_sousetabs[0]
+            sousetabs = [s['nom_sousetab'] for s in sousetabs]
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(archived = "0", id_sousetab = id_sousetab, mode = "saisi").order_by('libelle')
+            nom_evaluation = SousEtab.objects.values('nom_division_temps_saisisable').filter(id=id_sousetab)[0]['nom_division_temps_saisisable']
+
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            # trier_par = donnees[3]
+            
+            periode_saisies_serializers = LesDivisionTempsSousEtabSerializer(periode_saisies, many=True)
+
+            periode_saisies = periode_saisies_serializers.data
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(periode_saisies)
+
+            #form = EtudiantForm
+            paginator = Paginator(periode_saisies, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+            
+
+            data = {
+                "choix": choix,
+                "message_resultat":"",
+                "sousetabs": sousetabs,
+                "id_sousetabs": id_sousetabs,
+                "periode_saisies": periode_saisies,
+                "nom_evaluation": nom_evaluation,
+                "id_sousetab_selected": id_sousetab_selected,
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+
+            # data = {
+            #     "periode_saisies": periode_saisies,
+            #     "message_resultat":"",
+            #     "numero_page_active" : int(numero_page_active),
+            #     "liste_page" : liste_page,
+            #     "possede_page_precedente" : possede_page_precedente,
+            #     "page_precedente" : page_precedente,
+            #     "possede_page_suivante" : possede_page_suivante,
+            #     "page_suivante" : page_suivante,
+            #     "nbre_element_par_page" : nbre_element_par_page,
+            #     "permissions" : permissions_of_a_user(request.user),
+            #     "data_color" : data_color,
+            #     "sidebar_class" : sidebar_class,
+            #     "theme_class" : theme_class,
+            # }
+    
+            return JSONResponse(data)
+        else:
+            passe = False
+    
+    if passe == False:
+        sousetabs = SousEtab.objects.filter(archived="0").order_by('id')
+        id_sousetab = sousetabs[0].id
+        id_sousetab_selected = id_sousetab  
+        if id_sousetab_session != None:
+            id_sousetab_selected = int(id_sousetab_session)
+            id_sousetab = id_sousetab_selected
+
+        periode_saisies = LesDivisionTempsSousEtab.objects.filter(archived = "0", id_sousetab = id_sousetab, mode = "saisi").order_by('libelle')
+        nom_evaluation = SousEtab.objects.values('nom_division_temps_saisisable').filter(id=id_sousetab)[0]['nom_division_temps_saisisable']
+
+        paginator = Paginator(periode_saisies, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+        try:
+            # La définition de nos URL autorise comme argument « page » uniquement 
+            # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+            page_active = paginator.page(page)
+        except PageNotAnInteger:
+            page_active = paginator.page(1)
+        except EmptyPage:
+            # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+            # Par convention, nous renvoyons la dernière page dans ce cas
+            page_active = paginator.page(paginator.num_pages)
+
+
+        #gerer les preferences utilisateur en terme de theme et couleur
+        if (request.user.id != None):
+            if(request.user.is_superuser == True):
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            else:          
+                #print(request.user.is_superuser)
+                prof = Profil.objects.get(user=request.user)
+                data_color = prof.data_color
+                sidebar_class = prof.sidebar_class
+                theme_class = prof.theme_class
+        else:
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+
+        return render(request, 'mainapp/pages/periodes-saisie-actives.html', locals())
+
+def jours_ouvrables(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+    
+    jours_ouvrables = SousEtab.objects.values('id','nom_sousetab',
+        'liste_jours_ouvrables','duree_tranche_horaire','heure_deb_cours',
+        'liste_pauses','liste_pauses_afficher').filter().order_by('id')
+
+    sousetabs = SousEtab.objects.values('id', 'nom_sousetab')
+    paginator = Paginator(jours_ouvrables, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/jours-ouvrables.html', locals())
+
+def definition_tranches_horaires(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+    if request.method == 'POST':
+        choix ="change_sousetab_def_tranche_horaire"
+        if(request.is_ajax()):
+            id_sousetabs = []
+            nom_sousetabs = []
+            duree_tranche_horaire, heure_deb_cours = [], []
+            jours, id_jours = [], []
+            pauses, id_pauses, durees = [], [], []
+            # donnees = request.POST['form_data']
+            id_sousetab = int(request.POST['form_data'])
+            
+            sousetabs = SousEtab.objects.values('id', 'nom_sousetab')
+            id_sousetabs = [s['id'] for s in sousetabs]
+            nom_sousetabs = [s['nom_sousetab'] for s in sousetabs]
+
+            items = SousEtab.objects.values('duree_tranche_horaire','heure_deb_cours').filter(id = id_sousetab)[0]
+            duree_tranche_horaire, heure_deb_cours = items['duree_tranche_horaire'], items['heure_deb_cours']
+            jours = Jour.objects.values('libelle','id').filter(id_sousetab = id_sousetab)
+            id_jours = [j['id'] for j in jours]
+            jours = [j['libelle'] for j in jours]
+            pauses = Pause.objects.values('id','libelle','duree').filter(id_sousetab=id_sousetab)
+            id_pauses = [j['id'] for j in pauses]
+            durees = [j['duree'] for j in pauses]
+            pauses = [j['libelle'] for j in pauses]
+
+            
+            jrs = Jour.objects.filter(id_sousetab = id_sousetab)
+            max_id =0
+            liste_th_max = []
+            liste = []
+            n = 0
+            id_jour_max = 0
+            les_tranches = ""
+            nb_tranches = 0
+            passe = False
+            for j in jrs:
+                n = len(j.tranche_horaires_id)
+                if n > max_id:
+                    max_id = n
+                    id_jour_max = j.id
+                    liste_th_max = j.tranche_horaires_id
+            if max_id > 0:
+                for t in liste_th_max:
+                    liste.append(t)
+                liste =sorted(liste)
+                print(liste)
+                for t in liste:
+                    item = TrancheHoraire.objects.values('heure_deb','heure_fin').filter(id=t).order_by('numero_tranche')[0]
+                    les_tranches += item['heure_deb']+" - "+item['heure_fin']+"²²"
+                    passe = True
+                    nb_tranches += 1
+                if passe == True:
+                    n = len(les_tranches)
+                    les_tranches = les_tranches[:n- 2]
+                    print("**les_tranches: ",les_tranches )
+                    print("**n_tranches: ",nb_tranches )
+
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            print("** les_tranches ...",les_tranches)
+            data = {
+                "choix":choix,
+                "duree_tranche_horaire":duree_tranche_horaire,
+                "heure_deb_cours":heure_deb_cours,
+                "id_jours":id_jours,
+                "jours":jours,
+                "pauses":pauses,
+                "id_pauses":id_pauses,
+                "les_tranches":les_tranches,
+                "nb_tranches":nb_tranches,
+                "durees":durees,
+                "id_sousetabs":id_sousetabs,
+                "nom_sousetabs": nom_sousetabs,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data)
+    id_sousetab = request.session.get('id_sousetab_tranche', None)
+    request.session.modified = True
+
+    sousetabs = SousEtab.objects.values('id', 'nom_sousetab')
+    if id_sousetab != None:
+        id_sousetab = int(id_sousetab)
+    else:
+        id_sousetab = sousetabs[0]['id']
+        # id_sousetab_selected = id_sousetab
+   
+    jrs = Jour.objects.filter(id_sousetab = id_sousetab)
+    max_id =0
+    liste_th_max = []
+    n = 0
+    id_jour_max = 0
+    les_tranches = []
+    liste = []
+    for j in jrs:
+        n = len(j.tranche_horaires_id)
+        if n > max_id:
+            max_id = n
+            id_jour_max = j.id
+            liste_th_max = j.tranche_horaires_id
+    if max_id > 0:
+        for t in liste_th_max:
+            liste.append(t)
+        liste =sorted(liste)
+        print(liste)
+        for t in liste:
+            item = TrancheHoraire.objects.values('heure_deb','heure_fin').filter(id=t).order_by('numero_tranche')[0]
+            les_tranches.append(item['heure_deb']+" - "+item['heure_fin'])
+    print(les_tranches)
+
+    
+    pauses = Pause.objects.values('id','libelle','duree').filter(id_sousetab=id_sousetab)
+    items = SousEtab.objects.values('duree_tranche_horaire','heure_deb_cours').filter(id = id_sousetab)[0]
+    duree_tranche_horaire, heure_deb_cours = items['duree_tranche_horaire'], items['heure_deb_cours']
+    jours = Jour.objects.values('libelle','id').filter(id_sousetab = id_sousetab)
+    nb_jours = range(jours.count())
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+
+  
+    return render(request, 'mainapp/pages/definition-tranches-horaires.html', locals())
+
 def liste_etudiants(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
 
     data =[]
@@ -2535,7 +5039,10 @@ def liste_types_paiements_eleve(request, page=1, nbre_element_par_page=paginatio
         sorted_pairs = sorted(zipped_lists)
 
         tuples = zip(*sorted_pairs)
-        type_paiements_eleves_afficher, type_paiements_eleves_ = [ list(tuple) for tuple in  tuples]
+        if len(sorted_pairs) == 0:
+            type_paiements_eleves_afficher, type_paiements_eleves_ = [], []
+        else:
+            type_paiements_eleves_afficher, type_paiements_eleves_ = [ list(tuple) for tuple in  tuples]
         # print(type_paiements_eleves_afficher)
         # print(type_paiements_eleves_)
 
@@ -3264,6 +5771,49 @@ def liste_profils(request, page=1, nbre_element_par_page=pagination_nbre_element
 
     return render(request, 'mainapp/pages/liste-profils.html', locals())
 
+def liste_divisionstemps(request, page=1, nbre_element_par_page=pagination_nbre_element_par_page):
+
+    divisionstemps = []
+    # divisionstemps = LesDivisionTemps.objects.filter(archived="0").order_by('-id')
+    sousetabs = SousEtab.objects.filter(archived="0").order_by('-id')
+    
+    # form = ProfilForm
+    paginator = Paginator(divisionstemps, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+    try:
+        # La définition de nos URL autorise comme argument « page » uniquement 
+        # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+        page_active = paginator.page(page)
+    except PageNotAnInteger:
+        page_active = paginator.page(1)
+    except EmptyPage:
+        # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+        # Par convention, nous renvoyons la dernière page dans ce cas
+        page_active = paginator.page(paginator.num_pages)
+
+    # groupes = Group.objects.all().order_by('name')
+
+
+    #gerer les preferences utilisateur en terme de theme et couleur
+    if (request.user.id != None):
+        if(request.user.is_superuser == True):
+            data_color = data_color_default
+            sidebar_class = sidebar_class_default
+            theme_class = theme_class_default
+        else:          
+            #print(request.user.is_superuser)
+            prof = Profil.objects.get(user=request.user)
+            data_color = prof.data_color
+            sidebar_class = prof.sidebar_class
+            theme_class = prof.theme_class
+    else:
+        data_color = data_color_default
+        sidebar_class = sidebar_class_default
+        theme_class = theme_class_default
+        
+
+    return render(request, 'mainapp/pages/liste-divisionstemps.html', locals())
+
 def accueil(request):
     verrou = "Verrouiller"
     return render(request, 'mainapp/pages/accueil.html', locals())
@@ -3541,7 +6091,7 @@ def suppression_condition_succes(request):
 
 def modification_etudiant(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
 
     form = EtudiantForm(request.POST)
 
@@ -3575,7 +6125,7 @@ def modification_etudiant(request):
 
 def modification_etablissement(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
 
     form = EtablissementForm(request.POST)
@@ -3621,6 +6171,12 @@ def modification_etablissement(request):
                 SousEtab.objects.filter(id_etab = id).update(nom_etab = nom_etab)
                 Specialite.objects.filter(id_etab = id).update(nom_etab = nom_etab)
 
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "etab_"))
+                for t in tpes:
+                    t.indicateur_liste_classes = "etab_"+nom_etab+"_"+str(id)
+                    t.liste_classes_afficher = nom_etab
+                    t.save()
+
             Etab.objects.filter(pk=id).update(nom_etab=nom_etab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
                 localisation=localisation,bp=bp,email=email,tel=tel,devise=devise,langue=langue,\
                 annee_scolaire=annee_scolaire,site_web=site_web)
@@ -3630,7 +6186,7 @@ def modification_etablissement(request):
 
 def modification_sous_etablissement(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
 
     form = SousEtablissementForm(request.POST)
 
@@ -3663,7 +6219,7 @@ def modification_sous_etablissement(request):
         # etab.site_web = site_web
 
         # etab.save()
-
+        i = "toto"
 
         with transaction.atomic():
 
@@ -3672,11 +6228,17 @@ def modification_sous_etablissement(request):
                 Niveau.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Classe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Cours.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
+                Groupe.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Matiere.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 AppellationApprenantFormateur.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
                 Discipline.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
-                Specialite.objects.filter(id_sousetab = id).update(id_sousetab = nom_sousetab)
+                Specialite.objects.filter(id_sousetab = id).update(nom_sousetab = nom_sousetab)
 
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "sousetab_"))
+                for t in tpes:
+                    t.indicateur_liste_classes = "sousetab_"+nom_sousetab+"_"+str(id)
+                    t.liste_classes_afficher = nom_sousetab
+                    t.save()
 
             SousEtab.objects.filter(pk=id).update(nom_sousetab=nom_sousetab,date_creation=date_creation,nom_fondateur=nom_fondateur,\
                 localisation=localisation)
@@ -3705,6 +6267,14 @@ def modification_cycle(request):
                 Classe.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
                 Cours.objects.filter(id_cycle = id).update(nom_cycle = nom_cycle)
 
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "cycle_"))
+                for t in tpes:
+                    ind = t.indicateur_liste_classes.split('_')[2]
+                    if ind == str(id):
+                        t.indicateur_liste_classes = "cycle_"+nom_cycle+"_"+str(id)
+                        t.liste_classes_afficher = nom_cycle
+                        t.save()
+
 
             Cycle.objects.filter(pk=id).update(nom_cycle=nom_cycle)
 
@@ -3712,7 +6282,7 @@ def modification_cycle(request):
 
 def modification_niveau(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     # print("id =",id)
     form = NiveauForm(request.POST)
@@ -3732,6 +6302,28 @@ def modification_niveau(request):
                 Classe.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
                 ConditionRenvoi.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
                 Specialite.objects.filter(id_niveau = id).update(nom_niveau = nom_niveau)
+
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "niveau_"))
+                for t in tpes:
+                    ind = t.indicateur_liste_classes.split('_')[2]
+                    if ind == str(id):
+                        t.indicateur_liste_classes = "niveau_"+nom_niveau+"_"+str(id)
+                        t.liste_classes_afficher = nom_niveau
+                        t.save()
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "specialite_"))
+                for t in tpes:
+                    ind = t.indicateur_liste_classes.split('_')[2]
+                    spe = t.indicateur_liste_classes.split('_')[1]
+                    if ind == str(id):
+                        t.indicateur_liste_classes = "specialite_"+spe+"_"+str(id)
+                        t.liste_classes_afficher = nom_niveau+" "+spe
+                        # t.id_niveau = str(id)
+                        t.niveau = nom_niveau
+                        t.save()
+                    elif t.id_niveau == id and (ind == "all" or ind == "aucune"):
+                        t.liste_classes_afficher = nom_niveau
+                        t.niveau = nom_niveau
+                        t.save()
 
 
             Niveau.objects.filter(pk=id).update(nom_niveau = nom_niveau)
@@ -3887,7 +6479,7 @@ def modification_classe(request):
 
 def modification_specialite(request):
 
-    id = request.POST['id_modif']
+    id = int(request.POST['id_modif'])
     # fields = ('nom_etab','date_creation','nom_fondateur','localisation','bp','email','tel','devise','langue','annee_scolaire','site_web')
     # print("id =",id)
     form = SpecialiteForm(request.POST)
@@ -3902,10 +6494,19 @@ def modification_specialite(request):
         nom_etab = form.cleaned_data['nom_etab']
         nom_sousetab = form.cleaned_data['nom_sousetab']
 
-        # with transaction.atomic():
+        with transaction.atomic():
+            old_spe = Specialite.objects.filter(pk=id)[0].specialite
+            if old_spe.lower() != specialite.lower():
+                Classe.objects.filter(specialite__iexact = old_spe).update(specialite = specialite)
 
-        #     if(Classe.objects.filter(pk=id)[0].specialite.lower() != specialite.lower()):
-        #         Cours.objects.filter(id_classe = id).update(specialite = specialite)
+                tpes = TypePayementEleve.objects.filter(Q(indicateur_liste_classes__istartswith = "specialite_"))
+                for t in tpes:
+                    ind = t.indicateur_liste_classes.split('_')[2]
+                    spe = t.indicateur_liste_classes.split('_')[1]
+                    if ind == str(id):
+                        t.indicateur_liste_classes = "specialite_"+specialite+"_"+str(id)
+                        t.liste_classes_afficher = nom_niveau+" "+specialite
+                        t.save()
 
         Specialite.objects.filter(pk=id).update(specialite = specialite)
 
@@ -3993,7 +6594,7 @@ def modification_eleve(request):
         tel_mere = form.cleaned_data['tel_mere']
         email_pere = form.cleaned_data['email_pere']
         email_mere = form.cleaned_data['email_mere']
-        sexe = form.cleaned_data['sexe']  
+        # sexe = form.cleaned_data['sexe']  
         print("PRENOM PERE:", prenom_pere)
         Eleve.objects.filter(pk=id).update(
         # matricule = matricule,
@@ -4014,7 +6615,318 @@ def modification_eleve(request):
         email_mere=email_mere,
         )
 
-        return redirect('mainapp:liste_eleves')
+    return redirect('mainapp:liste_eleves')
+
+# modification_eleve2 en lieu et place de modification_periodes_saisie_actives j'ai eu qlq soucis avec les urls
+def modification_eleve2(request):
+
+    date_deb_saisie, date_deb_saisie_en = "", ""
+    date_fin_saisie, date_fin_saisie_en = "", ""
+    is_active = False
+    activer = "yes" if 'activer' in  request.POST else 'no'
+    id = int(request.POST['id_modif'])
+    evaluations_id = request.POST.getlist('evaluation')
+    
+    indicateur_date, ok = request.POST['dates_ok'].split("_");
+    if activer == 'yes':
+        # date_deb et date_fin fournies
+        if indicateur_date == "all":
+            date_deb_saisie, date_deb_saisie_en = date_correct(request.POST['date_deb_saisie'])
+            date_fin_saisie, date_fin_saisie_en = date_correct(request.POST['date_fin_saisie'])
+            is_active = True
+        elif indicateur_date == "deb":
+            date_deb_saisie, date_deb_saisie_en = date_correct(request.POST['date_deb_saisie'])
+            is_active = True
+        elif indicateur_date == "fin":
+            date_fin_saisie, date_fin_saisie_en = date_correct(request.POST['date_fin_saisie'])
+            is_active = True
+        elif indicateur_date == "bad":
+            is_active = True
+    else:
+        today = date.today()
+        today = today.strftime("%d/%m/%Y")
+        p, today = date_correct(today)
+
+        date_deb_saisie = request.POST['date_deb_saisie']
+        date_fin_saisie = request.POST['date_fin_saisie']
+        date_deb_saisie, date_deb_saisie_en = date_correct(date_deb_saisie)
+        date_fin_saisie, date_fin_saisie_en = date_correct(date_fin_saisie)
+        is_active = set_divisiontemps_status(date_deb_saisie_en, date_fin_saisie_en,today)
+
+
+        # is_active = True if 'is_active' in request.POST['is_active'] else False
+        # if is_active == False:
+        #     today = date.today()
+        #     today = today.strftime("%d/%m/%Y")
+        #     p, today = date_correct(today)
+        #     is_active = set_divisiontemps_status(date_deb_saisie_en, date_fin_saisie_en,today)
+
+
+    # print(request.POST['dates_ok'])
+    # print(request.POST.getlist('evaluation'))
+    id_sousetab_selected = request.POST['id_sousetab_selected']
+    for evaluation_id in evaluations_id:
+        print("evaluation_id: ", evaluation_id)
+        LesDivisionTempsSousEtab.objects.filter(pk = int(evaluation_id)).update(date_deb_saisie= date_deb_saisie,
+            date_fin_saisie= date_fin_saisie, date_deb_saisie_en= date_deb_saisie_en, 
+            date_fin_saisie_en = date_fin_saisie_en, is_active=is_active)
+    request.session['id_sousetab'] = id_sousetab_selected
+    return redirect('mainapp:periodes_saisie_actives')
+
+    # return redirect('mainapp:liste_eleves')
+
+# modification_eleve3 en lieu et place de modification_jours_ouvrables j'ai eu qlq soucis avec les urls
+def modification_eleve3(request):
+    for r in request.POST:
+        print(r,request.POST[r])
+    jours = ["","","","","","",""]
+    jours_afficher =""
+    id_sousetab = request.POST["id_sousetab"]
+    cpt = 1
+    heure_deb_cours = request.POST["heure_deb_cours_h"]+"h"+request.POST["heure_deb_cours_m"] if request.POST["heure_deb_cours_h"]!="" else ""
+    duree_tranche_horaire = request.POST["duree_tranche_horaire"]
+    nb_pauses = int(request.POST['nb_pauses'])
+    libelle_pauses = []
+    heure_pauses = []
+
+    while cpt <= nb_pauses:
+        print(cpt)
+        libelle_pause = request.POST["libelle_pause"+str(cpt)]
+        print("libelle_pause ",libelle_pause)
+        pause = request.POST["pause"+str(cpt)]
+        libelle_pauses.append(libelle_pause)
+        heure_pauses.append(pause)
+        
+        # print("libelle, pause: ", libelle_pause, pause)
+        cpt += 1
+    
+    sousetabs = SousEtab.objects.filter(id = int(id_sousetab))
+
+    Pause.objects.filter(id_sousetab=id_sousetab).delete()
+
+    for i in range(nb_pauses):
+        pause = Pause()
+        pause.libelle = libelle_pauses[i]
+        pause.duree = int(heure_pauses[i])
+        pause.id_sousetab = id_sousetab
+        pause.archived = 0
+        pause.save()
+    pauses = Pause.objects.filter(id_sousetab=id_sousetab)
+    liste_pauses = ""
+    liste_pauses_afficher = ""
+    for p in pauses:
+        liste_pauses += str(p.id)+"~"+p.libelle+"##"+str(p.duree)+"]"
+        liste_pauses_afficher += p.libelle+": "+str(p.duree)+", "
+    
+    Jour.objects.filter(id_sousetab=id_sousetab).delete()
+    for i in range(1,8):
+        jour = "jour"+str(i)
+        if jour in request.POST:
+            if i == 1:
+                jour = 'lundi'
+                jours[0] = jour
+            if i == 2:
+                jour = 'mardi'
+                jours[1] = jour
+            if i == 3:
+                jour = 'mercredi'
+                jours[2] = jour
+            if i == 4:
+                jour = 'jeudi'
+                jours[3] = jour
+            if i == 5:
+                jour = 'vendredi'
+                jours[4] = jour
+            if i == 6:
+                jour = 'samedi'
+                jours[5] = jour
+            if i == 7:
+                jour = 'dimanche'
+                jours[6] = jour
+
+    for i in range(7):
+        if jours[i] != "":
+            jours_afficher += jours[i]+", "
+            jour = Jour()
+            jour.libelle = jours[i]
+            jour.id_sousetab = id_sousetab
+            jour.nom_sousetab = sousetabs[0].nom_sousetab
+            jour.archived = 0
+            jour.save()
+    print("jours_afficher: ",jours_afficher)
+    
+    SousEtab.objects.filter(id = int(id_sousetab)).update(liste_jours_ouvrables = jours_afficher,
+        heure_deb_cours=heure_deb_cours, duree_tranche_horaire=duree_tranche_horaire,
+        liste_pauses_afficher=liste_pauses_afficher, liste_pauses=liste_pauses)
+    # print("liste_jours_ouvrables: ", liste_jours_ouvrables)
+
+    # On récupère la langue pour faire l'internationalisation des jours
+    # current_lang peut être fr, en, ar
+    # Non c'est plutôt à l'affichage dans jours_ouvrables qu'on fera l'internationalisation
+    current_lang = request.POST['current_lang']
+    # _('A')
+    
+    return redirect('mainapp:jours_ouvrables')
+
+    # return redirect('mainapp:liste_eleves')
+
+# h, m are int
+def hour_format(h,m):
+
+    heure = "0"+ str(h) +"h" if h < 10 else str(h)+"h"
+    heure += "0"+ str(m)  if m < 10 else str(m)
+
+    return heure
+# deb_tranche du type 07h50
+def get_fin_tranche_hour(deb_tranche, duree):
+
+    h,m = deb_tranche.split("h")
+    last_heure_h = int(h)
+    last_heure_m = int(m)
+    minutes = duree%60
+    heures = duree//60
+    last_heure_m += minutes
+    last_heure_h += heures
+    last_heure_h += last_heure_m//60
+    last_heure_m = last_heure_m % 60
+    last_heure_h = last_heure_h % 24
+
+    return hour_format(last_heure_h, last_heure_m)
+
+def modification_def_tranche_horaire(request):
+    id_jours = request.POST.getlist('jours')
+    nb_jours = len(id_jours)
+    # On efface d'abord les tranche de la journee si elle existe car elle sera overwrite
+    nb_jrs = 0
+
+    for id_jour in id_jours:
+        jour = Jour.objects.filter(id=int(id_jour))[0]
+        tranches = jour.tranche_horaires_id
+        nb_jrs = 0
+        for t in tranches:
+            print(t)
+            nb_jrs = TrancheHoraire.objects.values('nb_jours').filter(id=t)[0]['nb_jours']
+            print(nb_jrs)
+            nbr_jrs = nb_jrs - 1
+            if nbr_jrs < 0:
+                nbr_jrs = 0
+            TrancheHoraire.objects.filter(id=t).update(nb_jours = nbr_jrs)
+
+    TrancheHoraire.objects.filter(nb_jours=0).delete()
+
+    indicateur_tranche = request.POST['indicateur_tranche'].split("²²")
+    duree_tranche_horaire = int(request.POST['duree_tranche_horaire'])
+    heure_deb_cours = request.POST['heure_deb_cours'].split("h")
+    deb_h = hour_format(int(heure_deb_cours[0]), int(heure_deb_cours[1]))
+    deb_h_jour = deb_h
+    id_sousetab = int(request.POST["id_sousetab"])
+    nom_sousetab =SousEtab.objects.values('nom_sousetab').filter(id=id_sousetab)[0]['nom_sousetab']
+    numero_tranche = 1
+    numero_tranche_only = 1
+    for tranche in indicateur_tranche:
+        th = TrancheHoraire()
+        th.archived = "0"
+        th.numero_tranche = numero_tranche
+        th.heure_deb = deb_h
+        th.id_sousetab = id_sousetab
+        th.nom_sousetab = nom_sousetab
+        th.nb_jours = nb_jours
+        # C'est une pause avec sa duree
+        if len(tranche.split("$$")) == 2:
+            tranche = tranche.split("$$")
+            th.type_tranche = 1
+            th.libelle = tranche[0].strip()
+            duree = int(tranche[1])
+            # print(tranche, tranche[0].strip())
+            # print(id_sousetab)
+            th.id_pause = Pause.objects.values('id').filter(id_sousetab=id_sousetab,
+             libelle__icontains=th.libelle, duree = duree)[0]['id']
+            th.heure_fin = get_fin_tranche_hour(deb_h, duree)
+            print(numero_tranche,deb_h,th.heure_fin)
+            deb_h = th.heure_fin
+            th.save()
+        else:
+            th.libelle = "Tranche"+str(numero_tranche_only)
+            th.heure_fin = get_fin_tranche_hour(deb_h, duree_tranche_horaire)
+            print(numero_tranche,deb_h,th.heure_fin)
+            deb_h = th.heure_fin
+            th.numero_tranche_only = numero_tranche_only
+            numero_tranche_only += 1
+            th.save()
+
+        for id_jour in id_jours:
+            jour = Jour.objects.filter(id=int(id_jour))[0]
+            jour.id_sousetab = id_sousetab
+            jour.nom_sousetab = nom_sousetab
+            jour.heure_deb_cours = deb_h_jour
+            jour.heure_fin_cours = th.heure_fin
+            jour.archived = 0
+            jour.tranche_horaires.add(th)
+            jour.save()
+           
+        numero_tranche += 1
+        print("***  ",th)
+    
+    return redirect('mainapp:definition_tranches_horaires')
+
+    # return redirect('mainapp:liste_eleves')
+
+def modification_jours_ouvrables(request):
+    print("On est la...")
+    # date_deb_saisie, date_deb_saisie_en = "", ""
+    # date_fin_saisie, date_fin_saisie_en = "", ""
+    # is_active = False
+    # activer = "yes" if 'activer' in  request.POST else 'no'
+    # id = int(request.POST['id_modif'])
+    # evaluations_id = request.POST.getlist('evaluation')
+    
+    # indicateur_date, ok = request.POST['dates_ok'].split("_");
+    # if activer == 'yes':
+    #     # date_deb et date_fin fournies
+    #     if indicateur_date == "all":
+    #         date_deb_saisie, date_deb_saisie_en = date_correct(request.POST['date_deb_saisie'])
+    #         date_fin_saisie, date_fin_saisie_en = date_correct(request.POST['date_fin_saisie'])
+    #         is_active = True
+    #     elif indicateur_date == "deb":
+    #         date_deb_saisie, date_deb_saisie_en = date_correct(request.POST['date_deb_saisie'])
+    #         is_active = True
+    #     elif indicateur_date == "fin":
+    #         date_fin_saisie, date_fin_saisie_en = date_correct(request.POST['date_fin_saisie'])
+    #         is_active = True
+    #     elif indicateur_date == "bad":
+    #         is_active = True
+    # else:
+    #     today = date.today()
+    #     today = today.strftime("%d/%m/%Y")
+    #     p, today = date_correct(today)
+
+    #     date_deb_saisie = request.POST['date_deb_saisie']
+    #     date_fin_saisie = request.POST['date_fin_saisie']
+    #     date_deb_saisie, date_deb_saisie_en = date_correct(date_deb_saisie)
+    #     date_fin_saisie, date_fin_saisie_en = date_correct(date_fin_saisie)
+    #     is_active = set_divisiontemps_status(date_deb_saisie_en, date_fin_saisie_en,today)
+
+
+    #     # is_active = True if 'is_active' in request.POST['is_active'] else False
+    #     # if is_active == False:
+    #     #     today = date.today()
+    #     #     today = today.strftime("%d/%m/%Y")
+    #     #     p, today = date_correct(today)
+    #     #     is_active = set_divisiontemps_status(date_deb_saisie_en, date_fin_saisie_en,today)
+
+
+    # # print(request.POST['dates_ok'])
+    # # print(request.POST.getlist('evaluation'))
+    # id_sousetab_selected = request.POST['id_sousetab_selected']
+    # for evaluation_id in evaluations_id:
+    #     print("evaluation_id: ", evaluation_id)
+    #     LesDivisionTempsSousEtab.objects.filter(pk = int(evaluation_id)).update(date_deb_saisie= date_deb_saisie,
+    #         date_fin_saisie= date_fin_saisie, date_deb_saisie_en= date_deb_saisie_en, 
+    #         date_fin_saisie_en = date_fin_saisie_en, is_active=is_active)
+    # request.session['id_sousetab'] = id_sousetab_selected
+    return redirect('mainapp:periodes_jours_ouvrables')
+
+    # return redirect('mainapp:liste_eleves')
 
 def modification_boursier(request):
     # Fction à adapter
@@ -4275,6 +7187,427 @@ def modification_condition_succes(request):
 
     return redirect('mainapp:liste_condition_succes')
 
+def modification_periodes_saisie_actives(request):
+    print("Affiche même bonjour...")
+    # id = int(request.POST['id_modif'])
+    # print("Cote serveur ...")
+    # print(request.POST['dates_ok'])
+    # print(request.POST.getlist('evaluation'))
+    # date_deb_saisie, date_deb_saisie_en = date_correct(request.POST['date_deb_saisie'])
+    # date_fin_saisie, date_fin_saisie_en = date_correct(request.POST['date_fin_saisie'])
+    # is_active = True if 'is_active' in request.POST['is_active'] else False
+    # if is_active == False:
+    #     today = date.today()
+    #     today = today.strftime("%d/%m/%Y")
+    #     p, today = date_correct(today)
+    #     is_active = set_divisiontemps_status(date_deb_saisie_en, date_fin_saisie_en,today)
+
+    # LesDivisionTempsSousEtab.objects.filter(pk=id).update(date_deb_saisie= date_deb_saisie,
+    #     date_fin_saisie= date_fin_saisie, date_deb_saisie_en= date_deb_saisie_en, 
+    #     date_fin_saisie_en = date_fin_saisie_en, is_active=is_active)
+
+    # return redirect('mainapp:periodes_saisie_actives')
+    return redirect('mainapp:liste_eleves')
+
+def recherche_jours_ouvrables(request):
+    print("salut")
+    # sousetabs = []
+    # id_sousetabs = []
+    # periode_saisies = []
+    # nom_evaluation = ""
+    print("Saluté...")
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            # id_sousetab = int(donnees[4])
+            
+            # sousetabs = SousEtab.objects.values('nom_sousetab','id').filter(archived="0").order_by('id')
+            # id_sousetabs = [s['id'] for s in sousetabs]
+            # sousetabs = [s['nom_sousetab'] for s in sousetabs]
+            # jours_ouvrables = SousEtab.objects.filter(archived = "0").order_by('libelle')
+            # nom_evaluation = SousEtab.objects.values('nom_division_temps_saisisable').filter(id=id_sousetab)[0]['nom_division_temps_saisisable']
+            
+            jours_ouvrables = find_jours_ouvrables(donnees_recherche,trier_par)
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(jours_ouvrables)
+
+            #form = EtudiantForm
+            paginator = Paginator(jours_ouvrables, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "jours_ouvrables": jours_ouvrables,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+            return JSONResponse(data) 
+
+# def recherche_periodes_saisie_actives(request):
+def recherche_eleve3(request):
+    print("salut")
+    sousetabs = []
+    id_sousetabs = []
+    periode_saisies = []
+    nom_evaluation = ""
+    print("Saluté...")
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            id_sousetab = int(donnees[4])
+            
+            sousetabs = SousEtab.objects.values('nom_sousetab','id').filter(archived="0").order_by('id')
+            id_sousetabs = [s['id'] for s in sousetabs]
+            id_sousetab_selected = id_sousetab
+            sousetabs = [s['nom_sousetab'] for s in sousetabs]
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(archived = "0", id_sousetab = id_sousetab, mode = "saisi").order_by('libelle')
+            nom_evaluation = SousEtab.objects.values('nom_division_temps_saisisable').filter(id=id_sousetab)[0]['nom_division_temps_saisisable']
+            
+            periode_saisies = find_periodes_saisie_actives(donnees_recherche,trier_par,id_sousetab)
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(periode_saisies)
+
+            #form = EtudiantForm
+            paginator = Paginator(periode_saisies, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "sousetabs": sousetabs,
+                "id_sousetabs": id_sousetabs,
+                "periode_saisies": periode_saisies,
+                "nom_evaluation": nom_evaluation,
+                "id_sousetab_selected": id_sousetab_selected,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+           
+            return JSONResponse(data) 
+
+# def recherche_jours_ouvrables(request):
+def recherche_eleve33(request):
+    print("salut")
+    # sousetabs = []
+    # id_sousetabs = []
+    # periode_saisies = []
+    # nom_evaluation = ""
+    print("Saluté...")
+    if (request.method == 'POST'):
+        if(request.is_ajax()):
+            donnees = request.POST['form_data']
+            donnees = donnees.split("²²~~")
+
+            donnees_recherche = donnees[0]
+            page = donnees[1]
+
+            nbre_element_par_page = int(donnees[2])
+
+            trier_par = donnees[3]
+
+            # id_sousetab = int(donnees[4])
+            
+            # sousetabs = SousEtab.objects.values('nom_sousetab','id').filter(archived="0").order_by('id')
+            # id_sousetabs = [s['id'] for s in sousetabs]
+            # sousetabs = [s['nom_sousetab'] for s in sousetabs]
+            # jours_ouvrables = SousEtab.objects.filter(archived = "0").order_by('libelle')
+            # nom_evaluation = SousEtab.objects.values('nom_division_temps_saisisable').filter(id=id_sousetab)[0]['nom_division_temps_saisisable']
+            
+            jours_ouvrables = find_jours_ouvrables(donnees_recherche,trier_par)
+            
+            if (nbre_element_par_page == -1):
+                nbre_element_par_page = len(jours_ouvrables)
+
+            #form = EtudiantForm
+            paginator = Paginator(jours_ouvrables, nbre_element_par_page)  # 20 liens par page, avec un minimum de 5 liens sur la dernière
+
+            try:
+                # La définition de nos URL autorise comme argument « page » uniquement 
+                # des entiers, nous n'avons pas à nous soucier de PageNotAnInteger
+                page_active = paginator.page(page)
+            except PageNotAnInteger:
+                page_active = paginator.page(1)
+            except EmptyPage:
+                # Nous vérifions toutefois que nous ne dépassons pas la limite de page
+                # Par convention, nous renvoyons la dernière page dans ce cas
+                page_active = paginator.page(paginator.num_pages)
+
+            liste_page = list(paginator.page_range)
+            numero_page_active =  page_active.number
+
+            page_prec = numero_page_active - 1
+            page_suiv = numero_page_active + 1
+
+            #recherche l'existence de la page precedente
+            if (page_prec in liste_page):
+                possede_page_precedente = True
+                page_precedente = page_prec
+            else:
+                possede_page_precedente = False
+                page_precedente = 0
+            
+            #recherche l'existence de la page suivante
+            if (page_suiv in liste_page):
+                possede_page_suivante = True
+                page_suivante = page_suiv
+            else:
+                possede_page_suivante = False
+                page_suivante = 0
+
+
+            #gerer les preferences utilisateur en terme de theme et couleur
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+
+
+            data = {
+                "jours_ouvrables": jours_ouvrables,
+                "message_resultat":"",
+                "numero_page_active" : int(numero_page_active),
+                "liste_page" : liste_page,
+                "possede_page_precedente" : possede_page_precedente,
+                "page_precedente" : page_precedente,
+                "possede_page_suivante" : possede_page_suivante,
+                "page_suivante" : page_suivante,
+                "nbre_element_par_page" : nbre_element_par_page,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+            }
+
+            return JSONResponse(data) 
+
+def find_jours_ouvrables(recherche, trier_par):
+    print("**trier_par", trier_par)
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            jours_ouvrables =  SousEtab.objects.values('id','nom_sousetab','liste_jours_ouvrables',
+                'duree_tranche_horaire','heure_deb_cours','liste_pauses','liste_pauses_afficher').filter(archived = "0").order_by('-id')
+        else:
+            jours_ouvrables = SousEtab.objects.values('id','nom_sousetab','liste_jours_ouvrables',
+                'duree_tranche_horaire','heure_deb_cours','liste_pauses','liste_pauses_afficher').filter(archived = "0").order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            jours_ouvrables = SousEtab.objects.values('id','nom_sousetab','liste_jours_ouvrables',
+                'duree_tranche_horaire','heure_deb_cours','liste_pauses','liste_pauses_afficher').filter(Q(archived ="0") &
+                (Q(liste_jours_ouvrables__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(duree_tranche_horaire__icontains=recherche) |
+                Q(heure_deb_cours__icontains = recherche) |
+                # Q(liste_pauses__icontains=recherche) |
+                Q(liste_pauses_afficher__icontains=recherche)
+                )
+            ).distinct()
+
+        else:
+            jours_ouvrables = SousEtab.objects.values('id','nom_sousetab','liste_jours_ouvrables',
+                'duree_tranche_horaire','heure_deb_cours','liste_pauses','liste_pauses_afficher').filter(Q(archived ="0") &
+               (Q(liste_jours_ouvrables__icontains=recherche) |
+                Q(nom_sousetab__icontains=recherche) |
+                Q(duree_tranche_horaire__icontains=recherche) |
+                Q(heure_deb_cours__icontains = recherche) |
+                # Q(liste_pauses__icontains=recherche) |
+                Q(liste_pauses_afficher__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+            
+    jours_ouvrables_serializers = SousEtabJoursOuvrablesSerializer(jours_ouvrables, many=True)
+
+    return jours_ouvrables_serializers.data
+
+def find_periodes_saisie_actives(recherche, trier_par, id_sousetab):
+    print("**trier_par", trier_par)
+    if recherche == "" or not recherche:
+        if (trier_par == "non defini"):
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(archived = "0", mode = "saisi", id_sousetab = id_sousetab).order_by('-id')
+        else:
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(archived = "0", mode = "saisi", id_sousetab = id_sousetab).order_by(trier_par)
+
+    else:
+        if (trier_par == "non defini"):
+
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(Q(archived ="0") & Q(mode = "saisi") & Q(id_sousetab = id_sousetab) &
+                (Q(nom_sousetab__icontains=recherche) |
+                Q(libelle__icontains=recherche) |
+                # Q(is_active = recherche) |
+                Q(date_deb_saisie__icontains=recherche) |
+                Q(date_fin_saisie__icontains=recherche)
+                )
+            ).distinct()
+
+        else:
+            periode_saisies = LesDivisionTempsSousEtab.objects.filter(Q(archived ="0") & Q(mode = "saisi") & Q(id_sousetab = id_sousetab) &
+               (Q(nom_sousetab__icontains=recherche) |
+                Q(libelle__icontains=recherche) |
+                # Q(is_active = recherche) |
+                Q(date_deb_saisie__icontains=recherche) |
+                Q(date_fin_saisie__icontains=recherche)
+                )
+            ).distinct().order_by(trier_par)
+
+            
+    periode_saisies_serializers = LesDivisionTempsSousEtabSerializer(periode_saisies, many=True)
+
+    return periode_saisies_serializers.data
+
 def recherche_etudiant(request):
     
     if (request.method == 'POST'):
@@ -4497,7 +7830,6 @@ def recherche_etablissement(request):
             return JSONResponse(data) 
 
 def recherche_eleve(request):
-    
     if (request.method == 'POST'):
         if(request.is_ajax()):
             donnees = request.POST['form_data']
@@ -4516,7 +7848,7 @@ def recherche_eleve(request):
             # if tailles_donnees == 4:
             #     eleves = find_eleve(donnees_recherche,trier_par,"1")
             # else:
-            eleves = find_eleve(donnees_recherche,trier_par,donnees[4])
+            eleves, montant_a_payer = find_eleve(donnees_recherche,trier_par,donnees[4])
 
             if (nbre_element_par_page == -1):
                 nbre_element_par_page = len(eleves)
@@ -4578,6 +7910,7 @@ def recherche_eleve(request):
 
             data = {
                 "eleves": eleves,
+                "montant_a_payer": montant_a_payer,
                 "message_resultat":"",
                 "numero_page_active" : int(numero_page_active),
                 "liste_page" : liste_page,
@@ -4592,7 +7925,6 @@ def recherche_eleve(request):
                 "theme_class" : theme_class,
             }
 
-           
             return JSONResponse(data) 
 
 def find_eleve(recherche, trier_par, classe_recherchee):
@@ -4649,23 +7981,18 @@ def find_eleve(recherche, trier_par, classe_recherchee):
                 Q(classe_actuelle__icontains=recherche)|
                 Q(email_mere__icontains=recherche))
             ).distinct().order_by(trier_par)
-    # else:
-    #     classe, id_classe = classe_recherchee.split("_")
-    #     if classe == "tous":
-    #          eleves = Eleve.objects.filter(archived ="0")
-    #     else:
-    #         matricule = "matricule"
-    #         classe_recherchee = id_classe+"_"+classe+"_"
-    #         id_classe = int(id_classe)
+    montant_a_payer = 0
+    classe_courante = str(id_classe)+"_"+classe+"_"
+    tranches = TypePayementEleve.objects.values('id','libelle','montant','ordre_paiement').filter(liste_classes__icontains = classe_courante, entree_sortie_caisee = "e")
+    tranches_paiements = ""
+    for t in tranches:
+        montant_a_payer += t['montant']
+        tranches_paiements += str(t['id'])+"²²"+t['libelle']+"²²"+str(t['montant'])+"²²"+str(t['ordre_paiement'])+"*²*"
 
-    #         eleves = Eleve.objects.filter(Q(archived ="0") &
-    #                     (Q(id_classe_actuelle = id_classe)
-    #                     )
-    #                 ).order_by(matricule)
 
     eleves_serializers = EleveSerializer(eleves, many=True)
 
-    return eleves_serializers.data
+    return eleves_serializers.data, montant_a_payer
 
 def recherche_boursier(request):
     
@@ -5078,7 +8405,7 @@ def find_cycle(recherche, trier_par):
             ).distinct()
 
         else:
-            cycles = Etab.objects.filter(Q(archived ="0") &
+            cycles = Cycle.objects.filter(Q(archived ="0") &
                 (Q(nom_etab__icontains=recherche) |
                 Q(nom_sousetab__icontains=recherche) |
                 Q(nom_cycle__icontains=recherche)
@@ -6835,27 +10162,170 @@ def find_type_paiement_eleve(recherche, trier_par, classe_recherchee):
                     )
                 ).distinct().order_by(trier_par)
     else:
+        id_etab, id_sousetab, id_cycle, id_niveau = 0, 0, 0, 0
         info = classe_recherchee.split("_")
         print("classe_recherchee: ", classe_recherchee)
         if len(info) == 2:
             print("len == 2")
             if info[0] == "tous":
-                paiements = TypePayementEleve.objects.filter(archived ="0", entree_sortie_caisee = "e")
+                paiements = TypePayementEleve.objects.values('ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(archived ="0", entree_sortie_caisee = "e")
             else:
                 classe_recherchee = info[1]+"_"+info[0]+"_"
-                paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
+                # id = int(info[1])
+                # print(Classe.objects.values('id_sousetab','id_cycle','id_niveau').filter(pk = id))
+                # print(Cycle.objects.filter(pk = 1)[0].niveaux.filter()[0].classes.values('id_sousetab','id_cycle','id_niveau').filter()[0])
+                paiements = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(Q(archived ="0") &
                         (Q(entree_sortie_caisee="e")&
                         Q(liste_classes__icontains=classe_recherchee)
                         )
                     ).order_by('ordre_paiement')
         else:
-            liste_classes = TypePayementEleve.objects.values('liste_classes').filter(indicateur_liste_classes__iexact = classe_recherchee)[0]['liste_classes']
-            paiements = TypePayementEleve.objects.filter(Q(archived ="0") &
-                        (Q(entree_sortie_caisee="e")&
-                        Q(indicateur_liste_classes__icontains=classe_recherchee)&
-                        Q(liste_classes__icontains=liste_classes)
-                        )
-                    ).order_by('ordre_paiement')
+            paiements = []
+            if info[0] == "etab":
+                id_etab = int(info[2])
+                paiements = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes', 'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee'
+                    ).filter(archived = "0", id_etab = id_etab,
+                    entree_sortie_caisee="e").order_by('ordre_paiement')
+                for l in paiements:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+            elif info[0] == "sousetab":
+                id_sousetab = int(info[2])
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(Q(archived="0") & Q(id_sousetab = id_sousetab))
+                for l in liste_classes:
+                    print("for")
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                    #     else:
+                    #         l['liste_classes_afficher'] = l['liste_classes_afficher']
+                    # else:
+                    #     l['liste_classes_afficher'] = l['liste_classes_afficher']
+                    paiements.append(l)
+                # if liste_classes.count()>0:
+                #     id_etab = liste_classes[0]['id_etab']
+
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(
+                    ~Q(id_etab = 0) & Q(archived="0") & Q(id_sousetab = 0) & Q(id_cycle = 0) & Q(id_niveau = 0))
+                for l in liste_classes:
+                    paiements.append(l)
+
+            elif info[0] == "cycle":
+                id_cycle = int(info[2])
+                data = Cycle.objects.filter(pk = id_cycle)[0].niveaux.filter()[0].classes.values('id_sousetab','id_etab').filter()[0]
+                id_sousetab = data['id_sousetab']
+                id_etab = data['id_etab']
+
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(
+                    Q(archived="0") & Q(id_cycle = id_cycle) & Q(id_niveau = 0))
+                for l in liste_classes:
+                    print("ici__")
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                        
+                    paiements.append(l)
+                
+                liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                    'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter( 
+                    ((Q(id_etab = id_etab) & Q(id_sousetab = 0) & Q(archived="0")  & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                     (Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(archived="0") & Q(id_cycle = 0) & Q(id_niveau = 0)))
+                    )#.order_by('-id_sousetab')
+                for l in liste_classes:
+                    if l['indicateur_liste_classes']!= "classe":
+                        if "_aucune_" in l['indicateur_liste_classes']:
+                            l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                    paiements.append(l)
+            else:
+                if info[0] == "niveau":
+                    id_niveau = int(info[2])
+                    data = Niveau.objects.filter(pk = id_niveau)[0].classes.values('id_sousetab','id_etab','id_cycle').filter()[0]
+                    id_sousetab = data['id_sousetab']
+                    id_etab = data['id_etab']
+                    id_cycle = data['id_cycle']
+                    liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                        'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(Q(archived="0") & Q(id_niveau = id_niveau))
+                    for l in liste_classes:
+                        if l['indicateur_liste_classes']!= "classe":
+                            if "_aucune_" in l['indicateur_liste_classes']:
+                                l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                            
+                        paiements.append(l)
+
+                    liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                        'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(
+                        ((Q(id_etab = id_etab) & Q(id_sousetab = 0) & Q(archived="0")  & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                         (Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(archived="0") & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                         (Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(archived="0") & Q(id_niveau = 0))
+                         ))
+                    for l in liste_classes:
+                        ind_liste_cl = l['liste_classes_afficher']
+                        paiements.append(l)
+
+                elif info[0] == "specialite":
+                    id_niveau = int(info[2])
+                    data = Niveau.objects.filter(pk = id_niveau)[0].classes.values('id_sousetab','id_etab','id_cycle').filter()[0]
+                    id_sousetab = data['id_sousetab']
+                    id_etab = data['id_etab']
+                    id_cycle = data['id_cycle']
+                    liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                        'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(Q(archived="0") & Q(id_niveau = id_niveau) &
+                        Q(indicateur_liste_classes= classe_recherchee))
+                    for l in liste_classes:
+                        if l['indicateur_liste_classes']!= "classe":
+                            if "_aucune_" in l['indicateur_liste_classes']:
+                                    l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                        paiements.append(l)
+                    liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                        'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(
+                        ((Q(id_etab = id_etab) & Q(id_sousetab = 0) & Q(archived="0")  & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                         (Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(archived="0") & Q(id_cycle = 0) & Q(id_niveau = 0))|
+                         (Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(archived="0") & Q(id_niveau = 0)) |
+                         (~Q(niveau = "") & Q(indicateur_liste_classes__icontains= "niveau") & Q(id_etab = id_etab) & Q(id_sousetab = id_sousetab) & Q(id_cycle = id_cycle) & Q(archived="0") & Q(id_niveau = id_niveau))
+                         
+                         ))
+                    for l in liste_classes:
+                        ind_liste_cl = l['liste_classes_afficher']
+                        if l not in paiements:
+                            paiements.append(l)
+
+                    liste_classes = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                        'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(archived = "0", id_niveau = id_niveau, indicateur_liste_classes = classe_recherchee, entree_sortie_caisee ="e")
+                    for lc in liste_classes:
+                        current = lc['liste_classes'].split("_")
+                        id_des_classes = current[0:][::2]
+                        les_classes = current[1:][::2]
+
+                        id_des_classes.pop(len(id_des_classes) - 1)
+                        i = 0
+                        # classes_selectionnees = []
+                        for j in les_classes:
+                            # classes_selectionnees.append(id_des_classes[i]+"_"+j+"_")
+                            cl = id_des_classes[i]+"_"+j+"_"
+                            ligne = TypePayementEleve.objects.values('niveau','ordre_paiement','liste_classes_afficher','liste_classes',
+                            'libelle','date_deb','date_fin','montant','indicateur_liste_classes','entree_sortie_caisee').filter(Q(archived ="0") &
+                                (Q(entree_sortie_caisee="e")&
+                                Q(liste_classes__icontains=cl)
+                                )
+                            )
+
+                            for l in ligne:
+                                if l['indicateur_liste_classes']!= "classe":
+                                    if "_aucune_" in l['indicateur_liste_classes']:
+                                        l['liste_classes_afficher'] = l['niveau']+" "+"sans spécialité"
+                                if l not in paiements:
+                                    paiements.append(l)
+                            i += 1
+
+
+                  
+            paiements = sorted(paiements, key=lambda k: k['ordre_paiement'])
 
     paiements_serializers = TypePayementEleveSerializer(paiements, many=True)
 
@@ -9244,6 +12714,8 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 groupe = Groupe()
                                                 groupe.libelle = grp_mat
                                                 groupe.classe = classe.nom_classe
+                                                groupe.nom_sousetab = sousEtab.nom_sousetab
+                                                groupe.id_sousetab = sousEtab.id
                                                 groupe.save()
                                                 annee_scolaire.groupes.add(groupe)
                                                 print("_Groupe add: ",groupe.libelle, groupe.classe )
@@ -9255,6 +12727,8 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 groupe = Groupe()
                                                 groupe.libelle = df['Unnamed: '+str(ind_grp)].values[i]
                                                 groupe.classe = classe.nom_classe
+                                                groupe.nom_sousetab = sousEtab.nom_sousetab
+                                                groupe.id_sousetab = sousEtab.id
                                                 groupe.save()
                                                 annee_scolaire.groupes.add(groupe)
                                                 print("Groupe add: ",groupe.libelle, groupe.classe )
@@ -9744,7 +13218,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                 for lc in list_cours:
                     print("cours: ",lc['id'])
                     grp.filter(pk=lc['id'])[0].eleves.add(*list_eleves)
-        # return render(request, 'mainapp/pages/config-terminee.html', locals())
+        # return render(request, 'mainapp/pages/config-terminere.html', locals())
         return redirect('mainapp:dashboard')
 
 @csrf_exempt

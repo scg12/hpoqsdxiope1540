@@ -1,0 +1,243 @@
+{% load static i18n %}
+{% load customfilters %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'assets/css/bootstrap.min.css' %}">
+        <title>{{titre}}</title>
+        <style type="text/css">
+            html,body {
+                font-size: 14px;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                font-weight: 100;
+
+            }
+
+            .entete{
+                width:100%;
+                height: 10%;
+                display: block;
+
+            } 
+            .entete1{
+                
+                width:100%;
+                height:75%;
+                /*border: 0.5px solid black;*/
+                display: block;
+            }
+            .entete1_box1{
+                width:43%;
+                height: 99.8%;
+                float: left;
+                /*border: 0.5px solid black;*/
+                margin-right: 0.5px;
+            }
+            .item{
+                width:100%;
+                height: 20%;
+                font-size: 14px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 100%;
+            }
+            .entete1_box2{
+                width:12.7%;
+                height: 99.8%;
+                float: left;
+                /*border: 0.5px solid black;*/
+            }
+            .logo_school{
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 2%;
+                width: 80%;
+                height: 90%;
+            }
+            .logo_school2{
+                display: block;
+                margin-left: auto;
+                margin-right: 0;
+                margin-top: -2%;
+                width: 80%;
+                height: 90%;
+            }
+            .entete1_box3{
+                width:43%;
+                height: 99.8%;
+                float: right;
+                /*border: 0.5px solid black;*/
+            }
+            .entete2{
+                clear: both;
+                width:99.6%;
+                height: 24%;
+                /*border: 0.5px solid black;*/
+                margin-top: 0px;
+                margin-bottom:1%;
+            }
+            .period{
+                width: 80%;
+                height: 95%;
+                margin: auto;
+                border: 0.5px solid black;
+                line-height: 95%;
+                height: 95%;
+                text-align: center;
+                background-color: #E0E0E0;
+            }
+            .center{
+                line-height: 98%;
+                height: 98%;
+                /*border: 0.5px solid green;*/
+                line-height: 15%;
+                margin-top:2%;
+                text-align: center;
+            }
+            .corps{
+                clear:both;
+                width:99.6%;
+                height: 88%;
+                /*background-color: #A4CAF0;*/
+                /*border: 0.5px solid black;*/
+                margin-top: 6px;
+                margin-bottom: 2.5px;
+                /*background: green;*/
+
+            }
+            
+            .pied{
+                width:99.6%;
+                height: 4%;
+                margin-top:auto;
+                margin-bottom:0.5px;
+                display: block;
+                /*background: blue;*/
+            }
+            .bold{
+                font-size: 15px;
+                font-weight: bold;
+            }
+            tr {
+               line-height: 25px;
+               min-height: 25px;
+               height: 25px;
+            }
+             .ui-helper-center {
+                    text-align: center;
+                    line-height: 25%;
+                }
+            @page {
+                    
+                    @bottom-right{
+                        margin-bottom: 0.5cm;
+                        content: "Page " counter(page) " of " counter(pages);
+                    }
+                }
+
+
+        </style>
+    </head>
+    <body>
+             <div class="entete">
+                <div class="entete1">
+                    <div class="entete1_box1">
+                        <div class="item">{{ pays | upper }}</div>
+                        <div class="item">
+                            {{ ministere | upper }}
+                        </div>
+                        <div class="item">{{ etab | upper }}</div>
+                        <div class="item">{{ devise | title }}</div>
+                        <div class="item">{{ contact | upper }}</div>
+                    </div>
+
+                    <div class="entete1_box2">
+                        <div class="logo_school">
+                            <img style="width:95%; height: 95%;" src="{% static "images/leclerc.jpg" %}" alt="school Logo">
+                        </div>
+                        
+                    </div>
+                    <div class="entete1_box3">
+                        <div class="item">{{ pays2 | upper }}</div>
+                        <div class="item">
+                            {{ ministere2 | upper }}
+                        </div>
+                        <div class="item">{{ etab2 | upper }}</div>
+                        <div class="item">{{ devise2 | title }}</div>
+                        <div class="item">{{ contact2 | upper }}</div>
+                    </div>
+                </div>
+                <div class="entete2">
+                    <div class="period">
+                        <div class="center bold">{{ titre_etat | upper }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="corps">
+                <!-- <table style="width: 100%;" cellspacing="0"> -->
+                    <div class="table-responsive">
+                          <div class="table-scroll">
+                            <table class="table table-striped table-hover">
+                            <tr>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">#</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Matricule</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Nom</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Prénom</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Classe</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Versé</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Total</th>
+                              <th class="ui-helper-center"  style="border: 0.5px solid black;">Excédent</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                        {% for inf in infos  %}
+                            <tr>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{ forloop.counter }}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.matricule}}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.nom}}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.prenom}}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.classe}}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.verse}}</td>
+                              
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400">{{inf.total}}</td>
+                              <td class="ui-helper-center" style="border: 0.5px solid black; font-weight:400;">{{inf.excedent}}</td>
+                              
+                            </tr> 
+                        {% endfor %}
+                            <tr>
+                                <td class="ui-helper-center"></td>
+                                <td class="ui-helper-center" style="font-size:16px;font-weight:400"><b>TOTAL</b></td>
+                                 <td class="ui-helper-center"></td>
+                                 <td class="ui-helper-center"></td>
+                                 <td class="ui-helper-center"></td>
+                                 <td class="ui-helper-center" style="color:green; font-size:16px; font-weight:400; color: green;"><b>{{verses}}</b></td>
+                                    <td class="ui-helper-center" style="color:green; font-size:16px; font-weight:400;"><b>{{totaux}}</b></td>
+                                    <td class="ui-helper-center" style="font-size:16px; font-weight:400; color: green;"><b>{{excedents}}</b></td>
+                                
+                            </tr>
+
+                          
+                      </tbody>
+                      <!-- <tfoot>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">#</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Matricule</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Nom</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Prénom</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Classe</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Versé</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Total</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Reste</th>
+                          <th class="ui-helper-center"  style="border: 0.5px solid black;">Excédent</th>
+                      </tfoot> -->
+                      
+                  </table>
+            </div>
+        </div>
+    </div>
+            <!-- <div class="pied">  PIED
+                     </div>  -->         
+    </body>
+</html>

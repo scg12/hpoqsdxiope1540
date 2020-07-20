@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Title</title>
+        <style type="text/css">
+            html,body {
+                font-size: 10px;
+                width: 100%;
+            	height: 100%;
+                margin: 0;
+                font-weight: 150;
+            }
+            .all{
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+            .entete{
+                width:100%;
+                height: 24%;
+                display: block;
+            } 
+            .entete1{
+                width:100%;
+                height:49%;
+                /*border: 1px solid black;*/
+                display: block;
+            }
+            .entete1_box1{
+                width:40%;
+                height: 99.8%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 0.5px;
+            }
+            .entete1_box2{
+                width:19.7%;
+                height: 99.8%;
+                float: left;
+                border: 1px solid black;
+            }
+            .entete1_box3{
+                width:39%;
+                height: 99.8%;
+                float: right;
+                border: 1px solid black;
+            }
+            .entete2{
+                clear: both;
+                width:99.6%;
+                height: 10%;
+                border: 1px solid black;
+                margin-top: 3px;
+            }
+            .period{
+                width: 80%;
+                height: 95%;
+                margin: auto;
+
+            }
+            .entete3{
+                width:100%;
+                height: 39%;
+                /*border: 1px solid black;*/
+                margin-top: 1px;
+            }
+            .entete3_box1{
+                width:45%;
+                height: 99.8%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 0.5px;
+            }
+            .entete3_box2{
+                width:38.7%;
+                height: 99.8%;
+                float: left;
+                border: 1px solid black;
+            }
+            .entete3_box3{
+                width:15%;
+                height: 99.8%;
+                float: right;
+                border: 1px solid black;
+            }
+            .corps{
+                clear:both;
+                width:99.6%;
+                height: 50%;
+                background-color: #A4CAF0;
+                border: 1px solid black;
+                margin-top: 6px;
+                margin-bottom: 2.5px;
+
+
+            }
+            .pied{
+                width:100%;
+                height: 24%;
+                display: block;
+            }
+            .pied_ligne1{
+                width: 100%;
+                height: 49%;
+                /*border: 1px solid black;*/
+                display: block;
+                margin-right: 2px;
+                margin-bottom: 3px;
+            }
+            .pied_ligne1_box1{
+                width: 19.46%;
+                height: 99%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 0.8px;
+            }
+            .pied_ligne1_box2{
+                width: 19.46%;
+                height: 99%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 1px;
+            }
+            .pied_ligne1_box3{
+                width: 19.46%;
+                height: 99%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 1px;
+            }
+            .pied_ligne1_box4{
+                width: 19.46%;
+                height: 99%;
+                float: left;
+                border: 1px solid black;
+                margin-right: 0px;
+            }
+            .pied_ligne1_box5{
+                width: 19.46%;
+                height: 99%;
+                float: right;
+                border: 1px solid black;
+            }
+            .pied_ligne2{
+                clear: both;
+                width: 100%;
+                height: 48%;
+                /*border: 1px solid black;*/
+                display: block;
+            }
+            .pied_ligne2_box1{
+                width: 29.7%;
+                height: 99%;
+                /*border: 1px solid black;*/
+                float: left;
+                display: block;
+                margin-right: 1.2px;
+            }
+            .pied_ligne2_box11{
+                width: 99%;
+                height: 48%;
+                border: 1px solid black;
+                margin-bottom: 2px;
+            }
+            .pied_ligne2_box12{
+                width: 99%;
+                height: 48%;
+                border: 1px solid black;
+            }
+            .pied_ligne2_box2{
+                width: 29.9%;
+                height: 99%;
+                /*border: 1px solid black;*/
+                float: left;
+                margin-right: 1px;
+            }
+            .pied_ligne2_box21{
+                width: 99%;
+                height: 48%;
+                border: 1px solid black;
+                margin-bottom: 2px;
+            }
+            .pied_ligne2_box22{
+                width: 99%;
+                height: 48%;
+                border: 1px solid black;
+            }
+            .pied_ligne2_box3{
+                width: 39.5%;
+                height: 99%;
+                border: 1px solid black;
+                float: right;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="all">
+            <div class="entete">
+                <div class="entete1">
+                    <div class="entete1_box1">entete1_box1</div>
+                    <div class="entete1_box2">entete1_box2</div>
+                    <div class="entete1_box3">entete1_box3</div>
+                </div>
+                <div class="entete2">
+                    <div class="period">PREMIER TRIMESTRE</div>
+                </div>
+                <div class="entete3">
+                    <div class="entete3_box1">entete3_box1</div>
+                    <div class="entete3_box2">entete3_box2</div>
+                    <div class="entete3_box3">entete3_box3</div>
+                </div>
+            </div>
+            <div class="corps">
+                <p class='title'>Invoice # {{  invoice_id }} </p>
+
+                Bill to: {{ customer_name }} <br/>
+                Amount: {{ amount }}  <br/>
+                Date: {{ today }}
+            </div>
+            <div class="pied">
+                <div class="pied_ligne1">
+                    <div class="pied_ligne1_box1">pied_ligne1_box1</div>
+                    <div class="pied_ligne1_box2">pied_ligne1_box2</div>
+                    <div class="pied_ligne1_box3">pied_ligne1_box3</div>
+                    <div class="pied_ligne1_box4">pied_ligne1_box4</div>
+                    <div class="pied_ligne1_box5">pied_ligne1_box5</div>
+                </div>
+                <div class="pied_ligne2">
+                    <div class="pied_ligne2_box1">
+                        <div class="pied_ligne2_box11">pied_ligne2_box11</div>
+                        <div class="pied_ligne2_box12">pied_ligne2_box12</div>
+                    </div>
+                    <div class="pied_ligne2_box2">
+                        <div class="pied_ligne2_box21">pied_ligne2_box21</div>
+                        <div class="pied_ligne2_box22">pied_ligne2_box22</div>
+                    </div>
+                    <div class="pied_ligne2_box3">pied_ligne2_box3</div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,328 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% load customfilters %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/definition-tranches-horaires.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:periodes_saisie_actives' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+  {% block content %}
+        
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+
+                <div class="card">
+
+                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
+                  </div> -->
+
+                  <div class="card-body">
+                      <div class="row">
+
+                        <div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center"><b>Définition Tranches Horaires</b></p>
+                        </div>
+
+                      </div>
+                      <div class="text-center">
+                        <form method="post" class="definition_tranches_horaires" action="{% url 'mainapp:definition_tranches_horaires' %}">
+                        {% csrf_token %}
+                        <select name="sousetab" class ="form-control form-group sousetab" style="width:150px; margin: 0 auto; font-weight: bold;">
+                              {% for s in sousetabs %}
+                                
+                                {% if s.id|isequal:id_sousetab %}
+                                 <option value="{{s.id}}" selected>{{s.nom_sousetab}}
+                                {% else %}
+                                  <option value="{{s.id}}" >{{s.nom_sousetab}} 
+                                {% endif %}
+                              {% endfor %}
+                        </select>
+
+                      </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-0 col-md-8"></div>
+                        <div class="col-sm-12 col-md-4">
+                          {% if perms.mainapp.can_change_jour or perms.mainapp.change_jour %}
+                            <button rel="tooltip" class="btn modifier-tranche-link">
+                                <i class="material-icons">edit</i>
+                            </button>
+                          {% endif %}
+                        </div>
+
+                     </div>
+
+                  <div class="table-responsive">
+                        <div class="table-scroll">
+                          <table class="table table-striped table-hover">
+                            <thead class="">
+                              <tr class="entete_table">
+                                <th scope="col" class="fix-col" > </th>
+                                
+                                {% for jour in jours %}
+                                  {% if  forloop.counter|isequal:1 %}
+                                   <th scope="col" class="fix-col1 {{ jours|getid2:forloop.counter }}" style="text-transform: capitalize;" >
+                                        {{ jours|getlibelle:1 }}
+                                      <!-- <span class="tri tri-asc" style="text-transform: capitalize;"> 
+                                      <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
+                                                                                           </span>   -->                                                     
+                                    </th>
+                                  {% else %}
+                                  <th scope="col" class="{{ jours|getid2:forloop.counter }}" style="text-transform: capitalize;">
+                                    {{ jours|getlibelle:forloop.counter }}                            
+                                  </th>
+                                  {% endif %}
+                                {% endfor %}
+
+                              </tr>
+                              
+                              
+
+                            </thead>
+
+                            <tbody>
+                              
+                                {% for th in les_tranches %}
+                                  <tr>
+                                    <td scope= "col" class="fix-col"><b style="font-size:15px; font-weight:900;">{{th}}</b></td>
+                                    {% for jr in nb_jours  %}
+                                    {% if jr|isequal:1 %}
+                                      <td scope="col" class="fix-col1"></td>
+                                    {% endif %}
+                                      <td></td>
+                                    {% endfor %}
+                                  </tr>
+                              {% endfor %}
+
+                            </tbody>
+                            <tfoot>
+                               <tr class="entete_table">
+                                <th scope="col" class="fix-col" > </th>
+                                
+                                {% for jour in jours %}
+                                  {% if  forloop.counter|isequal:1 %}
+                                   <th scope="col" class="fix-col1 {{ jours|getid2:forloop.counter }}" >
+                                       {{ jours|getlibelle:1 }}
+                                                                                             
+                                    </th>
+                                  {% else %}
+                                  <th scope="col" class="{{ jours|getid2:forloop.counter }}">
+                                   {{ jours|getlibelle:forloop.counter }}  
+                                  </th>
+                                  {% endif %}
+                                {% endfor %}
+
+                              </tr>
+                            </tfoot>
+                      
+                        </table>
+                        </div>
+                        
+                  </div>      
+
+                           <!-- {% block pagination %}
+                              {% include 'mainapp/layouts/_pagination.html' %}
+                                                     {% endblock %} -->
+                              
+                      
+                      
+              </div>
+
+            </div>
+
+          </div>
+      </div>
+
+      <div class="modal fade" id="modal_modifier_tranche" tabindex="-1" role="">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+              <div class="card-body">
+                <p class="h4 text-center"><b>DEFINITION TRANCHES HORAIRES</b></p>
+                <div class=" justify-content-center">
+                   <form method="post" id="form" class="modification_jours1" action="{% url 'mainapp:modification_def_tranche_horaire' %}">
+                    {% csrf_token %}
+                    
+                        
+                    </div>
+                    <div class="text-center">
+                        <!-- <label for="sousetab" class="bmd-label-floating">Sous Etab</label> -->
+                        <select name="jours" size="7" class ="form-control form-group jours" style="width:150px; margin: 0 auto; height: 105px; text-align: center; text-transform: capitalize;" multiple>
+                             
+                              {% for j in jours %}
+                               <option value="{{j.id}}" style="text-align: center; ">{{j.libelle}}
+                              {% endfor %}
+                        </select>
+                    </div>
+                                         
+                    <div class="row">
+                      <div class="col-sm-0 col-md-1"></div>
+                      <div class="col-sm-12 col-md-5">
+                        <label for="duree_tranche_horaire_label" class="bmd-label-floating duree_tranche_horaire_label"><b style="color :#506ce9;">Durée tranche horaire:</b></label>
+                      </div>
+                      <div class="col-sm-6 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" type="text" name="duree_tranche_horaire" class="duree_tranche_horaire form-group form-control" value="{{duree_tranche_horaire}}" disabled> &nbsp; 
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-6 col-md-3">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <label for="p1" class="bmd-label-floating ">Minutes</label>
+                              </div>
+                           </div>
+                       </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm-0 col-md-1"></div>
+                      <div class="col-sm-12 col-md-5">
+                          <label for="heure_deb_cours_label" class="bmd-label-floating heure_deb_cours_label"><b style="color :#506ce9;">Heure début cours:</b></label>
+                      </div>
+                      <div class="col-sm-4 col-md-2">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" type="text" name="heure_deb_cours" class="heure_deb_cours form-group form-control" value="{{heure_deb_cours|correct_format}}" disabled> &nbsp; 
+                              </div>
+                           </div>
+                       </div>
+                       <!-- <div class="col-sm-1 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <label for="h" class="bmd-label-floating ">H</label>
+                              </div>
+                           </div>
+                       </div>
+                       <div class="col-sm-4 col-md-1">
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                           <input style="width:40px;" type="text" name="heure_deb_cours_m" class="heure_deb_cours_m form-group form-control" value="{{heure_deb_cours|split1}}"> &nbsp;
+                              </div>
+                           </div>
+                       </div> -->
+                       <div class="col-sm-12 col-md-3">
+                         <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group ">
+                                  <label for="p2" class="bmd-label-floating ">Minutes</label>
+                              </div>
+                         </div>
+                       </div>
+                    </div>
+
+                    <div class="row">
+                       <div class="col-sm-12 col-md-4">
+                          <label for="tranche_add" class="bmd-label-floating tranche_add "><b><a href="#" style="color :#506ce9;">+ Tranche</a></b></label>
+                        </div>
+
+                        <div class="col-sm-12 col-md-4">
+                          <label for="pause_add" class="bmd-label-floating pause_add "><b><a href="#" style="color :#506ce9;">+ Pause</a></b></label>
+                        </div>
+                      
+                       <div class="col-sm-12 col-md-4">
+                        <label for="item_rmv" class="bmd-label-floating item_rmv "><b><a href="#" style="color :#506ce9;">- Dernier élément</a></b></label>
+                      </div>
+                      <div class="col-sm-0 col-md-4"></div>
+                      <div class="col-sm-12 col-md-4 pauses_">
+                        {% for p in pauses  %}
+                          <a class="{{p.id}} pause_item" style="color: black; font-size: 14px;"><b>{{p.libelle}} : {{p.duree}} </b></a><br>
+                        {% endfor %}
+                      </div>
+                      
+                    </div>
+                    
+
+
+                    <div class="text-center les_pauses row">
+                      
+                    </div>
+
+
+                    
+                      <input type="hidden" name="id_modif" id="id_modif">
+                      <input type="hidden" name="id_sousetab" id="id_sousetab">
+                      <input type="hidden" name="indicateur_tranche" id="indicateur_tranche">
+
+                      <div class="text-center">
+                        <button type="button" class="btn enregistrer">Enregistrer</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+                  </div>
+              </div>
+              
+            </div>
+                    
+        </div>
+    </div>
+</div>
+
+  </div>
+
+
+  {% endblock %}
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+    
+    
+  {% endblock %}

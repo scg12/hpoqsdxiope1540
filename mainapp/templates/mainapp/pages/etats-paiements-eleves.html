@@ -1,0 +1,284 @@
+  {% extends 'mainapp/layouts/base-dashbord.html' %}
+
+  {% load i18n static %}
+
+  {% block header %}
+      
+      <script src="{% static 'js/etats-paiements-eleves.js' %}"></script>
+
+      <style type="text/css">
+        
+        table span:hover, tr:hover{
+          cursor: pointer;
+        }
+
+    /* no select sur les elemenst th */
+        th {
+        -webkit-touch-callout: none; /* iOS Safari */
+          -webkit-user-select: none; /* Safari */
+           -khtml-user-select: none; /* Konqueror HTML */
+             -moz-user-select: none; /* Old versions of Firefox */
+              -ms-user-select: none; /* Internet Explorer/Edge */
+                  user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+      }
+
+
+
+      </style>
+      
+  {% endblock %}
+
+
+      {% block language %}
+          <form action="/i18n/setlang/" method="post">
+                  {% csrf_token %}
+                  <input name="next" type="hidden" value="{% url 'mainapp:liste_cycles' %}" />
+                  
+                  <select name="language" onchange="this.form.submit()">
+                    {% for lang in LANGUAGES %}
+                      {% if LANGUAGE_CODE == lang.0 %}
+                        <option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+                      {% elif LANGUAGE_CODE != lang.0 %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                      }
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+          </form>
+      {% endblock %}
+
+{% block sidebar %}
+    {% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+  {% block content %}
+        
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-12">
+
+                <div class="card">
+
+                  <!-- <div class=" card-nav-tabs card-header-primary card-header-icon">
+                    <div class="card-icon"><i class="material-icons">library_books</i></div>         
+                  </div> -->
+
+                  <div class="card-body">
+                      <div class="row">
+
+                        <div class="col-sm-12 col-md-12">
+                          <p class="h3 text-center">Etats paiements Apprenants</p>
+                        </div>
+
+                      </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12 col-md-8">
+                                
+                                 <label>Afficher </label> 
+                                 <select id="nbre_element_par_page" class="form-control-sm">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="-1">Tout</option>
+                                  </select> 
+                                  <label>Elements</label> 
+                                
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                              <form action="{% url 'mainapp:recherche_cycle' %}" class="recherche_cycle" method="GET">
+                                {% csrf_token %}
+                                  <input type="search" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+                                  <div id="message" ></div>
+                              </form>
+                              
+                            </div>
+
+                        </div><br>
+                      <button class="btn afficher_cacher_criteres_recherche">Afficher Critères Recherche</button>
+                      <input type="hidden" class="afficher_criteres" value="no">
+                      <div class="row justify-content-center div_etats">
+                        <form action="{% url 'mainapp:etats_paiements_eleves' %}" class="load_etats_paiements_eleves" method="POST">
+                        {% csrf_token %}
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                                Etab:
+                                <select class="choix_etab" name="choix_etab">
+                                  <!-- <option value="school_1"> school -->
+                                  {% for etab in etabs %}
+                                    <option value="{{ etab.nom_etab }}_{{etab.id}}">{{ etab.nom_etab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                          </div>
+                            <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Sous Etab:
+                                <select class="choix_sousetab" name="choix_sousetab" data-size="7">
+                                  <option value="tous_all" selected>Tous
+                                  {% for setab in sousetabs %}
+                                    <option value="{{ setab.nom_sousetab }}_{{setab.id}}">{{ setab.nom_sousetab }}
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Cycle:
+                                <select name="choix_cycle" style="width:200px;" class="choix_cycle">
+                                </select>
+                              </div>
+                          </div>
+                          <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Niveau:
+                                <select name="choix_niveau" style="width:200px;" class="choix_niveau">
+                                </select>
+                              </div>
+                          </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Spécialité:
+                                <select name="specialite" style="width:200px;" class="specialite">
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group" id="liste_classes_niveaux">
+                                Classes: 
+                        <select name="choix_classes" style="width:200px;" class="choix_classes" size="4" multiple>
+                                 </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Genre:
+                                <select name="genre" style="width:200px;" class="genre">
+                                  <option value="tous" selected>Tous
+                                  <option value="masculin">Masculin
+                                  <option value="feminin">Féminin
+                                </select>
+                              </div>
+                        </div>
+                        <div class="input-group form-control-md">
+                              <div class="form-group bmd-form-group">
+                               Etats:
+                                <select name="etats" style="width:200px;" class="etats">
+                                  <option value="previsions" selected>Prévisions - Existant
+                                  <option value="eleves_inscrits">Apprenants en règle
+                                  <option value="eleves_non_inscrits">Apprenants pas en règle
+                                  <option value="eleves_tous">Apprenants en règle | pas en règle
+                                </select>
+                              </div>
+                        </div>
+                        
+                          Date Début: <input type="text" name="date_deb" class="date_deb" size="10" > - Date Fin: <input type="text" name="date_fin" class="date_fin" size="10">
+                          <a href="#"  id = "voir_paiements_associes" style="color:blue; text-decoration: none;">Voir paiements associés</a>
+                        
+                        <div class="input-group form-control-md order_by_div">
+                              <div class="form-group bmd-form-group">
+                                Ordonner par:  <select name="order_by" style="width:200px;" class="order_by">
+                                  <option value="nom"> Nom
+                                  <option value="matricule"> Matricule
+                                  <option value="classe"> Classe
+                                </select>
+                                <select name="sens_tri" style="width:50px;" class="sens_tri">
+                                  <option value="asc"> Asc
+                                  <option value="desc"> Desc
+                                </select>
+                              </div>
+                        </div>
+                      <input type="hidden" class="donnees_imprimer" name="donnees_imprimer">
+                        <div class="text-center">
+                            <button type="button" class="btn afficher">Afficher</button> 
+                            <button type="submit" class="btn imprimer">Imprimer</button>
+                        </div>
+                      </form>
+                    </div>
+                        <div class="text-center">
+                            <h4 ><b id="titre_etat"></b></h4>
+                        </div>
+                    
+                    <div class="table-responsive">
+                          <div class="table-scroll">
+                            <table class="table table-striped table-hover">
+                              <thead class=""></thead>
+                              <tbody></tbody>
+                              <tfoot></tfoot>
+                            </table>
+                          </div>
+                    </div>
+
+                  
+                  </div>
+
+                </div>
+
+
+
+              </div>
+            </div>
+          </div>
+
+<div class="modal fade" id="modal_type_paiement" tabindex="-1" role="">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+                <div class="card-body card-primary">
+                  <p class="h4 text-center">TYPES PAYEMENTS ASSOCIES A LA PERIODE</p>
+                  <form method=""  class="" action=" ">
+                      {% csrf_token %}
+
+                      <div class="table-responsive">
+                          <div class="table-scroll">
+                            <table class="table table-striped table-hover table_type_paiement">
+                              <thead class="thead_type_paiement"></thead>
+                              <tbody class="tbody_type_paiement"></tbody>
+                              <tfoot class="tfoot_type_paiement"></tfoot>
+                            </table>
+                          </div>
+                    </div>
+                        <div class="text-center type_paiement_"></div>
+                        
+                        <div class="text-center">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Quitter</button>
+                       </div>
+
+                  </form>
+
+                </div>
+                
+            </div>
+               
+        </div>
+    </div>
+</div>
+
+  <br><br>
+  <!-- markup -->
+  <button class="btn btn-fill" onclick='swal({ title:"Good job!", text: "You clicked the button!", type: "success", buttonsStyling: false, confirmButtonClass: "btn btn-success"})'>Try me!</button>
+      <!-- for more actions that you can use onclick, please check out assets/demo/js/demo.js -->
+
+<button class="btn btn-fill" onclick="demo.showSwal('auto-close')">Try me!<div class="ripple-container"></div></button>
+
+
+  {% endblock %}
+
+{% block menu_fixed %}    
+    {% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+  {% block script_page %}
+    
+    
+  {% endblock %}

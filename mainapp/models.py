@@ -77,6 +77,7 @@ class AppellationModuleChapitreLecon(models.Model):
    
     def __str__(self):
             return self.appellation_module+" "+appellation_chapitre+" "+appellation_lecon
+
 class AppellationApprenantFormateur(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     appellation_apprenant = models.CharField(max_length=200)
@@ -86,6 +87,7 @@ class AppellationApprenantFormateur(models.Model):
     nom_sousetab = models.CharField(max_length=100,default="")
     def __str__(self):
             return self.appellation_apprenant+" "+self.appellation_formateur
+
 class TypeApprenant(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     nom_type_apprenant = models.CharField(max_length=200)
@@ -165,6 +167,7 @@ class AppreciationNote(models.Model):
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.appreciation+" "+self.borne_inf+" "+self.borne_sup
+
 class CorrepondanceNoteLettre(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     borne_inf = models.FloatField()
@@ -183,6 +186,7 @@ class TypeReunion(models.Model):
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.libelle
+
 class Reunion(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     libelle = models.CharField(max_length=200)
@@ -206,6 +210,7 @@ class Reunion(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.libelle
+
 class Periode(models.Model):
     jour = models.CharField(max_length=100) # Lundi, Mardi, ...    
     date = models.CharField(max_length=100) # 2019-12-02    
@@ -279,13 +284,38 @@ class TypeAdminStaff(models.Model):
     def __str__(self):
             return self.libelle
 
-
 class Pause(models.Model):
+    annee_scolaire = models.CharField(max_length=20)
+    libelle = models.CharField(max_length=100)
+    duree = models.IntegerField(default=20)
+    id_sousetab = models.IntegerField(default=1)
+    archived = models.CharField(max_length=2,default="0")
+    def __str__(self):
+            return self.libelle
+
+class TrancheHoraire(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
     heure_deb = models.CharField(max_length=10)
     heure_fin = models.CharField(max_length=10)
+    # Pour ordnonner les tranches du matin au soir
+    numero_tranche = models.IntegerField(default=0)
+    numero_tranche_only = models.IntegerField(default=0)
+    # indicateur_tranche_suivante peut être tranche|pause
+    # indicateur_tranche_suivante = models.CharField(default="tranche")
+
+    # Permet de savoir si c'est une tranche (ie 0) ou une pause au quel cas il contient l'id de la pause
+    type_tranche = models.IntegerField(default=0)
+    # Contient éventuellement le nom de la pause, il faudra update atomiqmen type_tranche et nom_pause
+    nom_pause = models.CharField(max_length=100, default="")
+    id_pause = models.IntegerField(default=1)
+    # nb_jours qui use la tranche
+    nb_jours = models.IntegerField(default=0)
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
+
+    objects = models.DjongoManager()
     def __str__(self):
             return self.libelle
 
@@ -294,10 +324,15 @@ class Jour(models.Model):
     libelle = models.CharField(max_length=100)
     heure_deb_cours = models.CharField(max_length=10)
     heure_fin_cours = models.CharField(max_length=10)
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+
     archived = models.CharField(max_length=2,default="0")
-    pauses = models.ArrayReferenceField(
-        to=Pause,
-        #on_delete=models.CASCADE,
+    # pauses = models.ArrayReferenceField(
+    #     to=Pause,
+    # )
+    tranche_horaires = models.ArrayReferenceField(
+        to=TrancheHoraire, default=[]
     )
 
     objects = models.DjongoManager()
@@ -329,6 +364,7 @@ class Discipline(models.Model):
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.fait
+
 class ConditionRenvoi(models.Model):
     nb_heures_max = models.FloatField(default=0)
     age = models.FloatField(default=0)
@@ -342,6 +378,7 @@ class ConditionRenvoi(models.Model):
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return self.nb_heures_max
+
 class ConditionSucces(models.Model):
     moyenne = models.FloatField(default=0)
     id_sousetab = models.IntegerField(default=1)
@@ -395,6 +432,7 @@ class ResultatEleve(models.Model):
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return "["+self.cours_note_min+" - "+self.cours_note_max+"] "
+
 class GroupeInfosRecap(models.Model):
     cours_note_min = models.FloatField()
     cours_note_max = models.FloatField()
@@ -410,17 +448,57 @@ class GroupeInfosRecap(models.Model):
 class CoursInfosRecap(models.Model):
     cours_note_min = models.FloatField()
     cours_note_max = models.FloatField()
+    rang = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
     def __str__(self):
             return "["+self.cours_note_min+" - "+self.cours_note_max+"] "
 
 class LesDivisionTemps(models.Model):
+    # libelle = models.CharField(max_length=200)
+    # date_deb = models.CharField(max_length=10)
+    # date_fin = models.CharField(max_length=10)
+    # date_deb_en = models.CharField(max_length=10, default="")
+    # date_fin_en = models.CharField(max_length=10, default="")
+    # Mode peut etre saisi ou calculé
+    # mode = models.CharField(max_length=100, default= "")
+    niveau_division_temps = models.IntegerField(default=0)
+    # is_active = models.BooleanField()
+    archived = models.CharField(max_length=2,default="0")
+    # nom_sous_hierarchie = models.CharField(max_length=200,default="")
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+    # nb_sous_hierarchie = models.IntegerField(default=0)
+    # sous_divisionstemps = models.ArrayReferenceField(
+    #     to=LesDivisionTemps,
+    #     #on_delete=models.CASCADE,
+    # )
+    sous_divisionstemps = models.ForeignKey("self", blank=True, on_delete=models.CASCADE)
+    
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.libelle + " " + str(self.niveau_division_temps)
+
+class LesDivisionTempsSousEtab(models.Model):
     libelle = models.CharField(max_length=200)
     date_deb = models.CharField(max_length=10)
     date_fin = models.CharField(max_length=10)
-    niveau_division_temps = models.IntegerField()
+    date_deb_en = models.CharField(max_length=10, default="")
+    date_fin_en = models.CharField(max_length=10, default="")
+
+    date_deb_saisie = models.CharField(max_length=10, default="")
+    date_fin_saisie = models.CharField(max_length=10, default="")
+    date_deb_saisie_en = models.CharField(max_length=10, default="")
+    date_fin_saisie_en = models.CharField(max_length=10, default="")
+
+    # Mode peut etre saisi ou calculé
+    mode = models.CharField(max_length=100, default= "")
+    niveau_division_temps = models.IntegerField(default=0)
     is_active = models.BooleanField()
     archived = models.CharField(max_length=2,default="0")
+    nom_sous_hierarchie = models.CharField(max_length=200,default="")
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+    nb_sous_hierarchie = models.IntegerField(default=0)
     # sous_divisionstemps = models.ArrayReferenceField(
     #     to=LesDivisionTemps,
     #     #on_delete=models.CASCADE,
@@ -436,17 +514,20 @@ class ObservationsEleve(models.Model):
     def __str__(self):
             return self.observations
 
-
 class DivisionTemps(models.Model):
     # libelle = models.CharField(max_length=200)
     # date_deb = models.CharField(max_length=10)
     # date_fin = models.CharField(max_length=10)
     # niveau_division_temps = models.IntegerField()
-    rang = models.IntegerField()
+    rang = models.IntegerField(default=1)
     moy = models.FloatField()
     nxc = models.FloatField()
+    note_finale = models.FloatField(default=0.0)
     appreciation = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+    niveau_division_temps = models.IntegerField(default=1)
 
     notes = models.ArrayReferenceField(
         to=Note,
@@ -460,10 +541,12 @@ class DivisionTemps(models.Model):
         to=Discipline,
         #on_delete=models.CASCADE,
     )
-    type_divisions_temps = models.ArrayReferenceField(
-        to=LesDivisionTemps,
-        #on_delete=models.CASCADE,
-    )
+    # type_divisions_temps = models.ArrayReferenceField(
+    #     to=LesDivisionTemps,
+    # )
+    # type_divisions_temps = models.CharField(max_length=100)
+    # id_type_divisions_temps = models.IntegerField(default=1)
+    
     # divisions_temps = models.ArrayReferenceField(
     #     to=DivisionTemps,
     #     #on_delete=models.CASCADE,
@@ -522,6 +605,7 @@ class Transport(models.Model):
 
     def __str__(self):
             return self.date_deb_valide
+
 class Cantine(models.Model):
     montant = models.FloatField()
     cumul_montant = models.FloatField(default=0.0)
@@ -535,6 +619,7 @@ class Cantine(models.Model):
 
     def __str__(self):
             return self.date_deb_valide
+
 class PayementChambre(models.Model):
     montant = models.FloatField()
     cumul_montant = models.FloatField(default=0.0)
@@ -550,6 +635,7 @@ class PayementChambre(models.Model):
 
     def __str__(self):
             return self.date_deb_valide
+
 class Eleve(models.Model):
     matricule = models.CharField(max_length=100)
     nom = models.CharField(max_length=100)
@@ -679,12 +765,12 @@ class Cours(models.Model):
     def __str__(self):
         return self.nom_matiere
 
-
-
 class Groupe(models.Model):
     libelle = models.CharField(max_length=200)
     classe = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
+    nom_sousetab = models.CharField(max_length=100, default="Section Fr")
+    id_sousetab = models.IntegerField(default=1)
     cours = models.ArrayReferenceField(
         to=Cours,
         #on_delete=models.CASCADE,
@@ -719,6 +805,7 @@ class AnneeScolaire(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.annee
+
 class Specialite(models.Model):
     
     id_etab = models.IntegerField(default=1)
@@ -740,7 +827,6 @@ class Specialite(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.specialite
-
 
 class Classe(models.Model):
     nom_classe = models.CharField(max_length=100)
@@ -776,7 +862,6 @@ class Classe(models.Model):
     #     p = Cours.
     #     my_sous_etab = SousEtab.objects.filter(cycles__id = self.id )
 
-    
 class AdminStaff(models.Model):
     annee_scolaire = models.CharField(max_length=20)
     nom = models.CharField(max_length=100)
@@ -945,6 +1030,9 @@ class TypePayementEleve(models.Model):
     libelle = models.CharField(max_length=100)
     date_deb = models.CharField(max_length=50)
     date_fin = models.CharField(max_length=50)
+    # date_deb_en et date_fin_en sont les date au format anglais pr faciliter les comparaison ex "2020-09-21"
+    date_deb_en = models.CharField(max_length=50, default="")
+    date_fin_en = models.CharField(max_length=50, default="")
     entree_sortie_caisee = models.CharField(max_length=2)
     montant = models.FloatField()
     archived = models.CharField(max_length=2,default="0")
@@ -957,12 +1045,21 @@ class TypePayementEleve(models.Model):
     indicateur_liste_classes = models.CharField(max_length=100, default="")
     # Permet de connaitre l'ordre de payement pour les classes concernées
     ordre_paiement = models.IntegerField(default=0)
-    
+    # niveau permet de stocker le nom du niveau si c'est un paiement lié au spécialité
+    # de m que sousetab id_sousetab
+    niveau = models.CharField(max_length=30,default="")
+    id_niveau = models.IntegerField(default=0)
+
+    sousetab = models.CharField(max_length=30,default="")
+    id_sousetab = models.IntegerField(default=0)
+    id_cycle = models.IntegerField(default=0)
+    id_etab = models.IntegerField(default=0)
     
     objects = models.DjongoManager()
 
     def __str__(self):
             return self.libelle
+
 class Bourse(models.Model):
     annee_scolaire =  models.CharField(max_length=20)
     libelle = models.CharField(max_length=100)
@@ -1031,6 +1128,20 @@ class SousEtab(models.Model):
     archived = models.CharField(max_length=2,default="0")
     nom_etab = models.CharField(max_length=100)
     id_etab = models.IntegerField()
+    appellation_bulletin = models.CharField(max_length=200, default="")
+    nom_division_temps_saisisable = models.CharField(max_length=100, default="")
+    # Durée de la tranche horaire dans le sousetab
+    duree_tranche_horaire = models.IntegerField(default=0)
+    # Par ex: séquence
+    # Sous la forme 1~petite pause²²20]2~grande pause²²60]
+    liste_jours_ouvrables = models.TextField(default="")
+    liste_pauses = models.TextField(default="")
+    # Sous la forme petite pause: 20', grande pause: 60'
+    liste_pauses_afficher = models.TextField(default="")
+    heure_deb_cours = models.CharField(max_length=10,default="")
+
+
+
 
     cycles = models.ArrayReferenceField(
         to=Cycle,
@@ -1085,8 +1196,11 @@ class SousEtab(models.Model):
         #on_delete=models.CASCADE,
     )
     divisions_temps = models.ArrayReferenceField(
-        to=LesDivisionTemps,
+        to=LesDivisionTempsSousEtab,
         #on_delete=models.CASCADE,
+    )
+    jours = models.ArrayReferenceField(
+        to=Jour, default=[]
     )
     objects = models.DjongoManager()
 

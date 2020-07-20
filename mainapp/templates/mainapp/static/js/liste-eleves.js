@@ -17,6 +17,21 @@ var prenom_eleve = "";
 var classe_actuelle_eleve = "";
 var classe_actuelle_eleve_avant_changement = "";
 
+// $("body").on("click", ".telecharger_liste_classe", function() {
+//         var url_action = "/mainapp/liste_eleve_pdf/";
+//         var donnees = $("classe_recherchee").val();
+
+//          $.ajax({
+//              method: 'POST',
+//              url: url_action,
+//              data: {
+//                form_data : donnees,
+//                csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+//              },
+//              success: gererSucces2,
+//              error: gererErreur2,
+//          });
+//  });
 $('.terminer').prop("disabled", true);
 $('.effectuer').prop("disabled", true);
 
@@ -909,12 +924,13 @@ $("body").on("change", "#classe_recherchee", function() {
         var nbre_element_par_page = $("#nbre_element_par_page").val();
         var numero_page = " "
 
-        var form = $(".recherche_eleve");
-        var url_action = form.attr("action");
+        // var form = $(".recherche_eleve");
+        var url_action = "/mainapp/recherche-eleve/";
         var classe_recherchee = $("#classe_recherchee").val();
         var trier_par = "non defini";
 
         var donnees = recherche + "²²~~" + numero_page + "²²~~" + nbre_element_par_page + "²²~~" + trier_par + "²²~~" + classe_recherchee ;
+        // var donnees = classe_recherchee ;
 
          $.ajax({
              method: 'POST',
@@ -998,7 +1014,7 @@ $(".recherche").keyup(function(e) {
               }
 
               if (liste_eleves.length != 0){
-
+                  montant_a_payer = data.montant_a_payer;
                   for (var i = debut; i < fin; i++) {
 
                       id = liste_eleves[i].id;
@@ -1026,7 +1042,7 @@ $(".recherche").keyup(function(e) {
                       compte = liste_eleves[i].compte;
                       excedent = liste_eleves[i].excedent;
                       
-                      if (est_en_regle == 1)
+                      if (compte >= montant_a_payer)
                       {
                         nouvelle_ligne = "<tr class='"+ id+'²²'+ matricule +'²²'+ nom+ '²²'+ prenom +'²²'+ sexe +'²²'+ redouble +'²²'+ date_naissance +'²²'+ lieu_naissance +'²²'+ date_entree +'²²'+ nom_pere +'²²'+ prenom_pere +'²²'+ nom_mere +'²²'+ prenom_mere +'²²'+ tel_pere +'²²'+ tel_mere +'²²'+ email_pere +'²²'+ email_mere+'²²'+ id_classe_actuelle +'²²'+ classe_actuelle +'²²'+photo_url+'²²'+ bourse+'²²'+ est_en_regle+'²²'+ compte+'²²'+ excedent +"'>" + '<th scope="row" class="fix-col0">'+ (i+1) +
                     '</th><td style="text-transform: uppercase;" class="detail-eleve-link-td fix-col1"><span style="color:green;">'+ matricule + '</span></td><td style="text-transform: capitalize;" class="detail-eleve-link-td fix-col2">' + nom + '</td><td class="detail-eleve-link-td">'+ prenom + '</td><td class="detail-eleve-link-td">'+ sexe + '</td><td class="detail-eleve-link-td">'+ redouble + '</td><td class="detail-eleve-link-td">'+ date_naissance + '</td><td class="detail-eleve-link-td">'+ lieu_naissance + '</td><td class="detail-eleve-link-td">'+ classe_actuelle +'</td><td class="td-actions text-right">';
