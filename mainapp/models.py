@@ -211,6 +211,8 @@ class Reunion(models.Model):
     def __str__(self):
             return self.libelle
 
+# A supprimer
+# Fondu dans absence
 class Periode(models.Model):
     jour = models.CharField(max_length=100) # Lundi, Mardi, ...    
     date = models.CharField(max_length=100) # 2019-12-02    
@@ -220,15 +222,34 @@ class Periode(models.Model):
     def __str__(self):
             return self.jour
 
-class Absence(models.Model):
+class AbsenceEleve(models.Model):
     libelle = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
     archived = models.CharField(max_length=2,default="0")
-    periodes = models.ArrayReferenceField(
-        to=Periode,
-        #on_delete=models.CASCADE,
-    )
 
+    jour = models.CharField(max_length=100) # Lundi, Mardi, ...    
+    date = models.CharField(max_length=100) # 2019-12-02    
+    heure_deb = models.CharField(max_length=10)
+    heure_fin = models.CharField(max_length=10)
+    # periodes = models.ArrayReferenceField(
+    #     to=Periode,
+    # )
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.libelle
+
+class AbsenceAdminStaff(models.Model):
+    libelle = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
+    archived = models.CharField(max_length=2,default="0")
+
+    jour = models.CharField(max_length=100) # Lundi, Mardi, ...    
+    date = models.CharField(max_length=100) # 2019-12-02    
+    heure_deb = models.CharField(max_length=10)
+    heure_fin = models.CharField(max_length=10)
+    # periodes = models.ArrayReferenceField(
+    #     to=Periode,
+    # )
     objects = models.DjongoManager()
     def __str__(self):
             return self.libelle
@@ -250,13 +271,20 @@ class Enseignant(models.Model):
     tel2 = models.CharField(max_length=30)
     tel3 = models.CharField(max_length=30)
     email = models.CharField(max_length=100)
-    mapiere_specialisation1 = models.CharField(max_length=100)
-    mapiere_specialisation2= models.CharField(max_length=100)
-    mapiere_specialisation3= models.CharField(max_length=100)
+    matiere_specialisation1 = models.CharField(max_length=100)
+    matiere_specialisation2= models.CharField(max_length=100)
+    matiere_specialisation3= models.CharField(max_length=100)
     date_entree = models.CharField(max_length=10)
     date_sortie = models.CharField(max_length=10)
     is_active = models.BooleanField()
     archived = models.CharField(max_length=2,default="0")
+
+    # A gérer convenablement plus tard
+    id_user = models.IntegerField(default=1)
+
+
+    quota_horaire = models.FloatField(default=0.0)
+
     documents = models.ArrayReferenceField(
         to=Document,
         #on_delete=models.CASCADE,
@@ -266,7 +294,7 @@ class Enseignant(models.Model):
         #on_delete=models.CASCADE,
     )
     absences = models.ArrayReferenceField(
-        to=Absence,
+        to=AbsenceAdminStaff,
         #on_delete=models.CASCADE,
     )
 
@@ -326,6 +354,7 @@ class Jour(models.Model):
     heure_fin_cours = models.CharField(max_length=10)
     nom_sousetab = models.CharField(max_length=100, default="")
     id_sousetab = models.IntegerField(default=1)
+    numero_jour = models.IntegerField(default=1)
 
     archived = models.CharField(max_length=2,default="0")
     # pauses = models.ArrayReferenceField(
@@ -362,6 +391,7 @@ class Discipline(models.Model):
     sanction = models.TextField(default="")
     nom_sousetab = models.CharField(max_length=100,default="")
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return self.fait
 
@@ -376,6 +406,7 @@ class ConditionRenvoi(models.Model):
     nom_niveau = models.CharField(max_length=100,default="")
 
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return self.nb_heures_max
 
@@ -386,13 +417,17 @@ class ConditionSucces(models.Model):
     id_niveau = models.IntegerField(default=1)
     nom_niveau = models.CharField(max_length=100,default="")
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return self.moyenne
 
 class Note(models.Model):
     libelle = models.CharField(max_length=100)
-    score = models.FloatField()
+    score = models.FloatField(default=-111)
+    numero = models.IntegerField(default=2)
     archived = models.CharField(max_length=2,default="0")
+
+    objects = models.DjongoManager()
     def __str__(self):
             return str(self.score)
 
@@ -429,54 +464,82 @@ class ResultatEleve(models.Model):
     nxc = models.FloatField()
     rang = models.IntegerField()
     appreciation = models.CharField(max_length=200)
+    observations = models.TextField(default="")
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return "["+self.cours_note_min+" - "+self.cours_note_max+"] "
 
 class GroupeInfosRecap(models.Model):
-    cours_note_min = models.FloatField()
-    cours_note_max = models.FloatField()
-    total_Coef = models.FloatField()
+    # cours_note_min = models.FloatField()
+    # cours_note_max = models.FloatField()
+    # total_Coef = models.FloatField()
     moy = models.FloatField()
     nxc = models.FloatField()
     rang = models.IntegerField()
     appreciation = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return "["+self.cours_note_min+" - "+self.cours_note_max+"] "
-
+# A supprimer
 class CoursInfosRecap(models.Model):
-    cours_note_min = models.FloatField()
-    cours_note_max = models.FloatField()
+    # cours_note_min = models.FloatField()
+    # cours_note_max = models.FloatField()
+    moy = models.FloatField(default=0.0)
+    nxc = models.FloatField(default=0.0)
     rang = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return "["+self.cours_note_min+" - "+self.cours_note_max+"] "
 
-class LesDivisionTemps(models.Model):
-    # libelle = models.CharField(max_length=200)
-    # date_deb = models.CharField(max_length=10)
-    # date_fin = models.CharField(max_length=10)
-    # date_deb_en = models.CharField(max_length=10, default="")
-    # date_fin_en = models.CharField(max_length=10, default="")
-    # Mode peut etre saisi ou calculé
-    # mode = models.CharField(max_length=100, default= "")
+class DivisionTempsCours(models.Model):
+
+    note_min = models.FloatField(default=0.0)
+    note_max = models.FloatField(default=0.0)
+    nb_eleves_consideres = models.IntegerField(default=0)
+    nb_sous_notes = models.IntegerField(default=0)
     niveau_division_temps = models.IntegerField(default=0)
-    # is_active = models.BooleanField()
+    id_cours = models.IntegerField(default=1)
+    id_groupe = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
-    # nom_sous_hierarchie = models.CharField(max_length=200,default="")
     nom_sousetab = models.CharField(max_length=100, default="")
+    # mode_saisie_notes peut être points ou pourcentage
+    mode_saisie_notes = models.CharField(max_length=100, default="points")
+    # liste_ponderations_notes est de la forme "70%²²30%²²" ou "13²²7"
+    liste_ponderations_notes = models.CharField(max_length=100, default="")
     id_sousetab = models.IntegerField(default=1)
-    # nb_sous_hierarchie = models.IntegerField(default=0)
-    # sous_divisionstemps = models.ArrayReferenceField(
-    #     to=LesDivisionTemps,
-    #     #on_delete=models.CASCADE,
-    # )
-    sous_divisionstemps = models.ForeignKey("self", blank=True, on_delete=models.CASCADE)
+    comptetence_visee = models.TextField(default="")
+    id_divtemps_se = models.IntegerField(default=7)
+    # Chaine sur la forme option²²numero²²quota²²numero²²quota
+    # option peut être pourcentage, decimal, fraction, pondération, normal
+    quota_notes = models.TextField(default="")
+
     
     objects = models.DjongoManager()
     def __str__(self):
-            return self.libelle + " " + str(self.niveau_division_temps)
+            return self.comptetence_visee
+
+class DivisionTempsGroupe(models.Model):
+    moy = models.FloatField(default=0.0)
+    nxc = models.FloatField(default=0.0)
+    nb_eleves_consideres = models.IntegerField(default=0)
+    total_coef_groupe = models.FloatField(default=0.0)
+    note_min = models.FloatField(default=0.0)
+    note_max = models.FloatField(default=0.0)
+    niveau_division_temps = models.IntegerField(default=0)
+    id_groupe = models.IntegerField(default=1)
+    archived = models.CharField(max_length=2,default="0")
+    nom_sousetab = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+    comptetence_visee = models.TextField(default="")
+    id_divtemps_se = models.IntegerField(default=1)
+
+    
+    objects = models.DjongoManager()
+    def __str__(self):
+            return str(self.moy)
 
 class LesDivisionTempsSousEtab(models.Model):
     libelle = models.CharField(max_length=200)
@@ -508,17 +571,15 @@ class LesDivisionTempsSousEtab(models.Model):
     objects = models.DjongoManager()
     def __str__(self):
             return self.libelle + " " + str(self.niveau_division_temps)
-
+# A supprimer
+# fondu dans resultat_final
 class ObservationsEleve(models.Model):
     observations = models.TextField()
+    objects = models.DjongoManager()
     def __str__(self):
             return self.observations
 
-class DivisionTemps(models.Model):
-    # libelle = models.CharField(max_length=200)
-    # date_deb = models.CharField(max_length=10)
-    # date_fin = models.CharField(max_length=10)
-    # niveau_division_temps = models.IntegerField()
+class DivisionTempsEleve(models.Model):
     rang = models.IntegerField(default=1)
     moy = models.FloatField()
     nxc = models.FloatField()
@@ -528,57 +589,45 @@ class DivisionTemps(models.Model):
     nom_sousetab = models.CharField(max_length=100, default="")
     id_sousetab = models.IntegerField(default=1)
     niveau_division_temps = models.IntegerField(default=1)
+    id_cours = models.IntegerField(default=1)
+    id_groupe = models.IntegerField(default=1)
+    id_eleve = models.IntegerField(default=1)
+    id_divtemps_se = models.IntegerField(default=7)
+
 
     notes = models.ArrayReferenceField(
         to=Note,
-        #on_delete=models.CASCADE,
     )
     absences = models.ArrayReferenceField(
-        to=Absence,
-        #on_delete=models.CASCADE,
+        to=AbsenceEleve,
     ) 
     disciplines = models.ArrayReferenceField(
         to=Discipline,
-        #on_delete=models.CASCADE,
-    )
-    # type_divisions_temps = models.ArrayReferenceField(
-    #     to=LesDivisionTemps,
-    # )
-    # type_divisions_temps = models.CharField(max_length=100)
-    # id_type_divisions_temps = models.IntegerField(default=1)
-    
-    # divisions_temps = models.ArrayReferenceField(
-    #     to=DivisionTemps,
-    #     #on_delete=models.CASCADE,
-    # )
-    divisions_temps = models.ForeignKey("self", blank=True, on_delete=models.CASCADE)
-
-    cours_info_recap = models.ArrayReferenceField(
-        to=CoursInfosRecap,
-        #on_delete=models.CASCADE,
     )
     groupe_infos_recap = models.ArrayReferenceField(
         to=GroupeInfosRecap,
-        #on_delete=models.CASCADE,
     )
     resultat_final = models.ArrayReferenceField(
         to=ResultatEleve,
-        #on_delete=models.CASCADE,
     )
-    observation_final = models.ArrayReferenceField(
-        to=ObservationsEleve,
-        #on_delete=models.CASCADE,
-    )
+
+    # cours_info_recap = models.ArrayReferenceField(
+    #     to=CoursInfosRecap,
+    # )
+    # observation_final = models.ArrayReferenceField(
+    #     to=ObservationsEleve,
+    # )
 
     objects = models.DjongoManager()
     def __str__(self):
-            return self.libelle + " " + str(self.niveau_division_temps)
+            return self.appreciation
 
 class Message(models.Model):
     infos = models.TextField()
     annee_scolaire = models.CharField(max_length=100)
     date = models.CharField(max_length=30)
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return self.infos
 
@@ -588,7 +637,7 @@ class Matiere(models.Model):
     archived = models.CharField(max_length=2,default="0")
     id_sousetab = models.IntegerField(default=1)
     nom_sousetab = models.CharField(max_length=100,default="")
-
+    objects = models.DjongoManager()
     def __str__(self):
             return self.titre + " " + self.nom_sousetab
 
@@ -673,16 +722,13 @@ class Eleve(models.Model):
     liste_bourses_afficher = models.TextField(default="")
 
     divisions_temps = models.ArrayReferenceField(
-        to=DivisionTemps,
-        #on_delete=models.CASCADE,
+        to=DivisionTempsEleve,
     )
     messages = models.ArrayReferenceField(
         to=Message,
-        #on_delete=models.CASCADE,
     )
     chambres = models.ArrayReferenceField(
         to=Chambre,
-        #on_delete=models.CASCADE,
     )
     payements_transport = models.ArrayReferenceField(
         to=Transport,
@@ -710,6 +756,7 @@ class CahierDeTexte(models.Model):
     enseignant_nom = models.CharField(max_length=100)
     enseignant_prenom = models.CharField(max_length=200)
     archived = models.CharField(max_length=2,default="0")
+    objects = models.DjongoManager()
     def __str__(self):
             return self.module+" "+self.chapitre+" "+self.lecon
 
@@ -725,11 +772,14 @@ class Cours(models.Model):
     nom_cycle = models.CharField(max_length=100)
     nom_sousetab = models.CharField(max_length=100)
     nom_etab = models.CharField(max_length=100)
+    id_classe = models.IntegerField(default=1)
     nom_classe = models.CharField(max_length=100)
     id_cycle = models.IntegerField(default=1)
-    id_classe = models.IntegerField(default=1)
     id_sousetab = models.IntegerField(default=1)
     id_etab = models.IntegerField(default=1)
+    id_groupe = models.IntegerField(default=1)
+    # id_groupe = models.IntegerField(default=1)
+    # nom_groupe = models.CharField(max_length=100)
 
 
     eleves = models.ArrayReferenceField(
@@ -744,22 +794,23 @@ class Cours(models.Model):
         to=Matiere,
         #on_delete=models.CASCADE,
     )
-    # classe = models.ArrayReferenceField(
-    #     to=Classe,
-    #     #on_delete=models.CASCADE,
-    # )
-    periodes = models.ArrayReferenceField(
-        to=Periode,
-        #on_delete=models.CASCADE,
-    )
     enseignants = models.ArrayReferenceField(
         to=Enseignant,
         #on_delete=models.CASCADE,
     )
     divisions_temps = models.ArrayReferenceField(
-        to=DivisionTemps,
-        #on_delete=models.CASCADE,
+        # to=DivisionTemps,
+        # plutôt
+        to=DivisionTempsCours,
     )
+    # classe = models.ArrayReferenceField(
+    #     to=Classe,
+    #     #on_delete=models.CASCADE,
+    # )
+
+    # periodes = models.ArrayReferenceField(
+    #     to=Periode,
+    # )
 
     objects = models.DjongoManager()
     def __str__(self):
@@ -768,6 +819,7 @@ class Cours(models.Model):
 class Groupe(models.Model):
     libelle = models.CharField(max_length=200)
     classe = models.CharField(max_length=100)
+    id_classe = models.IntegerField(default=1)
     archived = models.CharField(max_length=2,default="0")
     nom_sousetab = models.CharField(max_length=100, default="Section Fr")
     id_sousetab = models.IntegerField(default=1)
@@ -777,8 +829,9 @@ class Groupe(models.Model):
     )
 
     divisions_temps = models.ArrayReferenceField(
-        to=DivisionTemps,
-        #on_delete=models.CASCADE,
+        # to=DivisionTemps,
+        # plutôt
+        to=DivisionTempsGroupe,
     )
 
     objects = models.DjongoManager()
@@ -888,7 +941,7 @@ class AdminStaff(models.Model):
         #on_delete=models.CASCADE,
     )
     absences = models.ArrayReferenceField(
-        to=Absence,
+        to=AbsenceAdminStaff,
         #on_delete=models.CASCADE,
     )
 
@@ -1095,6 +1148,13 @@ class PayementEleve(models.Model):
     def __str__(self):
             return self.libelle
 
+class AnneeScolaireActive(models.Model):
+    active_year = models.CharField(max_length=10, default="2019-2020")
+    id_sousetab = models.IntegerField(default=1)
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.active_year
+
 class SousEtab(models.Model):
     nom_sousetab = models.CharField(max_length=100)
     date_creation = models.CharField(max_length=100)
@@ -1139,7 +1199,8 @@ class SousEtab(models.Model):
     # Sous la forme petite pause: 20', grande pause: 60'
     liste_pauses_afficher = models.TextField(default="")
     heure_deb_cours = models.CharField(max_length=10,default="")
-
+    # Options d'arrondi des notes
+    options_arrondi_notes = models.TextField(default="0.25²²0.5²²0.75")
 
 
 
@@ -1241,3 +1302,23 @@ class Etab(models.Model):
     # def cycles(self):
     #     my_cycles = C.objects.filter(cycles__id = self.id )
     #     return my_sous_etab[0].nom_sousetab
+
+class EmploiDuTemps(models.Model):
+    id_cours = models.IntegerField(default=1)
+    id_matiere = models.IntegerField(default=1)
+    nom_matiere = models.CharField(max_length=150, default="")
+    id_classe = models.IntegerField(default=1)
+    nom_classe = models.CharField(max_length=100, default="")
+    id_sousetab = models.IntegerField(default=1)
+    id_jour = models.IntegerField(default=1)
+    id_tranche= models.IntegerField(default=1)
+    nom_sousetab = models.CharField(max_length=150, default="")
+    enseignants = models.ArrayReferenceField(
+        to=Enseignant
+    )
+    annee_scolaire = models.CharField(max_length=100)
+    archived = models.CharField(max_length=2,default="0")
+    
+    objects = models.DjongoManager()
+    def __str__(self):
+            return self.nom_matiere+" _ "+self.nom_classe

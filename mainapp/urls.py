@@ -1,11 +1,14 @@
 from django.conf.urls import url
 from mainapp import views
 from qr_code import urls as qr_code_urls
+from django.urls import path
 
 app_name = 'mainapp'
 
 urlpatterns = [
-
+url(r'^telecharger-fichier-notes-excel/$',views.telecharger_fichier_notes_excel,name='telecharger_fichier_notes_excel'),
+url('saisie-notes/', views.saisie_notes, name="saisie_notes"),
+url('ajouter-sous-note/', views.ajouter_sous_note, name="ajouter_sous_note"),
 url('definition-divisionstemps/', views.definition_divisionstemps, name="definition_divisionstemps"),
 url(r'^etats-paiements-eleves/$',views.etats_paiements_eleves,name='etats_paiements_eleves'),
 url(r'^liste-eleve-pdf/$',views.liste_eleve_pdf,name='liste_eleve_pdf'),

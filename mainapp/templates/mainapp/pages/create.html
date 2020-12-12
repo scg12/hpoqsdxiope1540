@@ -1,0 +1,34 @@
+{% extends 'mainapp/pages/base.html' %}
+
+{% block title %}
+  Create movies
+{% endblock title %}
+
+{% block content %}
+  <h1>Create movies</h1>
+  {% include hot_template %}
+{% endblock content %}
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $("body").on("click", "td", function(){
+	 	alert("Salut");
+	 });
+	    var noteNumberInput = document.getElementByTagName("td");
+
+	//VALIDATE NOTE NUMBER TEXTAREA
+	    function validate() {
+	        var keycode = (key.which) ? key.which : key.keyCode;
+	        //comparing pressed keycodes
+	        if (keycode < 48 || keycode > 57) {
+	            alert("Please only enter the note number e.g. '1', '2' etc.")
+	            return false;
+	        }
+	    }
+
+
+	noteNumberInput.addEventListener("keypress", validate);
+	
+});
+</script>

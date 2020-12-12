@@ -324,17 +324,17 @@ $(".sousetab").change(function() {
         
         // nbre_sousetabs = liste_sousetabs.length;
 
-        heure_deb_cours = heure_deb_cours.split("h");
-        $(".heure_deb_cours_h").val(heure_deb_cours[0]);
-        $(".heure_deb_cours_m").val(heure_deb_cours[1]);
-        $(".duree_tranche_horaire").val(duree_tranche_horaire);
+        // heure_deb_cours = heure_deb_cours.split("h");
+        $(".heure_deb_cours").val(heure_deb_cours);
+        // $(".heure_deb_cours_m").val(heure_deb_cours[1]);
+        // $(".duree_tranche_horaire").val(duree_tranche_horaire);
         $(".pauses_").empty();
         for(i=0; i< nb_pauses; i++){
           pause = pauses[i];
           duree = durees[i];
           id_pause = id_pauses[i];
 
-           ligne = `<a href="#" class="${id_pause} pause_item" style="color: black;"><b>${pause}: ${duree}</b></a><br>`;
+           ligne = `<a href="#" class="${id_pause} pause_item" style="color: black; font-weight:500; cursor: pointer;"><b>${pause}: ${duree}</b></a><br>`;
         $(".pauses_").append(ligne);
         }
 
@@ -402,12 +402,13 @@ $(".sousetab").change(function() {
               nouvelle_ligne = "";
             for (var i = 0; i < nb_tranches; i++) {
               item = les_tranches[i];
-                nouvelle_ligne += `<tr><td scope= "col" class="fix-col"><b style="font-size:15px; font-weight:900;">${item}</b></td>`;
+                nouvelle_ligne += `<tr><td scope= "col" class="fix-col"><b style="font-size:14px; font-weight:900;">${item}</b></td>`;
               for (var j = 0; j < nb_jours; j++) {
-                if(j == 0)
-                  nouvelle_ligne += `<td scope="col" class="fix-col1"></td>`;
+                if(j == 0){
+                  nouvelle_ligne += `<td scope="col" class="fix-col1" style="color:black;"></td>`;
+                }
                 else
-                  nouvelle_ligne += `<td></td>`;
+                  nouvelle_ligne += `<td style="color:black;"></td>`;
               }
               nouvelle_ligne += `</tr>`;
             }

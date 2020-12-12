@@ -1,0 +1,372 @@
+	{% extends 'mainapp/layouts/base-dashbord.html' %}
+
+	{% load i18n static %}
+
+	{% load customfilters %}
+
+	{% block header %}
+			
+			<script src="{% static 'js/saisie-notes.js' %}"></script>
+
+			<style type="text/css">
+				
+				table span:hover, tr:hover{
+					cursor: pointer;
+				}
+
+		/* no select sur les elemenst th */
+				th {
+				-webkit-touch-callout: none; /* iOS Safari */
+					-webkit-user-select: none; /* Safari */
+					 -khtml-user-select: none; /* Konqueror HTML */
+						 -moz-user-select: none; /* Old versions of Firefox */
+							-ms-user-select: none; /* Internet Explorer/Edge */
+									user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+			}
+			hr {width: 82%; background: black; margin-left: auto;margin-right: auto;}
+			
+			table, th {
+				border-collapse:collapse;
+				border: solid 1px #ccc;
+				padding: 10px 20px;
+				text-align: center;
+		}
+
+		.th {
+				background: #0f4871;
+				color: #fff;
+				cursor: pointer;
+		}
+
+		.th1 {
+				background: #0f4871;
+				color: #fff;
+				cursor: pointer;
+		}
+
+		.td{
+				width: 50px;
+		}
+		/* .td:hover {
+				color: #fff;
+				background: #ccc;
+		} */
+		.td:focus {
+				background: #f44;
+		}
+		.input:focus {
+				background: #f0f0f0;
+		}
+		.input_color_click{
+				background: #a8f69b;
+		}
+		.col_color_click{
+				background: #FFF;
+				color: #FFF;
+				border: 0px;
+		}
+		.col_normal {
+				background: #0f4871;
+		}
+		
+		.input {
+		width: 100%;
+		padding: 10px;
+		margin: 0px;
+}
+.input1 {
+		width: 100%;
+		padding: 10px;
+		margin: 0px;
+}
+.tooltipelt{
+		width: 70px;
+		height: 25px;
+		color: #0f4871;
+		font-size:12px;
+		font-weight: 700;
+		background: #dcdcdc;
+		border-radius: 5px;
+		text-align: center;
+		vertical-align: middle;
+		line-height: 25px;
+}
+#table_notes {
+		width:100%;
+		height:100%;
+	}
+	.table {
+		margin: 0 auto; /* or margin: 0 auto 0 auto */
+	}
+.table .last, .td { 
+		padding: 0px 0px 0px 0px; 
+}
+
+/* table {
+	display: table;
+}
+table tr {
+	display: table-cell;
+}
+table tr td {
+	display: block;
+} */
+
+
+			</style>
+			
+	{% endblock %}
+
+
+			{% block language %}
+					<form action="/i18n/setlang/" method="post">
+									{% csrf_token %}
+									<input name="next" type="hidden" value="{% url 'mainapp:periodes_saisie_actives' %}" />
+									
+									<select name="language" onchange="this.form.submit()">
+										{% for lang in LANGUAGES %}
+											{% if LANGUAGE_CODE == lang.0 %}
+												<option value="{{ lang.0 }}" selected>{{ lang.1 }}</option>
+											{% elif LANGUAGE_CODE != lang.0 %}
+												<option value="{{ lang.0 }}">{{ lang.1 }}</option>
+											}
+											{% endif %}
+										{% endfor %}
+									</select>
+					</form>
+			{% endblock %}
+
+{% block sidebar %}
+		{% include 'mainapp/layouts/_nav_sidebar_configuration.html' %}
+{% endblock %}
+
+	{% block content %}
+				
+					<div class="container-fluid" ondragstart="return false;" ondrop="return false;">
+						<div class="row">
+							<div class="col-md-12">
+
+								<div class="card">
+
+									<div class="card-body">                     
+												<!-- <form action="{% url 'mainapp:telecharger_fichier_notes_excel' %}" id="telecharger_fichier_notes_excel" method="POST">
+																		                                {% csrf_token %}
+													<input type="hidden" name="id_classe" value="{{id_classe}}" id="id_classe">
+																		                            </form> -->
+
+									<form method="post" id="form" class="saisie_notes" action="{% url 'mainapp:saisie_notes' %}">
+												{% csrf_token %}
+										<div class="row">
+											  <div class="col-sm-0 col-md-4">
+													 <div class="text-center">
+														<label>{{request.user.username}} {{request.user.first_name}}</label>
+												   </div>
+												</div>
+												<div class="col-sm-12 col-md-4">
+																										
+						                                <div class="text-center">
+						                                 <a href="#" class="excel_note"><img src="/static/images/excel.jpg" height="39px" width="70px"></a>
+						                                </div>
+						                                 <div class="text-center">
+						                                 	<i>Fichier Notes vide <b style="font-weight:800;">{{nom_classe}}</b></i>
+						                                </div>
+						                                <input type="hidden" name="id_classe" value="{{id_classe}}" id="id_classe">
+
+												</div>
+												
+												<div class="col-sm-12 col-md-4">
+													
+													<select name="divisions_temps" class ="form-control form-group divisions_temps" style="width:150px; margin: 0 auto; font-weight: bold;">
+																{% for dt in divisions_temps %}
+																	<option value="{{dt.id}}²²{{dt.niveau_division_temps}}" >{{dt.libelle}} 
+																{% endfor %}
+													</select>
+
+												</div>
+												<hr>
+										</div>
+
+										 <div class="row">
+		
+												<div class="col-sm-12 col-md-4" style="text-align: center; margin-top: 10px;">
+													
+													<label for="add_note" class="bmd-label-floating add_note ajouter-sous-note-link"><b><a href="#" style="color :#506ce9;"> {% if nb_sous_notes <= 1 %}
+														+2e Note
+														{% else %}
+														+{{nb_sous_notes|add_nombre:1}}e Note
+													{% endif %} </a></b></label>
+
+												</div>
+
+												<div class="col-sm-12 col-md-4" style="text-align: center; margin-top: 10px;">
+													
+													<label for="supp_note" class="bmd-label-floating supp_note"><b><a href="#" style="color :#506ce9;">- Supprimer une Note </a></b></label>
+
+												</div>
+											 
+												<div class="col-sm-12 col-md-4" style="text-align: center; margin-top: 10px;">
+													
+													<label for="supp_note" class="bmd-label-floating supp_note"><b><a href="#" style="color :#506ce9;">Paramétrer Quotas Notes </a></b></label>
+
+												</div>
+												<hr>
+										 </div>
+
+										 <div class="row">
+												<div class="col-sm-12 col-md-4">
+													
+												<select name="classes" class ="form-control form-group classes" style="width:150px; margin: 0 auto; font-weight: bold;">
+													{% for id_c in id_classes %}
+													    <option value="{{id_c}}">{{classes|getchar2:forloop.counter}} 
+													{% endfor %}
+												</select>
+
+												</div>
+												
+												<div class="col-sm-0 col-md-4">
+													
+													<!-- <select name="cours" class ="form-control form-group cours" style="width:150px; margin: 0 auto; font-weight: bold;">
+																{% for c in cours %}
+																<option value="{{id_courss|getchar2:forloop.counter}}" >{{c}} 
+																{% endfor %}
+													</select> -->
+
+												</div>
+
+												<div class="col-sm-12 col-md-4">
+													
+													<form action="{% url 'mainapp:saisie_notes' %}" class="recherche_eleve" method="GET">
+					                                {% csrf_token %}
+					                                  <input type="search" style="width:55%; margin: 0 auto;" placeholder="Entrer votre recherche ici" class="form-control form-control-sm recherche" name="recherche" id="recherche">
+					                                  <div id="message" ></div>
+					                              </form>
+
+											    </div>
+											<hr>
+										</div>
+										<div class="text-center">
+												 <div id="id_tooltip1" class="tooltipelt" style=" z-index: 99; display: none;" >Copied!</div>
+		<table id="table_notes">
+				<thead>
+						<tr>
+								<th class="copy-btn th1">#</th>
+								<th class="copy-btn th1">Matricule</th>
+								<th class="copy-btn th1">Nom</th>
+								<th class="copy-btn th1">Prénom</th>
+								{% if nb_sous_notes|islower:2 %}
+									<th class="copy-btn th">Note</th>
+							 {% else %}
+							 	  {% for note_col in nb_sous_notes_range %}
+							 	  		<th class="copy-btn th">Note {{nb_sous_notes_range|getcharplus1:note_col}}</th>
+							 	  {% endfor %}
+									<th class="copy-btn th1">Note Finale</th>
+							 	   
+							 {% endif %}
+						</tr>
+				</thead>
+				<tbody>
+					
+				{% for elv in eleves  %}
+						{% with compteur=forloop.counter %}   
+						 <tr>
+							 <td class="td readonly"><input type="text" class="input1 readonly" value="{{forloop.counter}}" readonly></td>
+							 <td class="td readonly"><input type="text" class="input1 readonly" value="{{elv.matricule}}" readonly></td>
+							 <td class="td readonly"><input type="text" class="input1 readonly" value="{{elv.nom}}" readonly></td>
+							 <td class="td readonly"><input type="text" class="input1 readonly" value="{{elv.prenom}}" readonly></td>
+							 {% if nb_sous_notes|islower:2 %}
+							    {% if notes_eleves|getchar2:forloop.counter|getchar:0|isequal2:-111 %}
+							    	<td tabindex="0" class="td"><input type="text" class="input note0" value="" info="{{elv.id}}²²0"></td>
+							    {% else %}
+									<td tabindex="0" class="td"><input type="text" class="input note0" value="{{notes_eleves|getchar2:forloop.counter|getchar:0|float_format}}" info="{{elv.id}}²²0"></td>
+							    {% endif %}
+							 {% else %}
+							 	  {% for note_col in nb_sous_notes_range %}
+							 	    {% if notes_eleves|getchar2:compteur|getchar:note_col|isequal2:-111 %}
+							 	    	<td tabindex="0" class="td"><input type="text" class="input note{{note_col}}" value="" info="{{elv.id}}²²{{note_col}}"></td>
+							 	    {% else %}
+							 	  		<td tabindex="0" class="td"><input type="text" class="input note{{note_col}}" value="{{notes_eleves|getchar2:compteur|getchar:note_col|float_format}}" info="{{elv.id}}²²{{note_col}}"></td>
+							 	    {% endif %}
+							 	  {% endfor %}
+							 	  <td class="td readonly"><input type="text" class="input1 readonly note_finale" value="17" style="font-weight: 500;" readonly></td>
+							 {% endif %}
+						 </tr>
+						 {% endwith %}
+						 {% endfor %}
+				</tbody>
+		</table>
+										</div>
+
+                      			<input type="hidden" name="nb_sous_notes" value="{{nb_sous_notes}}" id="nb_sous_notes">
+                      			<input type="hidden" name="user" value="{{request.user.id}}" id="user">
+                      			<input type="hidden" name="notation_sur" value="{{notation_sur}}" id="notation_sur">
+                      			<input type="hidden" name="quota_notes" value="{{quota_notes}}" id="quota_notes">
+
+	</form>                           
+												 
+							</div>
+
+						</div>
+
+					</div>
+			</div>
+
+	<div class="modal fade" id="modal_ajouter_sous_note" tabindex="-1" role="">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content card card-nav-tabs">
+            <div class=" card-nav-tabs card-header-primary card-header-icon">
+              <div class="card-icon"><i class="material-icons">library_books</i></div>          
+            </div>
+
+            <div class="modal-body ">
+              <div class="card-body">
+                <p class="h4 text-center"><b>AJOUTER UNE SOUS NOTE</b></p>
+                   <form method="post" class="add_sous_note_form" action="{% url 'mainapp:ajouter_sous_note' %}">
+                    {% csrf_token %}
+					<!-- <div class="text-center"> -->
+	                     
+	                      <input type="radio" name="choix_quota" class="choix_quota" value="opt2" checked><b style="font-size:14px;font-weight:600;"> Notes sur pondération définie</b>
+						<br>
+
+	                      <input type="radio" name="choix_quota" class="choix_quota" value="opt1" > <b style="font-size:14px; font-weight:600;">Notes sur {{notation_sur|float_format2}} et Cursus ramène au quota</b> <br>
+
+	                      
+
+                        <select name="quota" class ="quota">
+                               <option value="ponderation" >Ponderation
+                               <option value="pourcentage" >Pourcentage
+                               <!-- <option value="decimal" >Decimal
+                               <option value="fraction" >Fraction -->
+                        </select>
+ 
+							{% for p in nb_sous_notes_range %}
+								<br><b style="font-weight:600;">Note{{forloop.counter}}:</b><input sa type="number" style="width:40px" maxlength="4" name="note{{forloop.counter}}" min="0" class="note{{forloop.counter}} first"> <span class="separateur_unite" style="font-weight:600;">/</span>
+							{% endfor %}
+								<br><b style="font-weight:600;">Note{{nb_sous_notes|add_nombre:1}}:</b><input type="number" sa style="width:40px" maxlength="4" name="note{{nb_sous_notes|add_nombre:1}}" min="0" class="note{{nb_sous_notes|add_nombre:1}} first"> <span class="separateur_unite" style="font-weight:600;">/</span>
+
+                      <input type="hidden" name="id_info" id="id_info">
+                      <input type="hidden" name="notation_sur" value="{{notation_sur}}" id="notation_sur">
+                      <div class="text-center">
+                        <button type="submit" class="btn ajouter_btn">Ajouter</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                        
+                      </div>
+                    </form>
+              </div>
+              
+            </div>
+                    
+        </div>
+    </div>
+</div>
+
+	{% endblock %}
+
+{% block menu_fixed %}    
+		{% include 'mainapp/layouts/_nav_toolbar_configuration_etablissement.html' %}
+{% endblock %}
+
+
+	{% block script_page %}
+		
+		
+	{% endblock %}

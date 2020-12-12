@@ -44,10 +44,7 @@ INSTALLED_APPS = [
 
     #rest_framework
     'rest_framework',
-
-    #crispy_forms for awesome forms style
-    # 'crispy_forms',
-
+    'funky_sheets',
 ]
 
 MIDDLEWARE = [

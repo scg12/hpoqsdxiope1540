@@ -103,14 +103,14 @@
 
                   <div class="table-responsive">
                         <div class="table-scroll">
-                          <table class="table table-striped table-hover">
+                          <table  class="table table-striped table-hover" border="1">
                             <thead class="">
                               <tr class="entete_table">
-                                <th scope="col" class="fix-col" > </th>
+                                <th scope="col" class="" > </th>
                                 
                                 {% for jour in jours %}
                                   {% if  forloop.counter|isequal:1 %}
-                                   <th scope="col" class="fix-col1 {{ jours|getid2:forloop.counter }}" style="text-transform: capitalize;" >
+                                   <th scope="col" class=" {{ jours|getid2:forloop.counter }}" style="text-transform: capitalize;" >
                                         {{ jours|getlibelle:1 }}
                                       <!-- <span class="tri tri-asc" style="text-transform: capitalize;"> 
                                       <img src="{% static 'images/arrow.png' %}" width="20px" height="20px">
@@ -133,12 +133,13 @@
                               
                                 {% for th in les_tranches %}
                                   <tr>
-                                    <td scope= "col" class="fix-col"><b style="font-size:15px; font-weight:900;">{{th}}</b></td>
+                                    <td scope= "col" class=""><b style="font-size:14px; font-weight:900;">{{th}}</b></td>
                                     {% for jr in nb_jours  %}
                                     {% if jr|isequal:1 %}
-                                      <td scope="col" class="fix-col1"></td>
+                                      <td scope="col" class=""></td>
+                                     {% else %}
+                                      <td>grande</td>
                                     {% endif %}
-                                      <td></td>
                                     {% endfor %}
                                   </tr>
                               {% endfor %}
@@ -146,16 +147,16 @@
                             </tbody>
                             <tfoot>
                                <tr class="entete_table">
-                                <th scope="col" class="fix-col" > </th>
+                                <th scope="col" class="" > </th>
                                 
                                 {% for jour in jours %}
                                   {% if  forloop.counter|isequal:1 %}
-                                   <th scope="col" class="fix-col1 {{ jours|getid2:forloop.counter }}" >
+                                   <th scope="col" style="text-transform: capitalize;" class="{{ jours|getid2:forloop.counter }}" >
                                        {{ jours|getlibelle:1 }}
                                                                                              
                                     </th>
                                   {% else %}
-                                  <th scope="col" class="{{ jours|getid2:forloop.counter }}">
+                                  <th scope="col" style="text-transform: capitalize;" class="{{ jours|getid2:forloop.counter }}">
                                    {{ jours|getlibelle:forloop.counter }}  
                                   </th>
                                   {% endif %}
@@ -279,7 +280,7 @@
                       <div class="col-sm-0 col-md-4"></div>
                       <div class="col-sm-12 col-md-4 pauses_">
                         {% for p in pauses  %}
-                          <a class="{{p.id}} pause_item" style="color: black; font-size: 14px;"><b>{{p.libelle}} : {{p.duree}} </b></a><br>
+                          <a class="{{p.id}} pause_item" style="color: black; font-size: 14px;"><b style="font-weight:500; cursor: pointer;">{{p.libelle}} : {{p.duree}} </b></a><br>
                         {% endfor %}
                       </div>
                       

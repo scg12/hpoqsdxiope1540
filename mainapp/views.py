@@ -60,6 +60,8 @@ from django.db.models import Avg, Count, Min, Sum
 from functools import reduce
 import operator
 
+import random
+
 
 # definition des constantes
 pagination_nbre_element_par_page = 50
@@ -106,6 +108,394 @@ def date_correct(date):
         date_ok, date_ok_en = "", ""
     return date_ok, date_ok_en
 
+def ajouter_sous_note(request):
+    print("ajouter_sous_note")
+    id_info = request.POST['id_info']
+    print(id_info)
+    numeros = []
+    quotas = []
+    nouveau_quota_notes = ""
+    num = ""
+    quota = ""
+    ratio = 1
+    # id_sousetab²²id_dt²²id_classe²²id_cours²²id_matiere²²niveau_division_temps²²id_elev²²num_note²²note;
+    
+    donnees = id_info.split("²²")
+    id_sousetab = int(donnees[0])
+    id_dta_selected = int(donnees[1])
+    niveau_division_temps = int(donnees[2])
+    id_classe = int(donnees[3])
+    id_cours = int(donnees[4])
+    id_matiere = int(donnees[5])
+    nb_sous_notes = int(donnees[6])
+    notation_sur = float(request.POST['notation_sur'].replace(',','.'))
+    nb_sous_notes_p_1 = 2 if nb_sous_notes <= 1 else nb_sous_notes + 1
+
+    request.session['id_info'] = id_info
+    # choix_quota peut être opt1(Notes sur 20 et Cursus ramène au quota)
+    # ou opt2(Notes sur pondération définie)
+    choix_quota = request.POST['choix_quota']
+    # type_quota peut être ponderation ou pourcentage
+    type_quota = request.POST['quota']
+
+    nouveau_quota_notes = choix_quota+"²²"+type_quota+"²²"
+
+    for r in request.POST:
+        print(r, request.POST[r])
+        if 'note' in r:
+            quota = request.POST[r]
+            num = r.split('note')[1]
+            nouveau_quota_notes += num+"²²"+quota+"²²"
+            numeros.append(num)
+            quotas.append(quota)
+            print("**Pour: ",numeros,request.POST[r])
+
+    res = DivisionTempsCours.objects.values('quota_notes').filter(id_cours=id_cours,
+            niveau_division_temps = niveau_division_temps,id_divtemps_se=id_dta_selected)[0]
+    quota_notes = res['quota_notes']
+
+    print("quota_notes: ", quota_notes, " nouveau_quota_notes: ", nouveau_quota_notes)
+
+    if choix_quota == "opt1":
+        print("opt1")
+        if type_quota == "ponderation":
+            print("Pondération") 
+        if type_quota == "pourcentage":
+            print("Pourcentage")
+    else:
+        print("opt2")
+
+    nb_items = 0
+    i = 3
+    j = 0
+
+    # nb_elvs = 0
+    # eleves = Cours.objects.filter(id=id_cours)[0].eleves.all().order_by('nom','prenom')
+    # elvss = [el.id for el in eleves]
+    # els = DivisionTempsEleve.objects.filter(id_cours=id_cours,
+    #     niveau_division_temps = niveau_division_temps, id_divtemps_se = id_dta_selected, id_eleve__in=elvss)
+    
+
+    # for ee in els:
+    #     note_obj = Note(score=-111,numero=nb_sous_notes_p_1,).save()
+        # note_obj.score = -111
+        # note_obj.numero = nb_sous_notes_p_1
+        # note_obj.save()
+
+        # els[nb_elvs].notes.add(note_obj)
+        # nb_elvs += 1
+
+        # print("note_obj.score", note_obj.score)
+        # DivisionTempsEleve.objects.filter(id_cours=id_cours,
+            # niveau_division_temps = niv_dt, id_divtemps_se = id_dt, id_eleve =id_elev)[0].notes.add(note_obj)
+        # ee.notes.filter(~Q(id=0)).update(numero=1)
+
+    if quota_notes == "":
+        quota_notes = nouveau_quota_notes.split("²²")
+        nb_items = len(quota_notes) - 1
+        nb_items -= 3
+        while j < nb_items - 1:
+            if choix_quota == "opt1":
+                print("opt1")
+                if type_quota == "ponderation":
+                    print("Pondération") 
+                if type_quota == "pourcentage":
+                    print("Pourcentage")
+            else:
+                print("opt2")
+            print(quota_notes[i], quotas[j])
+            j += 1
+            i += 2
+    else:
+        print("quota_notes == """)
+        [print("QUOTA: ",q) for q in quota_notes]
+   
+
+    # DivisionTempsCours.objects.filter(id_cours=id_cours,
+        # niveau_division_temps = niveau_division_temps, 
+        # id_divtemps_se = id_dta_selected).update(nb_sous_notes=nb_sous_notes_p_1, quota_notes=nouveau_quota_notes)
+    # print("id_cours:",id_cours,"niveau_division_temps:",niveau_division_temps,"id_divtemps_se:",id_dta_selected)
+
+    
+    return redirect('mainapp:saisie_notes')
+
+def saisie_notes(request):
+    if request.method == 'POST' or request.method == 'GET':
+        choix ="save_note"
+        if(request.is_ajax()):
+            notes_eleves = []
+            eleves = []
+            eleves_id = []
+            eleves_mat = []
+            eleves_nom = []
+            eleves_prenom = []
+            nb_sous_notes = 0
+            donnees = request.POST['form_data']
+            # donnees sous la forme
+            # id_sousetab²²id_dt²²id_classe²²id_cours²²id_matiere²²niveau_division_temps²²id_elev²²num_note²²note;
+            print(donnees)
+            
+            donnees = donnees.split("²²")
+            choix = donnees[0]
+            id_sousetab = int(donnees[1])
+            id_dt = int(donnees[2])
+            niv_dt = int(donnees[3])
+            id_classe = int(donnees[4])
+            id_cours = int(donnees[5])
+            id_matiere = int(donnees[6])
+
+
+            if choix == "note":
+
+                id_elev = int(donnees[7])
+                num_note = int(donnees[8]) + 1
+                note = donnees[9].replace(",",".")
+                print("jhtuio",donnees[9])
+
+                note = float(note) if note != "" else -111
+
+                print("notessssss: ", note)
+
+                nb_sous_notes = DivisionTempsCours.objects.values('nb_sous_notes').filter(id_cours=id_cours,
+                                niveau_division_temps = niv_dt)[0]['nb_sous_notes']
+                print("num_note: ", num_note)
+                print("nb_sous_notes: ", nb_sous_notes)
+                print("id_elev: ", id_elev)
+
+                tmp = DivisionTempsEleve.objects.filter(id_cours=id_cours,
+                    niveau_division_temps = niv_dt, id_divtemps_se = id_dt, id_eleve =id_elev)[0].notes.filter(numero=num_note)
+                print("tmp.count()", tmp.count())
+                if tmp.count() > 0:
+                    tmp.update(score=note)
+                    print("ici la")
+                else:
+                    print("ou la")
+
+                    note_obj = Note()
+                    note_obj.score = note
+                    note_obj.numero = num_note
+                    note_obj.save()
+                    print("note_obj.score", note_obj.score)
+                    DivisionTempsEleve.objects.filter(id_cours=id_cours,
+                        niveau_division_temps = niv_dt, id_divtemps_se = id_dt, id_eleve =id_elev)[0].notes.add(note_obj)
+
+                    # if nb_sous_notes == 0:
+                    #     DivisionTempsCours.objects.filter(id_cours=id_cours,
+                    #         niveau_division_temps = niv_dt, id_divtemps_se = id_dt).update(nb_sous_notes=1)
+            elif choix == "cours" or choix == "division_temps":
+                print("choix est cours")
+                eleves = Cours.objects.filter(id=id_cours)[0].eleves.all().order_by('nom','prenom')
+                print("eleves.count()", eleves.count())
+                elvss = [el.id for el in eleves]
+                print(elvss)
+                nb_sous_notes =  DivisionTempsCours.objects.values('nb_sous_notes').filter(id_cours=id_cours,
+                            niveau_division_temps = niv_dt, id_divtemps_se = id_dt)[0]['nb_sous_notes']
+
+                notes = list(DivisionTempsEleve.objects.filter(id_cours=id_cours,
+                    niveau_division_temps = niv_dt, id_divtemps_se = id_dt, id_eleve__in=elvss))
+                notes.sort(key=lambda t: elvss.index(t.id_eleve))
+                [print(note.id_eleve) for note in notes]
+                # notes_eleves = [""]*nb_elvs
+                cpteur = 0
+                for note in notes:
+                    notee = [n.score for n in note.notes.all()]
+                    print("noteuuuu: ", notee)
+                    # notes_eleves[cpteur] += 
+                    notes_eleves.append(notee)
+                # eleves = paiements_serializers = EleveSaisieNoteSerializer(eleves, many=True)
+                eleves_id = [el.id for el in eleves]
+                eleves_mat = [el.matricule for el in eleves]
+                eleves_nom = [el.nom for el in eleves]
+                eleves_prenom = [el.prenom for el in eleves]
+            else:
+                print("choix est autre")
+
+            if (request.user.id != None):
+                if(request.user.is_superuser == True):
+                    data_color = data_color_default
+                    sidebar_class = sidebar_class_default
+                    theme_class = theme_class_default
+                else:          
+                    #print(request.user.is_superuser)
+                    prof = Profil.objects.get(user=request.user)
+                    data_color = prof.data_color
+                    sidebar_class = prof.sidebar_class
+                    theme_class = prof.theme_class
+            else:
+                data_color = data_color_default
+                sidebar_class = sidebar_class_default
+                theme_class = theme_class_default
+            print("LE CHOIX ...",choix)
+            data = {
+                "choix":choix,
+                "permissions" : permissions_of_a_user(request.user),
+                "data_color" : data_color,
+                "sidebar_class" : sidebar_class,
+                "theme_class" : theme_class,
+                "eleves_id" : eleves_id,
+                "eleves_mat" : eleves_mat,
+                "eleves_nom" : eleves_nom,
+                "eleves_prenom" : eleves_prenom,
+                "notes_eleves" : notes_eleves,
+                "nb_sous_notes" : nb_sous_notes,
+
+            }
+
+           
+            return JSONResponse(data)
+
+        id_sousetab = request.session.get('id_sousetab', None)
+        id_info = request.session.get('id_info', None)
+        request.session.modified = True
+        print("**** id_info ********: ", id_info)
+        start = time.time()
+
+        id_user = request.user.id
+        id_classe_selected = 0
+        id_cours_selected = 0
+        id_matiere_selected = 0
+        id_cours = 0
+
+        id_classes = []
+        id_classes_all = "²²"
+        classes = []
+        cpteur = 0
+        id_dtse_selected = 0
+        notes = []
+        quota_notes = ""
+
+        id_classe = 0
+        nom_classe = ""
+
+        classe_matieres = EmploiDuTemps.objects.filter(enseignants__id_user=id_user).order_by('id_classe','nom_matiere')
+        # print("nb cours prof: ",classe_matieres.count())
+        [print("id_classe: ", c.id_classe, "nom_matiere: ", c.nom_matiere,"id_matiere: ", c.id_matiere, "id_cours: ", c.id_cours) for c in classe_matieres]
+        id_classe = classe_matieres[0].id_classe
+        nom_classe = classe_matieres[0].nom_classe
+        for c in classe_matieres:
+            if cpteur == 0:
+                classes.append(c.nom_classe+" -- "+c.nom_matiere)
+                id_classes.append(str(c.id_classe)+"²²"+str(c.id_cours)+"²²"+str(c.id_matiere))
+
+
+        cours = []
+        les_classes = []
+        id_courss = []
+        deb = 0
+        nom_classe1 = ""
+
+
+        print("zzzzz", id_sousetab)
+        sousetabs = SousEtab.objects.values('id', 'nom_sousetab')
+        if id_sousetab != None:
+            id_sousetab = int(id_sousetab)
+            print("ICI")
+        else:
+            id_sousetab = sousetabs[0]['id']
+
+        notation_sur = SousEtab.objects.values('notation_sur').filter(id=id_sousetab)[0]['notation_sur']
+        print("notation_sur: ", notation_sur)
+           
+        notes_eleves = []
+        elvss = []
+        cpt_note = 0
+        nb_sous_notes = 0
+
+        if classe_matieres.count() > 0:
+            id_cours = classe_matieres[0].id_cours
+
+        print("id_cours_selected: ", id_cours_selected)
+        if id_cours > 0:
+            divisions_temps = LesDivisionTempsSousEtab.objects.values('id', 'libelle','niveau_division_temps').filter(id_sousetab=id_sousetab,
+             is_active=True, mode="saisi")
+            [print(dt['libelle']) for dt in divisions_temps]
+            # A activer
+            if divisions_temps.count() > 0:
+                niveau_division_temps = divisions_temps[0]['niveau_division_temps']
+                id_dta_selected = divisions_temps[0]['id']
+                print("**** id_dta_selected: ", id_dta_selected)
+                eleves = Cours.objects.filter(id=id_cours)[0].eleves.all().order_by('nom','prenom')
+                print("eleves.count()", eleves.count())
+                elvss = [el.id for el in eleves]
+                print(elvss)
+               
+                if eleves.count() > 0:
+                    res = DivisionTempsCours.objects.values('nb_sous_notes','quota_notes').filter(id_cours=id_cours,
+                            niveau_division_temps = niveau_division_temps,id_divtemps_se=id_dta_selected)[0]
+                    nb_sous_notes = res['nb_sous_notes']
+                    quota_notes = res['quota_notes']
+                    print("nb_sous_notes: ", nb_sous_notes)
+                    print("quota_notes: ", quota_notes)
+                    # nb_sous_notes = 2
+                    if nb_sous_notes == 0:
+                        nb_sous_notes_range = range(0,0)
+                    else:
+                        nb_sous_notes_range = range(0,nb_sous_notes)
+                    # print("RANGE: ", range(0,0))
+                    # id_eleves = [el.id for el in eleves]
+
+                    print("YES YES: id_cours: ", id_cours, " niveau_division_temps: ", niveau_division_temps)
+                    ifg = 0
+                    print("nb_sous_notes: ", nb_sous_notes)
+
+                    
+                    # els = DivisionTempsEleve.objects.filter(id_cours=id_cours,
+                    #     niveau_division_temps = niveau_division_temps, id_divtemps_se = id_dta_selected, id_eleve__in=elvss)
+                    # for ee in els:
+                    #     ee.notes.filter(~Q(id=0)).update(numero=1)
+
+                    ets = DivisionTempsEleve.objects.filter(id_cours=id_cours, niveau_division_temps = niveau_division_temps,
+                        id_divtemps_se = id_dta_selected, id_eleve=172)[0].notes.filter()
+                    for et in ets:
+                        print("8888 node.id", et.id, "8888 node.numero", et.numero)
+
+                    notes = list(DivisionTempsEleve.objects.filter(id_cours=id_cours,
+                        niveau_division_temps = niveau_division_temps, id_divtemps_se = id_dta_selected, id_eleve__in=elvss))
+                    notes.sort(key=lambda t: elvss.index(t.id_eleve))
+
+                    # [print(note.id_eleve) for note in notes]
+
+                    for note in notes:
+                        notee = [n for n in note.notes.all()]
+                        # print("noteeùùù: ", notee)
+                        notes_eleves.append(notee)
+
+                    print("ici***")
+                    for elv in eleves:
+                        break
+                        ifg += 1
+                        print("ELEVE: ", ifg)
+                   
+                        print("***NOTES:")
+                        # [print(note) for note in notes]
+                        notee = [note['score'] for note in notes]
+                        notes_eleves.append(notee)
+                        break
+                       
+        end_time = time.time() 
+        print("DURATION: ", end_time-start)
+
+    return render(request, 'mainapp/pages/saisie-notes.html', locals())
+
+def telecharger_fichier_notes_excel(request):
+    for r in request.POST:
+        print(r,request.POST[r])
+        id_classe = int(request.POST['id_classe'])
+    eleves = Eleve.objects.filter(id_classe_actuelle=id_classe).order_by('nom','prenom')
+    print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
+    data = []
+    classe = eleves[0].classe_actuelle
+    i = 1
+    for el in eleves:
+        data.append({"N°":i, "MATRICULE": el.matricule, "NOM": el.nom, "PRENOM" : el.prenom})
+        i +=1
+    # data = [{"Numero": "1", "Matricule": "HT190001", "Nom": "Mballa", "prenom": "Lucien"}]
+    df = pd.DataFrame(data, columns=['N°', 'MATRICULE', 'NOM', 'PRENOM'])
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="notes_classe_teste.xlsx"'                                        
+    df.to_excel(response, index=False, sheet_name=classe)
+    return response
+
 def set_divisiontemps_status(date_deb_en, date_fin_en,today):
     # On cherche à fixer la le status de la division du temps
     is_active = False
@@ -124,95 +514,192 @@ def set_divisiontemps_status(date_deb_en, date_fin_en,today):
     return is_active
 
 def definition_divisionstemps(request):
-    
-    start = time.time()  
-    id_sousetab = request.POST["sousetab"] if request.POST["sousetab"] == "all" else int(request.POST["sousetab"])
-    print("id_sousetab", id_sousetab)   
-    sousetab_id, nom_sousetab = "", ""
-    setab = []
-    evolution, cpte_evolution, nb_sousetab = 1, 0, 0
-
-    appellation_bull = request.POST['appellation_bull']
-    nb_hierarchies = int(request.POST['nb_hierarchies'])
-    print("nb_hierarchies ", nb_hierarchies)
-    # evolution = nb_hierarchies * nb_sousetab
-    # evolution = nb_hierarchies * nb_sousetab + 2 if id_sousetab == "all" else nb_hierarchies * nb_sousetab + 1
-    cpte_evolution = 1
-    indice = 2
-    while indice <= nb_hierarchies:
-        # if indice < nb_hierarchies:
-        nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
-        # print("nombre_hierarchie",indice, nombre_hierarchie)
-        evolution += nombre_hierarchie
-        indice += 1
-    # print("evolution: ", evolution)
-
-    if id_sousetab != "all":
-        setab = SousEtab.objects.values('id','nom_sousetab').filter(pk = id_sousetab)[0]
-        sousetab_id, nom_sousetab = setab['id'], setab['nom_sousetab']
-        nb_sousetab = 1
-    else:
-        nb_sousetab =  SousEtab.objects.all().count()
-
-    evolution = evolution * nb_sousetab
-
-    if LesDivisionTemps.objects.all().count() > 0 or DivisionTemps.objects.all().count() > 0:
-        cursor = connection.cursor()
-        liste_classes_id = []
-        niveaux = []
-
-        # cursor.execute(“DELETE FROM mainapp_lesdivisiontempssousetab WHERE store_id = %s”, [store.id])
-        if id_sousetab != "all":
-            cursor.execute("DELETE FROM mainapp_lesdivisiontemps WHERE id_sousetab = %s", [id_sousetab])
-            cursor.execute("DELETE FROM mainapp_divisiontemps WHERE id_sousetab = %s", [id_sousetab])
-            cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab WHERE id_sousetab = %s", [id_sousetab])
+    start = time.time()
+    cours = Cours.objects.filter()
+    # for c in cours:
+    #     elvs = c.eleves.all()
+    #     for e in elvs:
+    #         # divt = DivisionTempsEleve(id_sousetab=2,nom_sousetab = "Sousetab Toto", niveau_division_temps = 4,
+    #         #     id_cours = 2, id_groupe = 4, id_eleve = e.id).save()
+    #         divt = DivisionTempsEleve().save()
             
-            Groupe.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
-            Cours.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
+    #         # divt = DivisionTempsEleve()
+    #         # divt.id_sousetab = 2
+    #         # divt.nom_sousetab = "Sousetab Toto"
+    #         # divt.niveau_division_temps = 4
+    #         # divt.id_cours = 2
+    #         # divt.id_groupe = 4
+    #         # divt.id_eleve = e.id
+    #         # divt.save()
 
-            niveaux = Niveau.objects.filter(id_sousetab = id_sousetab)
+    #         print(c, e)
+    deletion_time = time.time() 
+    print("TIME TEST: ", deletion_time-start)
+    if 'sousetab' in request.POST:
+        id_sousetab = request.POST["sousetab"] if request.POST["sousetab"] == "all" else int(request.POST["sousetab"])
+        print("id_sousetab", id_sousetab)   
+        sousetab_id, nom_sousetab = "", ""
+        setab = []
+        evolution, cpte_evolution, nb_sousetab = 1, 0, 0
+
+        appellation_bull = request.POST['appellation_bull']
+        nb_hierarchies = int(request.POST['nb_hierarchies'])
+        print("nb_hierarchies ", nb_hierarchies)
+        # evolution = nb_hierarchies * nb_sousetab
+        # evolution = nb_hierarchies * nb_sousetab + 2 if id_sousetab == "all" else nb_hierarchies * nb_sousetab + 1
+        cpte_evolution = 1
+        indice = 2
+        while indice <= nb_hierarchies:
+            # if indice < nb_hierarchies:
+            nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
+            # print("nombre_hierarchie",indice, nombre_hierarchie)
+            evolution += nombre_hierarchie
+            indice += 1
+        # print("evolution: ", evolution)
+
+        if id_sousetab != "all":
+            setab = SousEtab.objects.values('id','nom_sousetab').filter(pk = id_sousetab)[0]
+            sousetab_id, nom_sousetab = setab['id'], setab['nom_sousetab']
+            nb_sousetab = 1
+        else:
+            nb_sousetab =  SousEtab.objects.all().count()
+
+        evolution = evolution * nb_sousetab
+
+        if LesDivisionTempsSousEtab.objects.all().count() > 0 or DivisionTempsEleve.objects.all().count() > 0 or DivisionTempsGroupe.objects.all().count() > 0 or DivisionTempsCours.objects.all().count() > 0:
+            cursor = connection.cursor()
+            liste_classes_id = []
+            niveaux = []
+
+            # cursor.execute(“DELETE FROM mainapp_lesdivisiontempssousetab WHERE store_id = %s”, [store.id])
+            if id_sousetab != "all":
+                # cursor.execute("DELETE FROM mainapp_lesdivisiontemps WHERE id_sousetab = %s", [id_sousetab])
+                cursor.execute("DELETE FROM mainapp_divisiontempseleve WHERE id_sousetab = %s", [id_sousetab])
+                cursor.execute("DELETE FROM mainapp_divisiontempscours WHERE id_sousetab = %s", [id_sousetab])
+                cursor.execute("DELETE FROM mainapp_divisiontempsgroupe WHERE id_sousetab = %s", [id_sousetab])
+                cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab WHERE id_sousetab = %s", [id_sousetab])
+                
+                Groupe.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
+                Cours.objects.filter(id_sousetab = id_sousetab).update(divisions_temps = [])
+
+                niveaux = Niveau.objects.filter(id_sousetab = id_sousetab)
+
+            else:
+                # cursor.execute("DELETE FROM mainapp_lesdivisiontemps")
+                cursor.execute("DELETE FROM mainapp_divisiontempseleve")
+                cursor.execute("DELETE FROM mainapp_divisiontempscours")
+                cursor.execute("DELETE FROM mainapp_divisiontempsgroupe")
+                cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab")
+
+                # le ~Q(id_sousetab = 0) est juste un muchibichi pr dire tous car le update semble vouloir un param au niveau du filter
+                Groupe.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
+                Cours.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
+
+                niveaux = Niveau.objects.filter()
+            for n in niveaux:
+                # niv = niveaux.classes.all()
+                classes = n.classes.values('id').all()
+                [liste_classes_id.append(c['id']) for c in classes]
+            # print(liste_classes_id)
+            Eleve.objects.filter(id_classe_actuelle__in = liste_classes_id).update(divisions_temps = [])
+            deletion_time = time.time() 
+            print("TIME OF DELETION OF OLD DATA IS: ", deletion_time-start)
+
+
+        indice = 1
+
+        today = date.today()
+        today = today.strftime("%d/%m/%Y")
+        p, today = date_correct(today)
+        libelle = ""
+
+        # On save d'abord les infos annuelles
+        niveau_division_temps = 1
+        libelle = request.POST['hierarchie1']
+        nom_hierarchie_suiv = request.POST['hierarchie2']
+        # elvs = Eleve.objects.filter(id=1)
+        # Ici on save d'abord la division de temps annuelle, qui est calculée.
+        if id_sousetab == "all":
+            # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
+            sousetab_id = SousEtab.objects.all()
+            for s in sousetab_id:
+                print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                cpte_evolution += 1
+                print(s.nom_sousetab)
+                dt  = LesDivisionTempsSousEtab()
+                dt.libelle = libelle
+                dt.date_deb, dt.date_deb_en =  "", ""
+                dt.date_fin, dt.date_fin_en =  "", ""
+                dt.is_active = False
+                dt.niveau_division_temps = niveau_division_temps
+                dt.mode = "calculé"
+                dt.nom_sous_hierarchie = nom_hierarchie_suiv
+                dt.archived = "0"
+                dt.id_sousetab = s.id
+                dt.nom_sousetab = s.nom_sousetab
+                dt.save()
+                id_dt = dt.id
+                s.divisions_temps.add(dt)
+                s.appellation_bulletin = appellation_bull
+                s.save()
+                groupes = Groupe.objects.filter(id_sousetab = s.id)
+                for g in groupes:
+                    #print(g)
+                    dt  = DivisionTempsGroupe()
+                    dt.niveau_division_temps = niveau_division_temps
+                    dt.archived = "0"
+                    dt.id_sousetab = s.id
+                    dt.nom_sousetab = s.nom_sousetab
+                    dt.id_groupe = g.id
+                    dt.id_divtemps_se = id_dt
+                    dt.save()
+                    g.divisions_temps.add(dt)
+
+                cours = Cours.objects.filter(id_sousetab = s.id)
+                for c in cours:
+                    #print(c)
+                    dt  = DivisionTempsCours()
+                    dt.niveau_division_temps = niveau_division_temps
+                    dt.archived = "0"
+                    dt.id_sousetab = s.id
+                    dt.nom_sousetab = s.nom_sousetab
+                    dt.id_groupe = c.id_groupe
+                    dt.id_cours = c.id
+                    dt.id_divtemps_se = id_dt
+                    dt.save()
+                    c.divisions_temps.add(dt)
+                    elvs = c.eleves.all()
+                    # [print(e.id) for e in elvs]
+                    # id_elvs = c.eleves.values_list('id')
+                    print("*LES ELEVES: ",c, elvs.count())
+                   
+                    for e in elvs:
+                        # print("YOOOOOO",e)
+                        # dt  = LesDivisionTemps()
+                        # dt.niveau_division_temps = niveau_division_temps
+                        # dt.archived = "0"
+                        # dt.id_sousetab = s.id
+                        # dt.nom_sousetab = s.nom_sousetab
+                        # dt.save()
+                        divt = DivisionTempsEleve()
+                        divt.id_sousetab = s.id
+                        divt.nom_sousetab = s.nom_sousetab
+                        divt.niveau_division_temps = niveau_division_temps
+                        divt.id_cours = c.id
+                        divt.id_groupe = c.id_groupe
+                        divt.id_eleve = e.id
+                        divt.id_divtemps_se = id_dt
+
+                        divt.save()
+                        # divt.type_divisions_temps.add(dt)
+                        e.divisions_temps.add(divt)
+                        # print("TTTT ",i)
+                        
 
         else:
-            cursor.execute("DELETE FROM mainapp_lesdivisiontemps")
-            cursor.execute("DELETE FROM mainapp_divisiontemps")
-            cursor.execute("DELETE FROM mainapp_lesdivisiontempssousetab")
-
-            # le ~Q(id_sousetab = 0) est juste un muchibichi pr dire tous car le update semble vouloir un param au niveau du filter
-            Groupe.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
-            Cours.objects.filter(~Q(id_sousetab = 0)).update(divisions_temps = [])
-
-            niveaux = Niveau.objects.filter()
-        for n in niveaux:
-            # niv = niveaux.classes.all()
-            classes = n.classes.values('id').all()
-            [liste_classes_id.append(c['id']) for c in classes]
-        # print(liste_classes_id)
-        Eleve.objects.filter(id_classe_actuelle__in = liste_classes_id).update(divisions_temps = [])
-        deletion_time = time.time() 
-        print("TIME OF DELETION OF OLD DATA IS: ", deletion_time-start)
-
-
-    indice = 1
-
-    today = date.today()
-    today = today.strftime("%d/%m/%Y")
-    p, today = date_correct(today)
-    libelle = ""
-
-
-    # On save d'abord les infos annuelles
-    niveau_division_temps = 1
-    libelle = request.POST['hierarchie1']
-    nom_hierarchie_suiv = request.POST['hierarchie2']
-
-    # Ici on save d'abord la division de temps annuelle, qui est calculée.
-    if id_sousetab == "all":
-        # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
-        sousetab_id = SousEtab.objects.all()
-        for s in sousetab_id:
+            sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
             print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
             cpte_evolution += 1
-            print(s.nom_sousetab)
             dt  = LesDivisionTempsSousEtab()
             dt.libelle = libelle
             dt.date_deb, dt.date_deb_en =  "", ""
@@ -222,131 +709,169 @@ def definition_divisionstemps(request):
             dt.mode = "calculé"
             dt.nom_sous_hierarchie = nom_hierarchie_suiv
             dt.archived = "0"
-            dt.id_sousetab = s.id
-            dt.nom_sousetab = s.nom_sousetab
+            dt.id_sousetab = id_sousetab
+            dt.nom_sousetab = nom_sousetab
             dt.save()
-            s.divisions_temps.add(dt)
-            s.appellation_bulletin = appellation_bull
-            s.save()
-            groupes = Groupe.objects.filter(id_sousetab = s.id)
+            id_dt = dt.id
+            sousetab.divisions_temps.add(dt)
+            # sousetab.update(appellation_bulletin = appellation_bull)
+            sousetab.appellation_bulletin = appellation_bull
+            sousetab.save()
+            groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
             for g in groupes:
                 #print(g)
-                dt  = LesDivisionTemps()
-                dt.niveau_division_temps = niveau_division_temps
+                dt  = DivisionTempsGroupe()
                 dt.archived = "0"
-                dt.id_sousetab = s.id
-                dt.nom_sousetab = s.nom_sousetab
+                dt.niveau_division_temps = niveau_division_temps
+                dt.id_sousetab = id_sousetab
+                dt.nom_sousetab = nom_sousetab
+                dt.id_groupe = g.id
+                dt.id_divtemps_se = id_dt
+
                 dt.save()
                 g.divisions_temps.add(dt)
 
-            cours = Cours.objects.filter(id_sousetab = s.id)
+            cours = Cours.objects.filter(id_sousetab = id_sousetab)
             for c in cours:
                 #print(c)
-                dt  = LesDivisionTemps()
-                dt.niveau_division_temps = niveau_division_temps
+                dt  = DivisionTempsCours()
                 dt.archived = "0"
-                dt.id_sousetab = s.id
-                dt.nom_sousetab = s.nom_sousetab
+                dt.niveau_division_temps = niveau_division_temps
+                dt.id_sousetab = id_sousetab
+                dt.nom_sousetab = nom_sousetab
+                dt.id_groupe = c.id_groupe
+                dt.id_cours = c.id
+                dt.id_divtemps_se = id_dt
+
                 dt.save()
                 c.divisions_temps.add(dt)
                 elvs = c.eleves.all()
+                print("LES ELEVES: ", elvs.count())
+                # id_elvs = c.eleves.values('id')
+                # i = 0
                 for e in elvs:
                     # dt  = LesDivisionTemps()
-                    # dt.niveau_division_temps = niveau_division_temps
                     # dt.archived = "0"
-                    # dt.id_sousetab = s.id
-                    # dt.nom_sousetab = s.nom_sousetab
+                    # dt.niveau_division_temps = niveau_division_temps
+                    # dt.nom_sousetab = nom_sousetab
+                    # dt.id_sousetab = id_sousetab
                     # dt.save()
-                    divt = DivisionTemps()
-                    divt.id_sousetab = s.id
-                    divt.nom_sousetab = s.nom_sousetab
+                    divt = DivisionTempsEleve()
+                    divt.nom_sousetab = nom_sousetab
+                    divt.id_sousetab = id_sousetab
                     divt.niveau_division_temps = niveau_division_temps
+                    divt.id_cours = c.id
+                    divt.id_groupe = c.id_groupe
+                    divt.id_eleve = e.id
+                    divt.id_divtemps_se = id_dt
+                    
                     divt.save()
                     # divt.type_divisions_temps.add(dt)
                     e.divisions_temps.add(divt)
+                    
 
-    else:
-        sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
-        print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
-        cpte_evolution += 1
-        dt  = LesDivisionTempsSousEtab()
-        dt.libelle = libelle
-        dt.date_deb, dt.date_deb_en =  "", ""
-        dt.date_fin, dt.date_fin_en =  "", ""
-        dt.is_active = False
-        dt.niveau_division_temps = niveau_division_temps
-        dt.mode = "calculé"
-        dt.nom_sous_hierarchie = nom_hierarchie_suiv
-        dt.archived = "0"
-        dt.id_sousetab = id_sousetab
-        dt.nom_sousetab = nom_sousetab
-        dt.save()
-        sousetab.divisions_temps.add(dt)
-        # sousetab.update(appellation_bulletin = appellation_bull)
-        sousetab.appellation_bulletin = appellation_bull
-        sousetab.save()
-        groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
-        for g in groupes:
-            #print(g)
-            dt  = LesDivisionTemps()
-            dt.archived = "0"
-            dt.niveau_division_temps = niveau_division_temps
-            dt.id_sousetab = id_sousetab
-            dt.nom_sousetab = nom_sousetab
-            dt.save()
-            g.divisions_temps.add(dt)
+        niveau_division_temps = 2
 
-        cours = Cours.objects.filter(id_sousetab = id_sousetab)
-        for c in cours:
-            #print(c)
-            dt  = LesDivisionTemps()
-            dt.archived = "0"
-            dt.niveau_division_temps = niveau_division_temps
-            dt.id_sousetab = id_sousetab
-            dt.nom_sousetab = nom_sousetab
-            dt.save()
-            c.divisions_temps.add(dt)
-            elvs = c.eleves.all()
-            for e in elvs:
-                # dt  = LesDivisionTemps()
-                # dt.archived = "0"
-                # dt.niveau_division_temps = niveau_division_temps
-                # dt.nom_sousetab = nom_sousetab
-                # dt.id_sousetab = id_sousetab
-                # dt.save()
-                divt = DivisionTemps()
-                divt.nom_sousetab = nom_sousetab
-                divt.id_sousetab = id_sousetab
-                divt.niveau_division_temps = niveau_division_temps
-                divt.save()
-                # divt.type_divisions_temps.add(dt)
-                e.divisions_temps.add(divt)
+        # Dans ce cas il y a une seule division du temps
+        if nb_hierarchies == 2:
+            nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice+1)])
+            print("nombre_hierarchie",indice+1, nombre_hierarchie)
+            hierarchie = request.POST['hierarchie'+str(indice+1)]
+            print("hierarchie", indice+1, hierarchie)
 
-    niveau_division_temps = 2
-
-    # Dans ce cas il y a une seule division du temps
-    if nb_hierarchies == 2:
-        nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice+1)])
-        print("nombre_hierarchie",indice+1, nombre_hierarchie)
-        hierarchie = request.POST['hierarchie'+str(indice+1)]
-        print("hierarchie", indice+1, hierarchie)
-
-        
-        while indice <= nombre_hierarchie:
             
-            date_deb = request.POST['date_deb_'+str(indice)]
-            date_fin = request.POST['date_fin_'+str(indice)]
-            d_deb, d_deb_en = date_correct(date_deb)
-            d_fin, d_fin_en = date_correct(date_fin)
-            is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
-            libelle =  hierarchie+str(indice)
+            while indice <= nombre_hierarchie:
+                
+                date_deb = request.POST['date_deb_'+str(indice)]
+                date_fin = request.POST['date_fin_'+str(indice)]
+                d_deb, d_deb_en = date_correct(date_deb)
+                d_fin, d_fin_en = date_correct(date_fin)
+                is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+                libelle =  hierarchie+str(indice)
 
-            if id_sousetab == "all":
-                sousetab = SousEtab.objects.filter()
-                for s in sousetab:
+                if id_sousetab == "all":
+                    sousetab = SousEtab.objects.filter()
+                    for s in sousetab:
+                        print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                        cpte_evolution += 1
+                        print(s.nom_sousetab)
+                        dt  = LesDivisionTempsSousEtab()
+                        dt.libelle = libelle
+                        dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                        dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                        dt.is_active = is_active
+                        dt.mode = "saisi"
+                        dt.niveau_division_temps = niveau_division_temps
+                        dt.archived = "0"
+                        dt.id_sousetab = s.id
+                        dt.nom_sousetab = s.nom_sousetab
+                        dt.save()
+                        id_dt = dt.id
+                        s.nom_division_temps_saisisable = libelle
+                        s.save()
+                        s.divisions_temps.add(dt)
+                        groupes = Groupe.objects.filter(id_sousetab = s.id)
+                        #print("***Config Groupes")
+                        for g in groupes:
+                            dt  = DivisionTempsGroupe()
+                            # dt.libelle = hierarchie+str(indice)
+                            # dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                            # dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                            # dt.is_active = is_active
+                            # dt.mode = "saisi"
+                            dt.niveau_division_temps = niveau_division_temps
+                            dt.archived = "0"
+                            dt.id_sousetab = s.id
+                            dt.nom_sousetab = s.nom_sousetab
+                            dt.id_groupe = g.id
+                            dt.save()
+                            g.divisions_temps.add(dt)
+
+                        cours = Cours.objects.filter(id_sousetab =  s.id)
+                        #print("***Config Cours")
+
+                        for c in cours:
+                            dt  = DivisionTempsCours()
+                            dt.niveau_division_temps = niveau_division_temps
+                            dt.archived = "0"
+                            dt.id_sousetab = s.id
+                            dt.nom_sousetab = s.nom_sousetab
+                            dt.id_groupe = c.id_groupe
+                            dt.id_cours = c.id
+                            dt.id_divtemps_se = id_dt
+
+                            dt.save()
+                            c.divisions_temps.add(dt)
+                            # id_elvs = c.eleves.values('id')
+                            # i = 0
+                            elvs = c.eleves.all()
+                            for e in elvs:
+                                # print(e.divisions_temps.all())
+                                # dt  = LesDivisionTemps()
+                                # dt.niveau_division_temps = niveau_division_temps
+                                # dt.archived = "0"
+                                # dt.id_sousetab = s.id
+                                # dt.nom_sousetab = s.nom_sousetab
+                                # dt.save()
+                                divt = DivisionTempsEleve()
+                                divt.id_sousetab = s.id
+                                divt.nom_sousetab = s.nom_sousetab
+                                divt.niveau_division_temps = niveau_division_temps
+                                divt.id_cours = c.id
+                                divt.id_groupe = c.id_groupe
+                                divt.id_eleve = e.id
+                                divt.id_divtemps_se = id_dt
+
+                                
+                                divt.save()
+                                # divt.type_divisions_temps.add(dt)
+                                e.divisions_temps.add(divt)
+                                
+                        
+                else:
                     print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
                     cpte_evolution += 1
-                    print(s.nom_sousetab)
+                    sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
                     dt  = LesDivisionTempsSousEtab()
                     dt.libelle = libelle
                     dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
@@ -355,180 +880,200 @@ def definition_divisionstemps(request):
                     dt.mode = "saisi"
                     dt.niveau_division_temps = niveau_division_temps
                     dt.archived = "0"
-                    dt.id_sousetab = s.id
-                    dt.nom_sousetab = s.nom_sousetab
+                    dt.id_sousetab = sousetab_id
+                    dt.nom_sousetab = nom_sousetab
                     dt.save()
-                    s.nom_division_temps_saisisable = libelle
-                    s.save()
-                    s.divisions_temps.add(dt)
-                    groupes = Groupe.objects.filter(id_sousetab = s.id)
+                    id_dt = dt.id
+                    sousetab.nom_division_temps_saisisable = libelle
+                    sousetab.save()
+                    sousetab.divisions_temps.add(dt)
+                    groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
                     #print("***Config Groupes")
                     for g in groupes:
-                        dt  = LesDivisionTemps()
-                        # dt.libelle = hierarchie+str(indice)
-                        # dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
-                        # dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
-                        # dt.is_active = is_active
-                        # dt.mode = "saisi"
+                        dt  = DivisionTempsGroupe()
                         dt.niveau_division_temps = niveau_division_temps
                         dt.archived = "0"
-                        dt.id_sousetab = s.id
-                        dt.nom_sousetab = s.nom_sousetab
+                        dt.id_sousetab = id_sousetab
+                        dt.nom_sousetab = nom_sousetab
+                        dt.id_groupe = g.id
                         dt.save()
                         g.divisions_temps.add(dt)
 
-                    cours = Cours.objects.filter(id_sousetab =  s.id)
+
+                    cours = Cours.objects.filter(id_sousetab = id_sousetab)
                     #print("***Config Cours")
 
                     for c in cours:
-                        dt  = LesDivisionTemps()
+                        dt  = DivisionTempsCours()
                         dt.niveau_division_temps = niveau_division_temps
                         dt.archived = "0"
-                        dt.id_sousetab = s.id
-                        dt.nom_sousetab = s.nom_sousetab
+                        dt.id_sousetab = id_sousetab
+                        dt.nom_sousetab = nom_sousetab
+                        dt.id_groupe = c.id_groupe
+                        dt.id_cours = c.id
+                        dt.id_divtemps_se = id_dt
+
                         dt.save()
                         c.divisions_temps.add(dt)
                         elvs = c.eleves.all()
+                        # id_elvs = c.eleves.values('id')
+                        # i = 0
                         for e in elvs:
-                            # print(e.divisions_temps.all())
                             # dt  = LesDivisionTemps()
                             # dt.niveau_division_temps = niveau_division_temps
                             # dt.archived = "0"
-                            # dt.id_sousetab = s.id
-                            # dt.nom_sousetab = s.nom_sousetab
+                            # dt.id_sousetab = id_sousetab
+                            # dt.nom_sousetab = nom_sousetab
                             # dt.save()
-                            divt = DivisionTemps()
-                            divt.id_sousetab = s.id
-                            divt.nom_sousetab = s.nom_sousetab
+                            divt = DivisionTempsEleve()
+                            divt.id_sousetab = id_sousetab
+                            divt.nom_sousetab = nom_sousetab
                             divt.niveau_division_temps = niveau_division_temps
+                            divt.id_cours = c.id
+                            divt.id_groupe = c.id_groupe
+                            divt.id_eleve = e.id
+                            divt.id_divtemps_se = id_dt
+                            
                             divt.save()
                             # divt.type_divisions_temps.add(dt)
                             e.divisions_temps.add(divt)
-                            # divt.type_divisions_temps.add(dt)
+                            
+                            
 
-            else:
-                print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
-                cpte_evolution += 1
-                sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
-                dt  = LesDivisionTempsSousEtab()
-                dt.libelle = libelle
-                dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
-                dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
-                dt.is_active = is_active
-                dt.mode = "saisi"
-                dt.niveau_division_temps = niveau_division_temps
-                dt.archived = "0"
-                dt.id_sousetab = sousetab_id
-                dt.nom_sousetab = nom_sousetab
-                dt.save()
-                sousetab.nom_division_temps_saisisable = libelle
-                sousetab.save()
-                sousetab.divisions_temps.add(dt)
-                groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
-                #print("***Config Groupes")
-                for g in groupes:
-                    dt  = LesDivisionTemps()
-                    dt.niveau_division_temps = niveau_division_temps
-                    dt.archived = "0"
-                    dt.id_sousetab = id_sousetab
-                    dt.nom_sousetab = nom_sousetab
-                    dt.save()
-                    g.divisions_temps.add(dt)
+                # print("date_deb_",indice, dt.date_deb)
+                # print("date_fin_",indice, dt.date_fin)
+                indice += 1
+        # Dans ce cas il y a +sieurs divisions du temps
+        else:
+            # hierarchie = request.POST['hierarchie'+str(indice)]
+            # print("hierarchie", indice, hierarchie)
+            
+
+            nombre_hierarchie = 0
+            mode_saisie = 0
+            cpt = 0
+            k = 0
+            
+            # i = 1
+            # m = 0
+            ind = 1
+            nbrehierarchie_i_total= 0
+            d_deb, d_deb_en, d_fin, d_fin_en = "","","",""
+            is_active = False
+
+            
+            indice = 2
 
 
-                cours = Cours.objects.filter(id_sousetab = id_sousetab)
-                #print("***Config Cours")
+            while indice <= nb_hierarchies:
+                hierarchie = request.POST['hierarchie'+str(indice)]
+                # dt  = LesDivisionTemps()
+                # dt.libelle = hierarchie+str(indice)
+                # dt.niveau_division_temps = niveau_division_temps
+                # print(dt.libelle, dt.niveau_division_temps)
+                # print(dt.libelle)
+                nom_hierarchie_suiv = ""
+                libelle =  hierarchie+str(indice)
+                # print("££ LIBELLE: ", libelle,hierarchie+str(ind))
+                j = 1
+                # On save d'abord les infos annuelles
+            
 
-                for c in cours:
-                    dt  = LesDivisionTemps()
-                    dt.niveau_division_temps = niveau_division_temps
-                    dt.archived = "0"
-                    dt.id_sousetab = id_sousetab
-                    dt.nom_sousetab = nom_sousetab
-                    dt.save()
-                    c.divisions_temps.add(dt)
-                    elvs = c.eleves.all()
-                    for e in elvs:
-                        # dt  = LesDivisionTemps()
-                        # dt.niveau_division_temps = niveau_division_temps
-                        # dt.archived = "0"
-                        # dt.id_sousetab = id_sousetab
-                        # dt.nom_sousetab = nom_sousetab
-                        # dt.save()
-                        divt = DivisionTemps()
-                        divt.id_sousetab = id_sousetab
-                        divt.nom_sousetab = nom_sousetab
-                        divt.niveau_division_temps = niveau_division_temps
-                        divt.save()
-                        # divt.type_divisions_temps.add(dt)
-                        e.divisions_temps.add(divt)
-                        # e.divisions_temps.add(dt)
+                if indice < nb_hierarchies:
+                    nom_hierarchie_suiv = request.POST['hierarchie'+str(indice+1)]
+                    nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
+                    # print("nbrehierarchie_",indice, nbrehierarchie)
+                    
+                    m = 0
+                    i = 1
+                    while i <= nombre_hierarchie:
+                        nbrehierarchie_i = int(request.POST['nbrehierarchie_'+str(ind)])
+                        date_deb = request.POST['date_deb_'+str(ind)]
+                        date_fin = request.POST['date_fin_'+str(ind)]
+                        d_deb, d_deb_en = date_correct(date_deb)
+                        d_fin, d_fin_en = date_correct(date_fin)
+                        is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+                        # added
+                        libelle = hierarchie+str(i)
+                        # m += 1
+                        # print("** LIBELLE: ", libelle, niveau_division_temps, date_deb, date_fin)
+                        if indice == 2:
+                            # print("----save ", libelle, niveau_division_temps, date_deb, date_fin)
+                            if id_sousetab == "all":
+                                # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
+                                sousetab_id = SousEtab.objects.all()
+                                for s in sousetab_id:
+                                    print(s.nom_sousetab)
+                                    print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                                    cpte_evolution += 1
+                                    dt  = LesDivisionTempsSousEtab()
+                                    dt.libelle = libelle
+                                    dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                                    dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                                    dt.is_active = is_active
+                                    dt.niveau_division_temps = niveau_division_temps
+                                    dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                                    dt.nom_sous_hierarchie = nom_hierarchie_suiv
+                                    dt.archived = "0"
+                                    dt.id_sousetab = s.id
+                                    dt.nom_sousetab = s.nom_sousetab
+                                    dt.save()
+                                    id_dt = dt.id
+                                    s.divisions_temps.add(dt)
+                                    
+                                    groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                    for g in groupes:
+                                        #print(g)
+                                        dt  = DivisionTempsGroupe()
+                                        dt.niveau_division_temps = niveau_division_temps
+                                        dt.archived = "0"
+                                        dt.id_sousetab = s.id
+                                        dt.nom_sousetab = s.nom_sousetab
+                                        dt.id_groupe = g.id
+                                        dt.save()
+                                        g.divisions_temps.add(dt)
 
+                                    cours = Cours.objects.filter(id_sousetab = s.id)
+                                    for c in cours:
+                                        #print(c)
+                                        dt  = DivisionTempsCours()
+                                        dt.niveau_division_temps = niveau_division_temps
+                                        dt.archived = "0"
+                                        dt.id_sousetab = s.id
+                                        dt.nom_sousetab = s.nom_sousetab
+                                        dt.id_groupe = c.id_groupe
+                                        dt.id_cours = c.id
+                                        dt.id_divtemps_se = id_dt
 
-            # print("date_deb_",indice, dt.date_deb)
-            # print("date_fin_",indice, dt.date_fin)
-            indice += 1
-    # Dans ce cas il y a +sieurs divisions du temps
-    else:
-        # hierarchie = request.POST['hierarchie'+str(indice)]
-        # print("hierarchie", indice, hierarchie)
-        
+                                        dt.save()
+                                        c.divisions_temps.add(dt)
+                                        elvs = c.eleves.all()
+                                        # id_elvs = c.eleves.values('id')
+                                        # i = 0
+                                        for e in elvs:
+                                            # dt  = LesDivisionTemps()
+                                            # dt.niveau_division_temps = niveau_division_temps
+                                            # dt.archived = "0"
+                                            # dt.id_sousetab = s.id
+                                            # dt.nom_sousetab = s.nom_sousetab
+                                            # dt.save()
+                                            divt = DivisionTempsEleve()
+                                            divt.id_sousetab = s.id
+                                            divt.nom_sousetab = s.nom_sousetab
+                                            divt.niveau_division_temps = niveau_division_temps
+                                            divt.id_cours = c.id
+                                            divt.id_groupe = c.id_groupe
+                                            divt.id_eleve = e.id
+                                            divt.id_divtemps_se = id_dt
 
-        nombre_hierarchie = 0
-        mode_saisie = 0
-        cpt = 0
-        k = 0
-        
-        # i = 1
-        # m = 0
-        ind = 1
-        nbrehierarchie_i_total= 0
-        d_deb, d_deb_en, d_fin, d_fin_en = "","","",""
-        is_active = False
+                                            
+                                            divt.save()
+                                            # divt.type_divisions_temps.add(dt)
+                                            e.divisions_temps.add(divt)
+                                            
 
-        
-        indice = 2
-
-
-        while indice <= nb_hierarchies:
-            hierarchie = request.POST['hierarchie'+str(indice)]
-            # dt  = LesDivisionTemps()
-            # dt.libelle = hierarchie+str(indice)
-            # dt.niveau_division_temps = niveau_division_temps
-            # print(dt.libelle, dt.niveau_division_temps)
-            # print(dt.libelle)
-            nom_hierarchie_suiv = ""
-            libelle =  hierarchie+str(indice)
-            # print("££ LIBELLE: ", libelle,hierarchie+str(ind))
-            j = 1
-            # On save d'abord les infos annuelles
-        
-
-            if indice < nb_hierarchies:
-                nom_hierarchie_suiv = request.POST['hierarchie'+str(indice+1)]
-                nombre_hierarchie = int(request.POST['nombre_hierarchie'+str(indice)])
-                # print("nbrehierarchie_",indice, nbrehierarchie)
-                
-                m = 0
-                i = 1
-                while i <= nombre_hierarchie:
-                    nbrehierarchie_i = int(request.POST['nbrehierarchie_'+str(ind)])
-                    date_deb = request.POST['date_deb_'+str(ind)]
-                    date_fin = request.POST['date_fin_'+str(ind)]
-                    d_deb, d_deb_en = date_correct(date_deb)
-                    d_fin, d_fin_en = date_correct(date_fin)
-                    is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
-                    # added
-                    libelle = hierarchie+str(i)
-                    # m += 1
-                    # print("** LIBELLE: ", libelle, niveau_division_temps, date_deb, date_fin)
-                    if indice == 2:
-                        # print("----save ", libelle, niveau_division_temps, date_deb, date_fin)
-                        if id_sousetab == "all":
-                            # sousetab_id = SousEtab.objects.values('id','nom_sousetab')
-                            sousetab_id = SousEtab.objects.all()
-                            for s in sousetab_id:
-                                print(s.nom_sousetab)
+                            else:
+                                sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
                                 print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
                                 cpte_evolution += 1
                                 dt  = LesDivisionTempsSousEtab()
@@ -540,130 +1085,162 @@ def definition_divisionstemps(request):
                                 dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
                                 dt.nom_sous_hierarchie = nom_hierarchie_suiv
                                 dt.archived = "0"
-                                dt.id_sousetab = s.id
-                                dt.nom_sousetab = s.nom_sousetab
+                                dt.id_sousetab = id_sousetab
+                                dt.nom_sousetab = nom_sousetab
                                 dt.save()
-                                s.divisions_temps.add(dt)
-                                
-                                groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                id_dt = dt.id
+                                sousetab.divisions_temps.add(dt)
+                                groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
                                 for g in groupes:
                                     #print(g)
-                                    dt  = LesDivisionTemps()
-                                    dt.niveau_division_temps = niveau_division_temps
+                                    dt  = DivisionTempsGroupe()
                                     dt.archived = "0"
-                                    dt.id_sousetab = s.id
-                                    dt.nom_sousetab = s.nom_sousetab
+                                    dt.niveau_division_temps = niveau_division_temps
+                                    dt.id_sousetab = id_sousetab
+                                    dt.nom_sousetab = nom_sousetab
+                                    dt.id_groupe = g.id
                                     dt.save()
                                     g.divisions_temps.add(dt)
 
-                                cours = Cours.objects.filter(id_sousetab = s.id)
+                                cours = Cours.objects.filter(id_sousetab = id_sousetab)
                                 for c in cours:
                                     #print(c)
-                                    dt  = LesDivisionTemps()
+                                    dt  = DivisionTempsCours()
+                                    dt.archived = "0"
                                     dt.niveau_division_temps = niveau_division_temps
+                                    dt.id_sousetab = id_sousetab
+                                    dt.nom_sousetab = nom_sousetab
+                                    dt.id_groupe = c.id_groupe
+                                    dt.id_cours = c.id
+                                    dt.id_divtemps_se = id_dt
+
+                                    dt.save()
+                                    c.divisions_temps.add(dt)
+                                    elvs = c.eleves.all()
+                                    # id_elvs = c.eleves.values('id')
+                                    # i = 0
+                                    for e in elvs:
+                                        # dt  = LesDivisionTemps()
+                                        # dt.archived = "0"
+                                        # dt.niveau_division_temps = niveau_division_temps
+                                        # dt.nom_sousetab = nom_sousetab
+                                        # dt.id_sousetab = id_sousetab
+                                        # dt.save()
+                                        divt = DivisionTempsEleve()
+                                        divt.nom_sousetab = nom_sousetab
+                                        divt.id_sousetab = id_sousetab
+                                        divt.niveau_division_temps = niveau_division_temps
+                                        divt.id_cours = c.id
+                                        divt.id_groupe = c.id_groupe
+                                        divt.id_eleve = e.id
+                                        divt.id_divtemps_se = id_dt
+                                        
+                                        divt.save()
+                                        # divt.type_divisions_temps.add(dt)
+                                        e.divisions_temps.add(divt)
+                                        
+
+                        # else:
+                        #     print("----NoT ", libelle, niveau_division_temps, date_deb, date_fin)
+
+
+                        j = 1
+                        print("nbrehierarchie_i: ", nbrehierarchie_i)
+                        while j <= nbrehierarchie_i:
+                            if j == 1:
+                                nbrehierarchie_i_total += nbrehierarchie_i
+                            
+                            # print("**++:{}_{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, date_deb, date_fin))
+                            # print("**++:{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, nbrehierarchie_i))
+                            libelle = nom_hierarchie_suiv+str(j+m)
+                            if j == nbrehierarchie_i:
+                                m += nbrehierarchie_i
+
+                            date_deb = request.POST['date_deb_'+str(j+nbrehierarchie_i_total)]
+                            date_fin = request.POST['date_fin_'+str(j+nbrehierarchie_i_total)]
+                            d_deb, d_deb_en = date_correct(date_deb)
+                            d_fin, d_fin_en = date_correct(date_fin)
+                            is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
+                            # print("** LIBELLE: ", libelle, niveau_division_temps+1, j+nbrehierarchie_i_total, date_deb, date_fin)
+
+                            if id_sousetab == "all":
+                                sousetab_id = SousEtab.objects.all()
+                                for s in sousetab_id:
+                                    print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
+                                    cpte_evolution += 1
+                                    dt  = LesDivisionTempsSousEtab()
+                                    dt.libelle = libelle
+                                    dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
+                                    dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
+                                    dt.is_active = is_active
+                                    dt.niveau_division_temps = niveau_division_temps + 1
+                                    dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
+                                    if dt.mode == "saisi":
+                                        s.nom_division_temps_saisisable = nom_hierarchie_suiv
+                                        s.save()
                                     dt.archived = "0"
                                     dt.id_sousetab = s.id
                                     dt.nom_sousetab = s.nom_sousetab
                                     dt.save()
-                                    c.divisions_temps.add(dt)
-                                    elvs = c.eleves.all()
-                                    for e in elvs:
-                                        # dt  = LesDivisionTemps()
-                                        # dt.niveau_division_temps = niveau_division_temps
-                                        # dt.archived = "0"
-                                        # dt.id_sousetab = s.id
-                                        # dt.nom_sousetab = s.nom_sousetab
-                                        # dt.save()
-                                        divt = DivisionTemps()
-                                        divt.id_sousetab = s.id
-                                        divt.nom_sousetab = s.nom_sousetab
-                                        divt.niveau_division_temps = niveau_division_temps
-                                        divt.save()
-                                        # divt.type_divisions_temps.add(dt)
-                                        e.divisions_temps.add(divt)
+                                    id_dt = dt.id
+                                    s.divisions_temps.add(dt)
+                                    groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                    for g in groupes:
+                                        #print(g)
+                                        dt2  = DivisionTempsGroupe()
+                                        dt2.niveau_division_temps = niveau_division_temps + 1
+                                        dt2.archived = "0"
+                                        dt2.id_sousetab = s.id
+                                        dt2.nom_sousetab = s.nom_sousetab
+                                        dt2.id_groupe = g.id
+                                        dt2.id_divtemps_se = id_dt
 
-                        else:
-                            sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
-                            print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
-                            cpte_evolution += 1
-                            dt  = LesDivisionTempsSousEtab()
-                            dt.libelle = libelle
-                            dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
-                            dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
-                            dt.is_active = is_active
-                            dt.niveau_division_temps = niveau_division_temps
-                            dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
-                            dt.nom_sous_hierarchie = nom_hierarchie_suiv
-                            dt.archived = "0"
-                            dt.id_sousetab = id_sousetab
-                            dt.nom_sousetab = nom_sousetab
-                            dt.save()
-                            sousetab.divisions_temps.add(dt)
-                            groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
-                            for g in groupes:
-                                #print(g)
-                                dt  = LesDivisionTemps()
-                                dt.archived = "0"
-                                dt.niveau_division_temps = niveau_division_temps
-                                dt.id_sousetab = id_sousetab
-                                dt.nom_sousetab = nom_sousetab
-                                dt.save()
-                                g.divisions_temps.add(dt)
+                                        dt2.save()
+                                        g.divisions_temps.add(dt2)
 
-                            cours = Cours.objects.filter(id_sousetab = id_sousetab)
-                            for c in cours:
-                                #print(c)
-                                dt  = LesDivisionTemps()
-                                dt.archived = "0"
-                                dt.niveau_division_temps = niveau_division_temps
-                                dt.id_sousetab = id_sousetab
-                                dt.nom_sousetab = nom_sousetab
-                                dt.save()
-                                c.divisions_temps.add(dt)
-                                elvs = c.eleves.all()
-                                for e in elvs:
-                                    # dt  = LesDivisionTemps()
-                                    # dt.archived = "0"
-                                    # dt.niveau_division_temps = niveau_division_temps
-                                    # dt.nom_sousetab = nom_sousetab
-                                    # dt.id_sousetab = id_sousetab
-                                    # dt.save()
-                                    divt = DivisionTemps()
-                                    divt.nom_sousetab = nom_sousetab
-                                    divt.id_sousetab = id_sousetab
-                                    divt.niveau_division_temps = niveau_division_temps
-                                    divt.save()
-                                    # divt.type_divisions_temps.add(dt)
-                                    e.divisions_temps.add(divt)
+                                    cours = Cours.objects.filter(id_sousetab = s.id)
+                                    for c in cours:
+                                        #print(c)
+                                        dt2  = DivisionTempsCours()
+                                        dt2.niveau_division_temps = niveau_division_temps + 1
+                                        dt2.archived = "0"
+                                        dt2.id_sousetab = s.id
+                                        dt2.nom_sousetab = s.nom_sousetab
+                                        dt2.id_groupe = c.id_groupe
+                                        dt2.id_cours = c.id
+                                        dt2.id_divtemps_se = id_dt
 
-                    # else:
-                    #     print("----NoT ", libelle, niveau_division_temps, date_deb, date_fin)
+                                        dt2.save()
+                                        c.divisions_temps.add(dt2)
+                                        elvs = c.eleves.all()
+                                        # id_elvs = c.eleves.values('id')
+                                        # i = 0
+                                        for e in elvs:
+                                            # dt2  = LesDivisionTemps()
+                                            # dt2.niveau_division_temps = niveau_division_temps + 1
+                                            # dt2.archived = "0"
+                                            # dt2.id_sousetab = s.id
+                                            # dt2.nom_sousetab = s.nom_sousetab
+                                            # dt2.save()
+                                            divt = DivisionTempsEleve()
+                                            divt.id_sousetab = s.id
+                                            divt.nom_sousetab = s.nom_sousetab
+                                            divt.niveau_division_temps = niveau_division_temps + 1
+                                            divt.id_cours = c.id
+                                            divt.id_groupe = c.id_groupe
+                                            divt.id_eleve = e.id
+                                            divt.id_divtemps_se = id_dt
 
+                                            divt.save()
+                                            # divt.type_divisions_temps.add(dt2)
+                                            e.divisions_temps.add(divt)
+                                            
 
-                    j = 1
-                    print("nbrehierarchie_i: ", nbrehierarchie_i)
-                    while j <= nbrehierarchie_i:
-                        if j == 1:
-                            nbrehierarchie_i_total += nbrehierarchie_i
-                        
-                        # print("**++:{}_{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, date_deb, date_fin))
-                        # print("**++:{}_{}_{}_{}_{}".format(hierarchie, i, nom_hierarchie_suiv, j+m, nbrehierarchie_i))
-                        libelle = nom_hierarchie_suiv+str(j+m)
-                        if j == nbrehierarchie_i:
-                            m += nbrehierarchie_i
-
-                        date_deb = request.POST['date_deb_'+str(j+nbrehierarchie_i_total)]
-                        date_fin = request.POST['date_fin_'+str(j+nbrehierarchie_i_total)]
-                        d_deb, d_deb_en = date_correct(date_deb)
-                        d_fin, d_fin_en = date_correct(date_fin)
-                        is_active = set_divisiontemps_status(d_deb_en, d_fin_en,today)
-                        # print("** LIBELLE: ", libelle, niveau_division_temps+1, j+nbrehierarchie_i_total, date_deb, date_fin)
-
-                        if id_sousetab == "all":
-                            sousetab_id = SousEtab.objects.all()
-                            for s in sousetab_id:
+                            else:
+                               
                                 print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
                                 cpte_evolution += 1
+                                sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
                                 dt  = LesDivisionTempsSousEtab()
                                 dt.libelle = libelle
                                 dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
@@ -671,117 +1248,76 @@ def definition_divisionstemps(request):
                                 dt.is_active = is_active
                                 dt.niveau_division_temps = niveau_division_temps + 1
                                 dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
-                                if dt.mode == "saisi":
-                                    s.nom_division_temps_saisisable = nom_hierarchie_suiv
-                                    s.save()
+                                if dt.mode == "saisi" :
+                                    sousetab.nom_division_temps_saisisable = nom_hierarchie_suiv
+                                    sousetab.save()
                                 dt.archived = "0"
-                                dt.id_sousetab = s.id
-                                dt.nom_sousetab = s.nom_sousetab
+                                dt.id_sousetab = sousetab_id
+                                dt.nom_sousetab = nom_sousetab
                                 dt.save()
-                                s.divisions_temps.add(dt)
-                                groupes = Groupe.objects.filter(id_sousetab = s.id)
+                                id_dt = dt.id
+                                sousetab.divisions_temps.add(dt)
+                                groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
                                 for g in groupes:
                                     #print(g)
-                                    dt2  = LesDivisionTemps()
-                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2  = DivisionTempsGroupe()
                                     dt2.archived = "0"
-                                    dt2.id_sousetab = s.id
-                                    dt2.nom_sousetab = s.nom_sousetab
+                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2.id_sousetab = id_sousetab
+                                    dt2.nom_sousetab = nom_sousetab
+                                    dt2.id_groupe = g.id
+                                    dt2.id_divtemps_se = id_dt
+
                                     dt2.save()
                                     g.divisions_temps.add(dt2)
 
-                                cours = Cours.objects.filter(id_sousetab = s.id)
+                                cours = Cours.objects.filter(id_sousetab = id_sousetab)
                                 for c in cours:
                                     #print(c)
-                                    dt2  = LesDivisionTemps()
-                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2  = DivisionTempsCours()
                                     dt2.archived = "0"
-                                    dt2.id_sousetab = s.id
-                                    dt2.nom_sousetab = s.nom_sousetab
+                                    dt2.niveau_division_temps = niveau_division_temps + 1
+                                    dt2.id_sousetab = id_sousetab
+                                    dt2.nom_sousetab = nom_sousetab
+                                    dt2.id_groupe = c.id_groupe
+                                    dt2.id_cours = c.id
+                                    dt2.id_divtemps_se = id_dt
+
                                     dt2.save()
                                     c.divisions_temps.add(dt2)
                                     elvs = c.eleves.all()
+                                    # id_elvs = c.eleves.values('id')
+                                    # i = 0
                                     for e in elvs:
                                         # dt2  = LesDivisionTemps()
-                                        # dt2.niveau_division_temps = niveau_division_temps + 1
                                         # dt2.archived = "0"
-                                        # dt2.id_sousetab = s.id
-                                        # dt2.nom_sousetab = s.nom_sousetab
+                                        # dt2.niveau_division_temps = niveau_division_temps + 1
+                                        # dt2.id_sousetab = id_sousetab
+                                        # dt2.nom_sousetab = nom_sousetab
                                         # dt2.save()
-                                        divt = DivisionTemps()
-                                        divt.id_sousetab = s.id
-                                        divt.nom_sousetab = s.nom_sousetab
+                                        divt = DivisionTempsEleve()
+                                        divt.id_sousetab = id_sousetab
+                                        divt.nom_sousetab = nom_sousetab
                                         divt.niveau_division_temps = niveau_division_temps + 1
+                                        divt.id_cours = c.id
+                                        divt.id_groupe = c.id_groupe
+                                        divt.id_eleve = e.id
+                                        divt.id_divtemps_se = id_dt
+
                                         divt.save()
                                         # divt.type_divisions_temps.add(dt2)
                                         e.divisions_temps.add(divt)
+                                        
 
-                        else:
-                           
-                            print("____ETAPE -{}/{}-____".format(cpte_evolution, evolution))
-                            cpte_evolution += 1
-                            sousetab = SousEtab.objects.filter(pk = id_sousetab)[0]
-                            dt  = LesDivisionTempsSousEtab()
-                            dt.libelle = libelle
-                            dt.date_deb, dt.date_deb_en =  d_deb, d_deb_en
-                            dt.date_fin, dt.date_fin_en =  d_fin, d_fin_en
-                            dt.is_active = is_active
-                            dt.niveau_division_temps = niveau_division_temps + 1
-                            dt.mode = "saisi" if dt.niveau_division_temps == nb_hierarchies else "calculé"
-                            if dt.mode == "saisi" :
-                                sousetab.nom_division_temps_saisisable = nom_hierarchie_suiv
-                                sousetab.save()
-                            dt.archived = "0"
-                            dt.id_sousetab = sousetab_id
-                            dt.nom_sousetab = nom_sousetab
-                            dt.save()
-                            sousetab.divisions_temps.add(dt)
-                            groupes = Groupe.objects.filter(id_sousetab = id_sousetab)
-                            for g in groupes:
-                                #print(g)
-                                dt2  = LesDivisionTemps()
-                                dt2.archived = "0"
-                                dt2.niveau_division_temps = niveau_division_temps + 1
-                                dt2.id_sousetab = id_sousetab
-                                dt2.nom_sousetab = nom_sousetab
-                                dt2.save()
-                                g.divisions_temps.add(dt2)
-
-                            cours = Cours.objects.filter(id_sousetab = id_sousetab)
-                            for c in cours:
-                                #print(c)
-                                dt2  = LesDivisionTemps()
-                                dt2.archived = "0"
-                                dt2.niveau_division_temps = niveau_division_temps + 1
-                                dt2.id_sousetab = id_sousetab
-                                dt2.nom_sousetab = nom_sousetab
-                                dt2.save()
-                                c.divisions_temps.add(dt2)
-                                elvs = c.eleves.all()
-                                for e in elvs:
-                                    # dt2  = LesDivisionTemps()
-                                    # dt2.archived = "0"
-                                    # dt2.niveau_division_temps = niveau_division_temps + 1
-                                    # dt2.id_sousetab = id_sousetab
-                                    # dt2.nom_sousetab = nom_sousetab
-                                    # dt2.save()
-                                    divt = DivisionTemps()
-                                    divt.id_sousetab = id_sousetab
-                                    divt.nom_sousetab = nom_sousetab
-                                    divt.niveau_division_temps = niveau_division_temps + 1
-                                    divt.save()
-                                    # divt.type_divisions_temps.add(dt2)
-                                    e.divisions_temps.add(divt)
-
-                        j += 1
-                    i += 1
-                    ind += 1
-                    k += nombre_hierarchie
-            # break
-            niveau_division_temps += 1
-            indice += 1
-    end = time.time()
-    print("EXECUTION TIME DIVISIONS TEMPS: {}, Soit: {} '".format(end - start, (end - start)/60))
+                            j += 1
+                        i += 1
+                        ind += 1
+                        k += nombre_hierarchie
+                # break
+                niveau_division_temps += 1
+                indice += 1
+        end = time.time()
+        print("EXECUTION TIME DIVISIONS TEMPS: {}, Soit: {} '".format(end - start, (end - start)/60))
     return redirect('mainapp:liste_divisionstemps')
 
 def etats_paiements_eleves_fonction(request, imprimer=False, donnees=[]):
@@ -4182,7 +4718,11 @@ def definition_tranches_horaires(request, page=1, nbre_element_par_page=paginati
     items = SousEtab.objects.values('duree_tranche_horaire','heure_deb_cours').filter(id = id_sousetab)[0]
     duree_tranche_horaire, heure_deb_cours = items['duree_tranche_horaire'], items['heure_deb_cours']
     jours = Jour.objects.values('libelle','id').filter(id_sousetab = id_sousetab)
-    nb_jours = range(jours.count())
+    nb_jours = jours.count() 
+    # nb_jours -= nb_jours
+    print("nb_jours",jours.count())
+    nb_jours = [1]*nb_jours
+    print(nb_jours)
 
     #gerer les preferences utilisateur en terme de theme et couleur
     if (request.user.id != None):
@@ -6866,7 +7406,7 @@ def modification_def_tranche_horaire(request):
            
         numero_tranche += 1
         print("***  ",th)
-    
+    request.session['id_sousetab_tranche'] = id_sousetab
     return redirect('mainapp:definition_tranches_horaires')
 
     # return redirect('mainapp:liste_eleves')
@@ -12329,6 +12869,8 @@ def classe(request,id, page=1,nbre_element_par_page=pagination_nbre_element_par_
 @csrf_exempt
 def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_element_par_page):
     #gerer les preferences utilisateur en terme de theme et couleur
+    start = time.time() 
+
     if (request.user.id != None):
         prof = Profil.objects.get(user=request.user)
         data_color = prof.data_color
@@ -12702,6 +13244,8 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                 classe.nom_niveau = niv.nom_niveau
                                 classe.annees.add(annee_scolaire)
                                 classe.save()
+                                # Added
+                                id_classe = classe.id
                                 list_classe.append(df['Unnamed: 4'].values[i])
                                 niv.classes.add(classe)
                                 niv.save()
@@ -12714,6 +13258,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 groupe = Groupe()
                                                 groupe.libelle = grp_mat
                                                 groupe.classe = classe.nom_classe
+                                                groupe.id_classe = id_classe
                                                 groupe.nom_sousetab = sousEtab.nom_sousetab
                                                 groupe.id_sousetab = sousEtab.id
                                                 groupe.save()
@@ -12727,6 +13272,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 groupe = Groupe()
                                                 groupe.libelle = df['Unnamed: '+str(ind_grp)].values[i]
                                                 groupe.classe = classe.nom_classe
+                                                groupe.id_classe = id_classe
                                                 groupe.nom_sousetab = sousEtab.nom_sousetab
                                                 groupe.id_sousetab = sousEtab.id
                                                 groupe.save()
@@ -12932,7 +13478,8 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                     profondeur_division_temps = 1
                     while pd.isnull(df['Unnamed: 16'].values[index_division_temps] ) == False:
                         
-                        dt = LesDivisionTemps()
+                        # dt = LesDivisionTemps()
+                        dt = LesDivisionTempsSousEtab()
                         dt.libelle = df['Unnamed: 16'].values[index_division_temps]
                         dt.niveau_division_temps = profondeur_division_temps
                         dt.save()
@@ -13023,6 +13570,10 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
 
                                     cours.matiere.add(matiere)
                                     cours.coef = eff_coef
+                                    if has_groupe_matiere == "Oui":
+                                        print("TAKING id_groupe: ")
+                                        id_groupe = Groupe.objects.values('id').filter(libelle = current_groupe)[0]['id']
+                                        cours.id_groupe = id_groupe
                                     cours.save()
 
                                     print("C N CL M ",current_cycle, current_niveau, current_classe, nom_matiere)
@@ -13090,11 +13641,11 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                     if pd.isnull(df2[df2.columns[5]].values[indc])== False:
                                         enseignant.email = df2[df2.columns[5]].values[indc]
                                     if pd.isnull(df2[df2.columns[6]].values[indc])== False:
-                                        enseignant.mapiere_specialisation1 = df2[df2.columns[6]].values[indc]
+                                        enseignant.matiere_specialisation1 = df2[df2.columns[6]].values[indc]
                                     if pd.isnull(df2[df2.columns[7]].values[indc])== False:
-                                        enseignant.mapiere_specialisation2 = df2[df2.columns[7]].values[indc]
+                                        enseignant.matiere_specialisation2 = df2[df2.columns[7]].values[indc]
                                     if pd.isnull(df2[df2.columns[8]].values[indc])== False:
-                                        enseignant.mapiere_specialisation3 = df2[df2.columns[8]].values[indc]
+                                        enseignant.matiere_specialisation3 = df2[df2.columns[8]].values[indc]
                                 nb_lign -= 1
                                 indc += 1
                                 if cross == 1:
@@ -13106,6 +13657,7 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                         else:
                             # matlast = ""
                             # idf = 0
+                            eleves = []
                             while nc < nb_clss:
                                 # print(xl.sheet_names[cpt_sheet2],list_classe[nc])
                                 if xl.sheet_names[cpt_sheet2] == indice+"_"+list_classe[nc]:
@@ -13186,14 +13738,17 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                                                 # print("***MAT  ", matlast)
 
                                             eleve.save()
+                                            eleves.append(eleve)
                                             # data = Classe.objects.filter(nom_classe=list_classe[nc],annee_scolaire=ANNEE_SCOLAIRE)[0]\
                                             #         .annees.filter(annee=ANNEE_SCOLAIRE)[0]\
                                             #         .eleves.add(eleve)
 
-                                            Cours.objects.filter(nom_classe=list_classe[nc],annee_scolaire=ANNEE_SCOLAIRE)[0]\
-                                                    .eleves.add(eleve)
+                                    les_cours = Cours.objects.filter(nom_classe=list_classe[nc],annee_scolaire=ANNEE_SCOLAIRE)
+                                    for l_c in les_cours:
+                                        l_c.eleves.add(*eleves)            
+                                        
 
-                                    break
+                                    # break
                                 nc += 1
                         cpt_sheet2 += 1
 
@@ -13219,6 +13774,8 @@ def initialisation_fin(request,page=1, nbre_element_par_page=pagination_nbre_ele
                     print("cours: ",lc['id'])
                     grp.filter(pk=lc['id'])[0].eleves.add(*list_eleves)
         # return render(request, 'mainapp/pages/config-terminere.html', locals())
+        end_time = time.time() 
+        print("DURATION: ", end_time-start)
         return redirect('mainapp:dashboard')
 
 @csrf_exempt
